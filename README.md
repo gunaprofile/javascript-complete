@@ -1,239 +1,582 @@
 # Javascript Complete
 
-## What is JavaScript?
+## Basics: Variables, Data Types, Operators & Functions
 
-* Let's have a look at a couple of definitions.
+### Adding JavaScript to the Website
 
-* Javascript is a dynamic, weakly typed programming language which is compiled at runtime. It can be executed as part of a web page in a browser or directly on any machine in a so-called host environment.
+* Script tag should be closed seperately by a closing script tag
 
-* Okay, not entirely clear yet, let's have a look at an additional definition.
+* Always add script to the bottom of the page so that it will not block rendering template.
 
-* Javascript was created to make web pages more dynamic, that's kind of the idea why Javascript was invented in the past you could say, more about the history of Javascript in a second by the way.
+* Order always a matter in javascript so make sure you imported the dependency before we used in next file
 
-* So it was invented to change the content on a page directly from inside the browser and originally, it was called LiveScript but due to the popularity of Java back at the time, it was renamed to Javascript to resemble Java by its name.
+### Introducing Variables & Constants
 
-* Javascript however is totally independent from Java, that's important to understand and has nothing in common, it really was just named Javascript because Java was popular and people who invented Javascript wanted Javascript to be a thing I guess but I'm not sure, are these definitions really clear?
+* Refer : Refer Image /variables-constants-overview.pdf
 
-* Do you now know what Javascript is? Does dynamic, weakly typed compiled at runtime make web pages more dynamic? Does this tell you something?
+### Declaring & Defining Variables
 
-* Well let's take a step back maybe, how do web pages work?
+* Refer : Refer Image / naming-variables.pdf
 
-* You are the user visiting a web page and when you do visit a web page, you use browser for that. You use your client, your machine, your laptop, your computer, where you have a browser installed on it, you enter a URL or click on a search result on Google and the web page gets loaded,
+```js
+let currentResult //un initialised variable
+```
+* Now in Javascript, you don't have to initialize this variable with a value, so you can leave it like this and now it's an uninitialized variable. it's not initialized or defined yet, it has no value yet or no value set by you. So you can leave it like this and sometimes this is just what you need,
 
-* To be precise when you initially visit a web page, a request is sent to the server,
+* Now in Javascript, using the semicolon is generally optional, I'm saying generally because there are some very rare niche cases where it's not optional but you can avoid these cases typically and hence you can write Javascript code without semicolons
 
-* so to a computer in the Internet where that web page, where the HTML file is hosted and that server then loads that web page and sends it back to your browser in a so-called response 
+* You can't ommit the semicolon when having two expression in same line
 
-* and the most basic form of response we know or we typically see and use when we work with the Internet, when we visit a page is simply an HTML page which is sent back by the server to the client.
+```js
+let a = 1; const b = 2;
+```
+### Working with Variables & Operators
 
-* Now let's say on that loaded web page, let's say it's an online shop doesn't really matter, the user clicks a button to submit a form, for example to order some products.
+* Refer : basic-operators.pdf
 
-* Now this will then trigger a new request which is sent by the browser to the server.
+### Understanding the String 
 
-* to send this form submission to the server and the server will handle the incoming request, maybe store some order data in a database and once it's done, it will reply back with a new response, with a new web page, a new HTML document which is sent back to the client, maybe the order confirmation page. 
+* Refer : https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#Escape_notation
 
-*  So this is how we interact with the web, this is how web pages traditionally work.
+### String excape 
 
-* Now Javascript helps us make this more reactive, it helps us make a web page more reactive and skip that second request response flow in some circumstances to instead change the already loaded page and do something there. (Refer : Intro/intro1)
+* Incase if you want to show single quotes you need to wrap single quotes with double quotes.
 
-## JavaScript in Action!
+* Alternative approach instead of that you can use backtick . make sure you used dollar with bracket to get the expression value. this only work with backtick
 
-* Refer index.html
+```js
+const defaultResult = 0;
+let currentResult = defaultResult;
 
-```html
-<a href="info/dynamic.html">dynamic, interpreted</a>
-and
-<a href="info/weakly-typed.html">weakly typed</a>
+currentResult = (currentResult + 10) * 3 / 2 - 1;
+
+let calculationDescription = `(${defaultResult} + 10) * 3 / 2 - 1`;
+
+outputResult(currentResult, calculationDescription);
+```
+* This overall construct here is called a template literal. 
+
+* One convenient thing about template literals is that you can easily write multiline strings there
+
+```js
+const defaultResult = 0;
+let currentResult = defaultResult;
+
+currentResult = (currentResult + 10) * 3 / 2 - 1;
+
+let calculationDescription = `(${defaultResult} 
+
+
++ 10) * 3 / 2 - 1`;
+
+outputResult(currentResult, calculationDescription);
 ```
 
-* We have these 2 links dynamic interpreted and weekly type that if you click on any of these links you're taken to a new page.
+* This white space won't be visible in you browser. but it will be visible in browser code.
 
-* Now, what we have here is a traditional web page and what we also have here is a new request being sent to a server. If this were served by a server instead of our local file system and the new page being loaded right we're always loading a new page here.
+* If you want to see white space in browser too .. add the below css
 
-* Of course, there's nothing wrong with that, but a more modern way a more user friendly way of doing that. Might be to not load a new page here, but instead to show this piece of information, maybe in an? Overlay to the existing page.
-
-* so that we don't need to fetch a new HTML page and break the user experience of it, therefore, but instead that we stay on this existing page and only tweak it a little bit so we kind of need to tweak the existing HTML code, which was loaded by the browser whilst. We are on the page so without loading a new HTML file.
-
-* That's the idea and that is where JavaScript can help us and why JavaScript was invented and why it. Is so important these days be cause any modern website you visit all these exciting user interactions you have there? With drop downs with overlays and so on all of that is driven by JavaScript 
-
-* Now inside the assets/scripts we have app.js we need to include this dynamic javascript file.
-
-```html
-<script src="assets/scripts/app.js"></script>
+```css
+white-space : pre;
 ```
 
-* And go to these 2 links we have here to dynamic interpreted and the weekly type link. Now, Dear. Let's remove that link to info. Dynamic HTML and add a hash instead. And instead add a new attribute here.
+### Introducing Functions
 
-```html
-<a href="#" data-text="That means that code is not pre-compiled but instead evaluated, compiled and executed at runtime (e.g. when the browser executes the script)." class="info-modal">dynamic, interpreted</a>
-and
-<a href="#" data-text="Weakly typed languages assign types (like 'number') to variables (data
-containers) at runtime - i.e. you (the developer) can't set the types
-you want to use in certain places in advance. Only indirectly by making
-sure you're always working with the correct values." class="info-modal">weakly typed</a>
+* Refer Image : functions-definition.pdf
+
+* functions - code on demand
+
+* Now when you have a function defined, the interesting thing here is that the code in there doesn't run immediately when your script gets first executed, instead Javascript just sees that function and kind of registers it, stores it in memory.
+
+* you then execute the code in the function by calling that function. 
+
+* Now with functions, we can define code that should run later and we can then take such a function and actually attach it to the buttons here to make sure that only when a button is pressed, the function runs
+
+### Adding A Custom Function
+
+```js
+function add(num1, num2) {
+    const result = num1 + num2;
+    alert('The result is ' + result);
+}
+
+add(1, 2);
+add(5, 5);
 ```
-* here we added data-text and class attribute
+* You can place your function anywhere in your file
 
-* Now make sure you get rid of any line breaks. You might have in their becaus that will not work, so that this is all one long line of code in the end.
+* Javascript is smart enough to kind of read your entire file before it executes it and it will therefore find any functions you use so that it then automatically pulls these functions to the top so to say
 
-* Add one important word here after the SRC attribute and that's the defer attribute.
+### The (Un)Importance of Code Order
+
+```js
+const defaultResult = 0;
+let currentResult = defaultResult;
+
+function add(num1, num2) {
+    const result = num1 + num2;
+    return result;
+}
+
+currentResult = add(1, 2);
+
+let calculationDescription = `(${defaultResult} + 10) * 3 / 2 - 1`;
+
+outputResult(currentResult, calculationDescription);
+```
+* if we move currentResult to down ie declare after we used currentResult
+
+```js
+const defaultResult = 0;
+// let currentResult = defaultResult;
+
+function add(num1, num2) {
+    const result = num1 + num2;
+    return result;
+}
+
+currentResult = add(1, 2); // here we will get error as can not access 'currentResult' before initialization
+
+let calculationDescription = `(${defaultResult} + 10) * 3 / 2 - 1`;
+
+outputResult(currentResult, calculationDescription);
+
+let currentResult = defaultResult;
+```
+* We will get error as can not access 'currentResult' before initialization 
+
+*  you need to declare your variables and constants before you use them and declare is the part where you create the variable with let or const.
+
+* Now for functions, that's actually a bit different. I could grab this function and move it to the bottom of this file and if I do this, please keep in mind that I do call it up here, so technically before I define it.
+
+```js
+const defaultResult = 0;
+let currentResult = defaultResult;
+
+currentResult = add(1, 2);
+
+let calculationDescription = `(${defaultResult} + 10) * 3 / 2 - 1`;
+
+outputResult(currentResult, calculationDescription);
+
+function add(num1, num2) {
+    const result = num1 + num2;
+    return result;
+}
+```
+
+* Still if I now reload this page, we get the same result as before and if we have a look into the developer tools, you see no new error here. The reason for that is that for functions, we have a special behavior in Javascript
+
+* What Javascript actually does or what the browser actually does is that when it loads your script , it runs through it from top to bottom, it parses the entire script and actually it doesn't execute it right away, instead it just reads it from top to bottom and will take any functions it finds in there and automatically pull them to the top and be aware of them so to say. So it automatically registers all functions before it then really executes your script and that's just the special behavior Javascript has there.
+
+###  An Introduction to Global & Local Scope
+
+* Local scope is also called as lexical scope
+
+### Shadowed Variables
+
+* You learned about local ("function-internal") variables and global variables.
+
+```js
+let userName = 'Max';
+function greetUser(name) {
+  let userName = name;
+  alert(userName);
+}
+userName = 'Manu';
+greetUser('Max');
+```
+* This will actually show an alert that says 'Max' (NOT 'Manu').
+
+* You might've expected that an error gets thrown because we use and declare userName more than once - and as you learned, that is not allowed.
+
+* It indeed is not allowed on the same level/ in the same scope.
+
+```js
+let userName = 'Max';
+let userName = 'Manu';
+```
+* Why does it work in the first code snippet though?  Because we first create a global variable userName via
+
+```js
+let userName = 'Max';
+```
+* But then we never re-declare that on the global level (that would not be allowed).
+
+* We only declare another variable inside of the function. But since variables in functions get their own scope, JavaScript does something which is called "shadowing".
+
+* It creates a new variable on a different scope - this variables does not overwrite or remove the global variable by the way - both co-exist.
+
+* When referring to userName inside of the greetUser function we now always refer to the local, shadowed variable. Only if no such local variable existed, JavaScript would fall back to the global variable.
+
+###  More about the "return" Statement
+
+* You by the way also can return nothing,
+
+```js
+function greetUser(name) {
+  let userName = name;
+  return;
+}
+```
+
+* you might wonder why you might want to do that, for this function it makes absolutely no sense but you will later encounter scenarios where a function does something, let's say it does some calculation and then sends that with a HTTP request to some server to store it there and then you want to quit function execution, if that condition is true and only continue if it is not true,
+
+* so in such cases you could return from a function and you would return nothing just to cancel function execution. 
+
+### Executing Functions "Indirectly"
+
+```js
+const defaultResult = 0;
+let currentResult = defaultResult;
+
+function add() {
+  currentResult = currentResult + userInput.value;
+  outputResult(currentResult, '');
+}
+
+addBtn.addEventListener('click', add); // addBtn reference from vendor.js ie document.getElementById('btn-add');
+```
+* addEventListener - build in browser function, first argument is click event and second argument is function to be called.
+
+* addBtn.addEventListener('click', add()); - if we do like this, it will get executed while script load itself
+
+* we want to tell the Javascript engine, don't execute this function right away, instead keep in mind that this function should be executed when this button is clicked.
+
+* solution for this is don't pass with paranthesis addBtn.addEventListener('click', add);
+
+### "Indirect" vs "Direct" Function Execution - Summary
+
+* It's important to understand why we have these "two ways"!
+
+* In general, you call a function that you defined by using its name (e.g. add) and adding parentheses (with any parameters the function might need - or empty parentheses if no parameters are required like in the above example).
+
+* => add()
+
+* This is how you execute a function from your code. Whenever JavaScript encounters this statement, it goes ahead and runs the code in the function. Period!
+
+* Sometimes however, you don't want to execute the function immediately. You rather want to "tell JavaScript" that it should execute a certain function at some point in the future (e.g. when some event occurs).
+
+* That's when you don't directly call the function but when you instead just provide JavaScript with the name of the function.
+
+* => someButton.addEventListener('click', add);
+
+* This snippet would tell JavaScript: "Hey, when the button is clicked, go ahead and execute add.".
+
+* someButton.addEventListener('click', add()); would be wrong.
+
+* Why? Because JavaScript would encounter that line when it parses/ executes your script and register the event listener AND immediately execute add - because you added parentheses => That means (see above): "Please execute that function!".
+
+* Just writing add somewhere in your code would do nothing by the way:
+
+```js
+let someVar = 5;
+add
+alert('Do something else...');
+```
+* Why? Because you just throw the name of the function in there but you don't give any other information to JavaScript. It basically doesn't know what to do with that name ("Should I run that when a click occurs? After a certain amount of time? I don't know...") and hence JavaScript kind of ignores this statement.
+
+### Converting Data Types
+
+```js
+const defaultResult = 0;
+let currentResult = defaultResult;
+
+function add() {
+  currentResult = currentResult + parseInt(userInput.value); // parseInt
+  outputResult(currentResult, '');
+}
+
+addBtn.addEventListener('click', add);
+```
+
+### Mixing Numbers & Strings
+
+* You saw the example with a number and a "text number" being added
+
+* 3 + '3' => '33' in JavaScript.
+
+* That happens because the + operator also supports strings (for string concatenation).It's the only arithmetic operator that supports strings though. For example, this will not work:
+
+* 'hi' - 'i' => NaN
+
+* NaN is covered a little later, the core takeaway is that you can't generate a string of 'h' with the above code. Only + supports both strings and numbers.
+
+* Thankfully, JavaScript is pretty smart and therefore is actually able to handle this code: 3 * '3' => 9
+
+* Please note: It yields the number (!) 9, NOT a string '9'!
+
+* Similarly, these operations also all work:
+
+* 3 - '3' => 0
+
+* 3 / '3' => 1
+
+* Just 3 + '3' yields '33' because here JavaScript uses the "I can combine text" mode of the + operator and generates a string instead of a number.
+
+### Splitting Code into Multiple Functions
+
+```js
+const defaultResult = 0;
+let currentResult = defaultResult;
+
+function getUserNumberInput() {
+  return parseInt(usrInput.value);
+}
+
+function createAndWriteOutput(operator, resultBeforeCalc, calcNumber) {
+  const calcDescription = `${resultBeforeCalc} ${operator} ${calcNumber}`;
+  outputResult(currentResult, calcDescription);
+}
+
+function add() {
+  const enteredNumber = getUserNumberInput();
+  const initialResult = currentResult;
+  currentResult = currentResult + enteredNumber;
+  createAndWriteOutput('+', initialResult, enteredNumber);
+}
+
+function subtract() {
+  const enteredNumber = getUserNumberInput();
+  const initialResult = currentResult;
+  currentResult = currentResult - enteredNumber;
+  createAndWriteOutput('-', initialResult, enteredNumber);
+}
+
+function multiply() {
+  const enteredNumber = getUserNumberInput();
+  const initialResult = currentResult;
+  currentResult = currentResult * enteredNumber;
+  createAndWriteOutput('*', initialResult, enteredNumber);
+}
+
+function divide() {
+  const enteredNumber = getUserNumberInput();
+  const initialResult = currentResult;
+  currentResult = currentResult / enteredNumber;
+  createAndWriteOutput('/', initialResult, enteredNumber);
+}
+
+addBtn.addEventListener('click', add);
+subtractBtn.addEventListener('click', subtract);
+multiplyBtn.addEventListener('click', multiply);
+divideBtn.addEventListener('click', divide);
+```
+* Refer : operators-summary.pdf
+
+* Post increment/decrement just increment/decrement one value the existing value.
+
+* Pre increment also works similar Little side note, you could also write minus minus or plus plus in front of the variable and it will actually have a small impact or a small difference,
+
+* not if you just use it like this to change the value but if you're interested in the return type of this operation, 
+
+* if you add plus plus in front of this, it will actually add it to current result by adding one, just as it does if you add it thereafter
+
+* if you have plus plus or minus minus in front of this variable, then this operation returns the edited value
+```js
+return ++currentResult
+```
+
+* if you have it after the variable, well then this returns the value of the variable before it was changed.
+
+```js
+return currentResult++
+```
+
+*  So this plus plus and minus minus operator return something, it returns the value before or after the change depending on where you add the pluses and minuses.
+
+* Refer : data-types-summary.pdf
+
+### undefined, null & NaN
+* Refer : undefined-null-nan.pdf
+
+* so if you create a variable and you don't assign a value at the beginning with the equal sign, then this variable is undefined.
+
+* We also saw undefined in the log when we try to access an element in the array at an index where no element was created yet, then we tried to access an element which wasn't there and therefore we got back a value of undefined.
+
+* So just like numbers and strings are a data type, undefined is also a data type actually.
+
+* Now you should never assign undefined to a value on your own, so never write equals undefined because that's just a default value you have if something has never been assigned a value.
+
+* null - Now it's very similar to undefined, it means that there is no data but undefined is the default value for variables and so on where you never assigned a new value. Null is never a default value on the other hand, instead you have to set something to null to use that value and that's often used if you want to reset or clear a variable, let's say you have some user input and you want to reset this, you could set it to an empty string but you could also set it to null for example, to make it clear in your program that there currently shouldn't be a value because no value has been entered or whatever.
+
+* And again this is especially useful later if we can also run some checks, some conditional checks with if statements to find out if a value is set and then do something or if it's not set. So undefined and null are important to manage empty data,either because it never was set or because you want to set it to empty, to null.
+
+* They're very similar but they're not entirely equal because of the reasons I explained.
+
+* Now there also is one other special value and that's NaN, that stands for not a number and technically, unlike undefined and null which also are their own types, this is not a type, instead it's of type number, it's not its own type and you can therefore use it in calculations where you work with numbers.
+
+* Now the idea behind NaN is that it's kind of like an error code if you run a calculation with something that doesn't include a number, so if you have let's say a multiplication with text or anything like that, then you would get not a number as a result and if you use the not a number value in that calculation, you also get not a number as a result.
+
+* Now you might wonder why you would ever run an invalid calculation, keep in mind that Javascript allows you to write highly dynamic code. So like in the case of our calculator here, you could have a calculator where users can enter any value, where they are maybe not forced to enter a number and where therefore you could run a calculation with some user input which is not a number and then you could get such a not a number result.
+
+###  Importing Scripts Correctly with "defer" & "async"
+
+* Now to conclude this module, let's come back to something we actually started the module with and that's how we import our scripts into the HTML file.
+
+* I'm doing this here at the end of the body tag, at the end of the body section in the document and I'm doing it here because our scripts rely on the HTML page being rendered. 
 
 ```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Basics</title>
+    <!-- <link
+      href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap"
+      rel="stylesheet"
+    /> -->
+    <link rel="stylesheet" href="assets/styles/app.css" />
+  </head>
+  <body>
+    <header>
+      <h1>The Unconventional Calculator</h1>
+    </header>
+
+    <section id="calculator">
+      <input type="number" id="input-number" />
+      <div id="calc-actions">
+        <button type="button" id="btn-add">+</button>
+        <button type="button" id="btn-subtract">-</button>
+        <button type="button" id="btn-multiply">*</button>
+        <button type="button" id="btn-divide">/</button>
+      </div>
+    </section>
+    <section id="results">
+      <h2 id="current-calculation">0</h2>
+      <h2>Result: <span id="current-result">0</span></h2>
+    </section>
+    <script src="assets/scripts/vendor.js" ></script>
+    <script src="assets/scripts/app.js"></script>
+  </body>
+</html>
+
+```
+* we need to run the scripts after the browser parsed and rendered all the HTML code, otherwise the buttons to which we want to establish connections simply don't exist. So that's why I import the scripts down there.
+
+* Now this is still not entirely optimal and let me show you why?
+
+* Let open this file in chrome cognito window  I simply use this incognito window here because this allows me to rule out that what I'm about to show you gets distorted by any extensions or browser plugins.
+
+* So I opened the page here in Chrome, in the incognito window and now we can again open the developer tools which allow us to have a look behind the scenes. chrome developer tool ==> performance tag 
+
+* Now what's the performance tab? The performance tab allows us to get an idea of what the browser does in detail when it renders this page and there are many things you can do with it but it's a great tool for understanding how the scripts are loaded, parsed and executed and what might be the issue here. (Refer : debug1)
+
+* So with the page being used here, press this record button here and then reload the page by using a shortcut for it or using the reload button and then stop recording this.
+
+* Now if you select this, it gets zoomed in here in the middle and bottommost window and there, you see which network requests were sent and what the browser did, so what it parsed, what it executed and so on. Now what we can see relatively quickly is that we have one long going network request which downloads the fonts, this kind of distorts everything here (Refer : debug2)
+
+* so let me comment out this link here which does load the fonts to not have this distraction in here so that we can focus entirely on the scripts.So comment this out in the HTML file so that this is no longer getting used, save the file thereafter and then let's repeat it,
+
+* Now we have a clearer picture of what happened. What happened is that here in that work tab, we first download the index.html file,that's the blue part and thereafter the CSS file and the script files.(Refer : debug3)
+
+* Now let's go to the bottommost window, there we see what the browser did in detail and if we zoom in here, which you can do with the mouse wheel, you see that in the end here we receive a data, that's the downloaded HTML file, if you see, this (Refer : debug4)
+
+* this roughly lines up, here in network tab it's done downloading the file, that's when this receive, data event is triggered when it finished loading it (Refer : debug4)
+
+* Then it starts parsing the HTML code. Now it starts parsing the HTML code and what you can see is that pretty much at the end of that when it's done parsing this, it sends off requests to the Javascript files,
+
+* CSS parsed prior to js because css at the top.Javascript files get requested a bit later because we request them at the bottom of our HTML file.
+
+* Now obviously that's not a huge file, so there's not much time difference between but still we request the Javascript files only after the parsing is done or when it's almost done entirely because we do that at the bottom of the HTML file.
+
+* So that's why we only request the files once we're almost done parsing the HTML document as you can see with this vertical line
+
+* Now what's the implication of that? Of course the benefit is that the scripts only execute after parsing is done but we also see that we start parsing and only when we're done, we download the scripts and only once the scripts are downloaded way over here,
+
+* only after this is done, we actually execute the scripts, these are these yellow blocks you find down there, these are the two scripts which are getting executed.(Refer : debug5)
+
+* now what we effectively see is that we start executing the first script at around 930ms and we're done passing at around 906, 907, so there are roughly around 20 milliseconds of pause between us being done with parsing the HTML file and executing the script.
+
+* Now these are all very small numbers which we can't even feel when we load the page because we have small scripts and we have a small, short HTML file but imagine that our scripts would be longer, that they would take longer to load and execute and that we have way more HTML code that needs to be parsed. 
+
+* Then it's not that great that we wait for all this code to be parsed just to start loading the scripts. We certainly want to execute them after this was parsed because we rely on the parsed content, so that's fine,
+
+* we don't want to execute the scripts earlier but loading them earlier, downloading them from the server earlier, that would be a good idea.
+
+* Also keep in mind that all the loading is very fast here of course because we're doing this all locally, we're just accessing the file here, there is no web server involved, here is no latency, so this would be slower if we were really serving this webpage and hence we have the ideal scenario here and yet we have this unnecessary delay and we certainly want to shrink that delay if we think about really hosting this on a web server. We don't want to start loading the scripts once everything was parsed, we want to load the scripts as early as possible and then still only execute them after everything was parsed so we want to get the best of both worlds.
+
+* Now of course we can grab the scripts and move them into head section, maybe here below the stylesheet. Now if we do that and I clear here, this start recording and reload and stop, 
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Basics</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles/app.css" />
+    <script src="assets/scripts/vendor.js" ></script>
+    <script src="assets/scripts/app.js" ></script>
+  </head>
+  <body>
+    <header>
+      <h1>The Unconventional Calculator</h1>
+    </header>
+
+    <section id="calculator">
+      <input type="number" id="input-number" />
+      <div id="calc-actions">
+        <button type="button" id="btn-add">+</button>
+        <button type="button" id="btn-subtract">-</button>
+        <button type="button" id="btn-multiply">*</button>
+        <button type="button" id="btn-divide">/</button>
+      </div>
+    </section>
+    <section id="results">
+      <h2 id="current-calculation">0</h2>
+      <h2>Result: <span id="current-result">0</span></h2>
+    </section>
+  </body>
+</html>
+
+```
+
+*  we get a better picture here. If I zoom in, here we download the HTML file and now what we see is that we start parsing HTML. Now we then fetch the styles and the scripts and we pause parsing here as you can see, we pause that, we only pick it up back here when basically downloading the scripts finished, we also executed the scripts here.
+
+* Now this looks a bit strange, looks like downloaded app.js for longer than it actually took because we do execute it here
+so this is a bit distorted.
+
+* The main takeaway here is that we start parsing HTML, then we encounter the script imports, we then download the scripts and pause parsing therefore, this blocks parsing and then we execute the scripts and only thereafter we continue parsing.
+
+* Now that's of course bad and this also causes an error because now we try to interact with the buttons on the webpage without those being ready, so that's also not ideal.
+
+* We download the scripts earlier which is great but we now also execute them too early. The solution is an extra attribute which we can add to the script and that's the defer attribute.
+
+```html
+<script src="assets/scripts/vendor.js" defer></script>
 <script src="assets/scripts/app.js" defer></script>
 ```
-* By simply clicking the reload I can hear and then click on one of these links.And now you will get this nice overlay
+* You add it like this, without a special value, just like this to both script tags and defer tells the browser that it should download these scripts right away but that it should not block parsing HTML so that it instead should continue with parsing HTML and only execute the scripts after everything has been parsed.
 
-* Now, what we have here. Is knew content which is dynamically added to the existing web page? By JavaScript were not loading a new web page here Instead, this overlay is shown by JavaScript. And this of course, is a way better user experience.
+* So it starts downloading early but it doesn't execute the scripts right away once they've finished downloading, instead it guarantees us that it only executes the scripts once they were downloaded and once parsing HTML finished.
 
-* Becaus now we don't send the user off to a new page. We don't wait for new HTML code to be downloaded which change the existing page.
+* So now, the script downloading and execution doesn't block the HTML code from being parsed and rendered and instead, that continues and the only thing that does change is that we download the scripts earlier which is great.
 
-* This is something you see on a lot of modern web pages. Because it's faster it's more like in a mobile app where you also don't have to wait for things to complete. And effort this is one of the core reasons why JavaScript is that important, it allows us to make web pages more dynamic
+* you can see that all this parsing and script execution is done roughly 20 milliseconds after we started parsing the HTML document, so that is faster than what we saw previously when we started loading and then executing the scripts at the bottom of the body tag.
 
-* JavaScript is a dynamic weakly typed programming language. It's interpreted language, which means it's compiled on the fly. It's compiled before it runs and not compiled during development.As some other programming languages are it's a hosted language that runs in different environments, though, thus far in the last example. We just saw it. Run in the browser, but I'll come back to our environments in this course as well.
+* Now sometimes, you also have scripts which you want to load early but which you then also want to execute early because maybe they don't rely on the HTML code, you don't establish a connection to it and therefore you don't care whether parsing HTML finished or not. This can also be achieved by using the async keyword instead of the defer keyword.
 
-* And the most prominent use cases to case. We just thought we run code in a browser on a web page to make it more dynamic.
+```html
+<script src="assets/scripts/vendor.js" async></script>
+<script src="assets/scripts/app.js" async></script>
+```
 
-* So now we understand why we use JavaScript and what it allows us to do but what do these turns? Dynamic weakly typed, and interpreted as well as host language mean in detail.(Refer : Intro2)
+* Async works a bit like defer, it tells the browser to start loading the scripts as early as possible and then the browser is not blocked but instead continues parsing HTML but the difference to defer is that with async, the script then executes right away once it was downloaded. So it does not wait for all the HTML code to be parsed, instead it executes as early as possible. So then parsing of HTML will be paused until it is executed and only thereafter it will pick up again. 
 
-## How JavaScript Is Executed
+* One other important difference to be aware of is that with async, a script really executes as early as possible, so as soon as it was downloaded. The order of the script execution is therefore not guaranteed, the app.js script could execute before the vendor.js script if it is loaded earlier. 
 
-* How is the Javascript code in our browser executed and not just in our browser but typically in any environment where you run Javascript? 
+* With defer on the other side, the browser guarantees the order. So even if app.js would be downloaded faster, vendor.js would still execute before app.js, so the order is guaranteed with defer, it's not with async,
 
-* Let's say you write your Javascript code and you want it to have some effect on the web page if we talk about the browser as the environment where we run our script. 
+* Also note that defer and async are only available if you have an external script, if you have an inline script, so a script which you write right in here, in your HTML file, if you have something like this, defer and async is ignored because what would that do, there is no file to download, this is embedded in the HTML file so this is available once the HTML file was downloaded, so therefore defer and async doesn't make sense here because there is nothing that would need to be downloaded.
 
-* Then you have one important thing built into any environment where you want to run Javascript code and that's a Javascript engine.
+* Such scripts are always executed immediately and therefore if those scripts which you embed here rely on the HTML code, you'll always have to move them to the end of the body section but in general it's not a good idea to have important or longer scripts here in your HTML file, you should always use external files for that to keep your HTML files small and focused and don't bloat it with a lot of scripts.
 
-* It's built into the browser as I said, there in Chrome for example, in the Chrome browser, it's v8, that's the name of the engine
-
-*  in Firefox the name would be spider monkey and of course other browsers also either reuse these engines or have their own engines.
-
-* Now the job of the engine is to parse code, so parse, read and understand your Javascript code, then on the fly compile it to machine code because machine code executes faster, so it reads your code but it does not necessarily execute it like that but instead, it now takes that code and compiles it to code which is faster to execute by the machine and then it executes that machine code.
-
-* This all happens in the browser with the help of the Javascript engine and then when that code is executed, we have that effect on our web page.
-
-* Now important, modern engines have a lot of optimizations there, they might start executing your uncompiled code and then compile the code whilst they're also already executing it to get started executing faster and then switch to the compiled code dynamically and so on, so we have a lot of optimizations going on here and we will dig a bit deeper into what the Javascript engine is exactly in a separate module
-
-* for now this is all we need to know, the browser has a built-in tool that takes our code, compiles it, optimizes it and executes it and also a bit more technical side note, all of that happens on a single thread.
-
-* Now this is very technical but you might know that in a computer, you have certain tasks that are executed, for example the browser you opened is a task or actually might consist of multiple different tasks that are executed together. The Javascript code is also yet another task which your operating system in the end has to take care of and this runs on a single thread.
-
-* Of course we have multi-threading on modern machines so that they can do multiple tasks at the same time but the Javascript code execution runs on one single thread there, so the Javascript code execution always happens in one single thread on your operating system.
-
-* I will come back to this concept of single threading and which implications this has for Javascript.
-
-* But with that we know what interpreted means, what compilation means and how the Javascript code is executed.(Refer : Intro3)
-
-## Dynamic vs Weakly typed
-
-* Javascript is a dynamic, interpreted programming language but it's also a weakly typed programming language. Now what does this mean?
-
-* For one, the dynamic interpreted part as you learned means that it's not pre-compiled, other languages like C++ are compiled during or after development, so before you share them with the end users, Javascript is on-the-fly compiled and that means that the code is evaluated and executed at runtime, it also means that the code can change at runtime.
-
-* Now of course not the code you wrote and it won't magically change, of course the code you wrote gets executed but in that code, you can do some things which you are not allowed to do in other programming languages,
-
-* In Javascript you are allowed to dynamically switch the type of data there. In a variable, you might start by storing some text and suddenly at a later point of time, you store a number in there instead, in the same variable.
-
-* one thing you can simply keep in mind is that the dynamic thing in Javascript means that it is parsed and interpreted and compiled at runtime and that therefore it is able to do certain things, for example switching the data of a variable other programming languages are not allowed to do. Now it's not necessarily good to switch the type of data dynamically or unexpectedly but you can do that, the main takeaway however is the on-the-fly compilation and interpretation.
-
-* Now what about the weakly typed part here?
-
-* This means that when we work with data in Javascript, for example text data or numbers, you don't have to tell Javascript that you're going to work with a text now or you're going to work with a number now, instead data types are assumed, are inferred automatically so to say, that's also related to this dynamic nature where data types can also change from one line to another.
-
-* Now this might sound strange but in other programming languages, you have to define the type of data a variable will hold in advance. In Javascript, that's not the case, you don't have to tell Javascript that this variable, this data container will hold a number, instead you store a data in there and if that happens to be a number, so it is. In other programming languages, you have to tell the language that you're going to store a number in there and if you store something else, you would get an error.
-
-* That's not the case in Javascript, it's forgiving there because it's dynamic and it also doesn't care about strong type definitions in advance, instead you just store data in there and go with every type of data that holds. So data types are not set in stone but can change.
-
-* Refer : dynamic-vs-weakly-typed.pdf
-
-## JavaScript Runs In A Host Environment
-
-* Now the last thing we saw on the previous definition slide is that Javascript runs on a host environment, so that means a Javascript engine can be part or can be executed in different environments.
-
-* The most well known environment is the browser, modern browsers have Javascript engines built in and they're therefore capable of executing Javascript code but you also can run Javascript in other environments,
-
-* for example on the server side, so right on a computer without having a browser in between, so not inside of a browser but simply execute code like this on your machine.
-
-* Now Javascript was invented to run in the browser, to make web sites more dynamic, to be able to change things on a web site without loading a new page you could say because Javascript is able to closely work together with the loaded HTML code, with CSS, you can also use Javascript to send background HTTP requests, so to send some behind the scenes requests and fetch data without reloading the page and much more and it will do all of that throughout the course.
-
-* Now there also are certain things Javascript can't do when it runs in the browser environment though, for example it can't access your local file system for security reasons because otherwise every web page you visit would be able to read your file system, maybe delete files on your computer and so on which would be horrible of course and in general it is running in a sandbox you can say, it's not able to interact with your operating system and so on, the browser gives you certain things you can do in this environment and doesn't allow other things.
-
-* Now as I said, the browser is only one environment though, the one for which Javascript was invented but not the only one we're restricted to right now, instead the Javascript engine Google developed, v8 is the name of the engine, was extracted by some people to run Javascript anywhere because the idea was if we have the engine in the browser, why don't we take it out of the browser and then make it available as a standalone tool which you can use to execute Javascript anywhere else directly on your machine and this tool is in the end called Node.js.
-
-* Node.js can be executed on any machine and therefore it's also often used to build web back-ends, to build web servers, server side Javascript is also something you often hear as a description for that.
-
-* Now you might know about server side languages like PHP or also Java and other languages as well, well Javascript with Node.js can also be used to run it on the back-end of a web page, so on the server and not on the client in the browser of your users.
-
-* Node.js also has certain things it can do and can't do, since it runs directly on a machine, in Node.js you're able to access the local file system, so you are able to write files and so on because unlike browser side Javascript, Node.js code has to be executed actively by you, it's not like you visit a web page and then this starts happening, instead it can only access the file system on the machine where it executes which for example is the server where it runs, not your machine and it's also able to interact with the operating system and so on.
-
-* However on the other hand since it doesn't have direct access to the loaded web page, it can't manipulate kHTML or CSS like browser side.
-
-* Javascript is able to do, so we basically have even inverse access capabilities here and these are the different environments where Javascript is able to run.
-
-* Refer : js-host-environment.pdf
-
-## JavaScript vs Java
-
-* Now Java and JavaScript are 2 totally independent programming languages. That's really important, they have a totally different syntax different principles. They have almost nothing in common besides the name I would say, although JavaScript runs in the browser and. As learned all other environments. Java does not run in the browser.You can use it on the server side. To render HTML dynamically there and send it back to users you can also use it in a non web development context. But it is not supported directly in the browser.
-
-* You can't use it for the same things as you can use JavaScript. You also as I mentioned have different principles, Java for example, is strictly object oriented and strongly typed there.
-
-* You need to define which kind of data you're about to store in a data container. Where is JavaScript is really flexibel you don't have to work with objects only there and will dive into object? Orientation and what that means for out the course no worries. And it's also weakly typed as you learn.
-
-* Refer : java-vs-js.pdf
-
-*  And speaking about that differentiation between client side and server side JavaScript clientside means in the browser server side with the help of node JS means. On a machine that is connected to the Internet, which might be serving webpages, but which doesn't run code.Directly on the machines of the end users
-
-* client side part is really the origin of JavaScript.
-
-* And as you learn different browser vendors so different companies developing browsers provide their own JavaScript execution engines for example,V8 Engin that's the name of the JavaScript engine Chrome users. And the important thing there is that in the browser.
-
-* You are able to interact with the web page. From inside JavaScript you can manipulate the loaded web page. You can also use certain browser features so called. APIs for example, to get the user location
-
-* on the server side. The idea was to well, extract the engine out of the browser. And allow you to run it outside of the browser.
-
-* So that you can reuse your JavaScript knowledge, but now use JavaScript for different tasks.
-
-* And you can now run JavaScript anywhere with node js for example, in a server side and there, you have special our features. Our APIs you can tap in for example, to work with the file system or handle incoming HTTP requests. 
-
-* Now the syntax concepts, and core features are exactly the same, though(Refer : Intro4)
-
-* It's JavaScript origin. There are no alternatives to JavaScript in browser so you might not be interested in using JavaScript on a server if you are interested in front end.Browser side web development, though you have to learn JavaScript cause that is the only programming language, you can use there in the end.
-
-## A Brief History Of JavaScript
-
-* In 1995, Netscape introduces LiveScript which thereafter was renamed to Javascript.
-
-* Now in 1996, Microsoft also released its own version of Javascript in Internet Explorer. So same idea, generally same syntax but also differences, so we already had an issue there. Back then Javascript also wasn't able to do a lot of things it was mainly used for a spammy things, for annoying overlays and pop-ups but another problem was that you had to write very different scripts for different browsers.
-
-* In late 1996, people saw that this fragmentation could be a problem and therefore, Javascript the language was submitted to the ECMA (European Computers Manufacturers Association) committee to start standardization.
-
-* This simply is an organization which will stand responsible for standardizing Javascript so that you have one standard which then could be implemented by multiple browsers.
-
-* So then we had ongoing standardization efforts until 2005 roughly and Microsoft didn't really join the party, well we know how Microsoft was in the late 90s, early 2000s, ultimately they supported the standardized Javascript version.Still there were differences but we had a more common way of using Javascript.
-
-* Now the efforts of standardization continue and we had huge progress until 2011 I'd say and Microsoft eventually joined forces and became part of the standardization process and of contributing to building that standard and adding new features
-
-* I would say especially since 2010, 11, it really picked up and it is under active development. It's evolving, new features are getting added, it's getting a better and better programming language and whilst it was quite clunky around 2006 and 7 and despite standardization, every browser still did its own thing in some regards. We nowadays really have a uniform language with some small differences but mainly one core language we can use in different browsers.
-
-* Still different browsers have their own features you can then use but the core language is the same I'll explain how you find out which differences we still have and how you work around them.
-
-* Refer : js-history.pdf
-
-* But in the end, we now have a standardized language which is really great to use and we have that thanks to this ECMA international organization. Now this organization in the end manages a language called ECMAScript but ECMAScript and Javascript actually have a strong relation.
-
-* ECMAScript is the actual language which is evolved by the ECMA international organization but ECMAScript is then implemented as Javascript by browser vendors, so by the companies working on the browsers. So it is the most famous ECMAScript implementation, Javascript is that most famous ECMAScript implementation, others would be ActionScript or Jscript and you don't really need to know those.
-
-* So Javascript in the end is ECMAScript we could say and we have that organization that evolves ECMAScript and with every new standard version you could say which is the end then created and finalized, browser vendors take that and implement it into browsers.
-
-* So ECMAScript itself isn't directly used but browser vendors implement it into their Javascript engines.
-
-* Each browser comes with its own Javascript engine though and therefore it's each browser and the engine used by the browser which defines which exact features are supported and actually browsers also sometimes implement certain features at an earlier point of time than they're really finalized in ECMAScript.
-
-* So whilst discussions might still be going on over final implementation details, browser vendors could already go ahead and implement a certain feature in their engine already so that you can already use next generation Javascript code earlier in one browser than in the other 
-
-* you will learn how to use next-gen Javascript when writing your code and still ensuring that it runs in all browsers. 
-
-* So ECMAScript is under active development and browser vendors are contributing there as well, are shaping how Javascript looks like and which new features we want there and therefore Javascript is under active development and therefore it's an always evolving language.
-
-* This is important because in 2015, 2016, Javascript saw a major overhaul, a brand new version you could almost say with a lot of important changes 
-
+* Refer : import-javascript-summary.pdf
