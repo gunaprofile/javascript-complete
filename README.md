@@ -580,3 +580,15 @@ so this is a bit distorted.
 * Such scripts are always executed immediately and therefore if those scripts which you embed here rely on the HTML code, you'll always have to move them to the end of the body section but in general it's not a good idea to have important or longer scripts here in your HTML file, you should always use external files for that to keep your HTML files small and focused and don't bloat it with a lot of scripts.
 
 * Refer : import-javascript-summary.pdf
+
+* MDN => JavaScript Basics: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+
+* MDN => Variables: https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps/Variables
+
+* MDN => Operators: https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps/Math
+
+* MDN => Functions: https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Functions
+
+* MDN => Arrays: https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps/Arrays
+
+* MDN => Objects: https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Basics
