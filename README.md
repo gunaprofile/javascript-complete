@@ -1,728 +1,537 @@
 # Javascript Complete
 
-## Working with the DOM (Browser HTML Code) in JavaScript
+##  More on Arrays & Iterables
 
-### What's the "DOM"?
+### What are "Iterables" and "Array-like Objects"?
 
-* Now what is that DOM thing? For that, let's understand what the browser does with the HTML code which is part of any web page we create and how Javascript works with that.
+* Refer : iterables-array-like.pdf
 
-* So we get Javascript and we get the browser, these two pieces which interact all the time
+* So what's an iterable in Javascript? An iterable can be defined technically, there it's basically an object or any objects that implement the iterable protocol and have to is @@iterator method with the symbol iterator property. Now symbols are a special type of values in Javascript
 
-* Refer : dom1
+* human readable definition of an iterable in the end is that we can use a for/of loop on it. Yes, it's indeed as simple as that, we can loop through it with for/of.
 
-* So what actually happens is that when this HTML file, the HTML document is downloaded, the browser goes over it and parses it and renders it
+* Now the important thing is that not every iterable in Javascript is an array. We work with arrays thus far but there also are other iterable objects, like a node list for example which we saw in the last course module but also strings and also maps and sets which we'll have a look at later.
 
-* because the browser simply reads that HTML file from top to bottom and when it encounters a script, it executes it, when it encounters other HTML elements, it simply parses and renders those and in the end, it then renders the pixels on the screen which you need to see to see a button, to see a title and so on, so that's what's happening here. Now Javascript might be part of that web page, Iitcertainly is in all the web pages we work with in this course and it's loaded by the browser.
+* Now there also is another term which I already used and that's array-like and that's actually not the same as an iterable,both iterable and array-like are official terms in the Javascript language.
 
-* Now don't forget that Javascript is a hosted language,that means the browser provides the environment for Javascript to run, it provides the Javascript engine which in the end parses and understands all the Javascript code and executes it in the end.
+* Now what are array-like objects therefore? Again, the technical definition is here, much more readable, that an array-like object are in the end any objects that have a length property and use indexes to access items, it's as simple as that and I'd say it is also pretty clear to us humans.
 
-* So the browser provides that, it also provides a bunch of APIs, a bunch of functionalities into which Javascript can tap so that Javascript can interact with the browser.
+* Now just as with iterables, not every array-like object is an array, that's why it's called array-like. 
 
-* We also saw that already and it will become super important here now when we work with the loaded and rendered HTML code because the browser actually exposes functionality to let Javascript interact with that rendered HTML code and in the end that's called the Document Object Model,the abbreviation of course is DOM and that's where this term comes from.
+* We have array-like objects, like node list and string. Node lists and strings are objects that have a length, that have indexes and where we can use for/of and still, they're not real arrays because as you will learn in this module, real arrays have a couple of interesting behaviors and also a bunch of important methods available to them which do not exist on these array-like or iterable objects.
 
-* So the DOM in the end is this loaded and rendered HTML code or to be precise, the object representation of this code which the browser creates behind the scenes into which we can tap with Javascript.
-
-* So Javascript can work with a bunch of objects which will be exposed to us as Javascript objects which in the end represent what the browser rendered or what the browser made of that HTML code which was provided.
-
-* I also briefly want to mention that the DOM is not strictly tied to browsers, there are other tools which can also parse HTML that's not even restricted to Javascript, so in other languages like Python you also can find certain tools or certain plugins, extensions which allow you to read and work with HTML code or also with Javascript if you're running it through Node.js. let's say, that does not have this DOM functionality built in because you typically use it on the server side or it's simply detached from a browser but you can still add certain packages to kind of bring that back in and still be able to parse and read a HTML file.
-
-* The browser however has it all built in for you and in the end, it has to import and built-in global objects you could say which kind of grant you this access and we can see one on this screen already, this document object here in the end which is globally available which is not created by you but which the browser exposes to you to give you access to all the different ways of interacting with that HTML page.
-
-* Now I mentioned the document, this is one important piece in working with the loaded HTML code, there also is another important global object and actually, document is a property of that other global object and that's the window object.
-
-* Refer : dom2
-
-* Now the difference is that document in the end is the root DOM node which the browser exposes to you. That means that this is really the topmost entry point to get access to all that rendered HTML code.
-
-* So this provides you various methods and functionalities to get access to the elements, to query for elements, to query for HTML elements, to interact with its DOM contents, so to interact with a loaded HTML code
-
-* window on the other hand is a global object which as I just said actually has document as property, so window is the real topmost global object made available to you in Javascript in the browser and that in the end reflects the active browser window or tab if you want to call it like this.
-
-* So it's basically your global entry point, your global storage if you want to call it like this for your script, so it gives you access to all the features that the browser wants to expose to you, the root entry point is always to the window object but it also gives you some window specific properties for example for measuring the window width or anything like that.
-
-### Document and Window Object
-
-* console.dir(document) -  document also part of window object
-* window - you won't be able to use window to interact with a totally different web page loaded in a different tab because that would be a huge security issue if you could start reading information from another tab on your web page here, that would not be something you would want to do because you could fetch important information from other tabs.
-
-* So whilst it's called window, it really just means the currently loaded tab but also the dimensions of the general window and so on, that's how you can think of it. 
-
-### Understanding the DOM and how it's created
-
-* Refer : the-document-object-model-dom.pdf
-
-* In developer-tool select dom element and then in console do $0 - then you can check selecte dom element
-
-* try console.dir($0); you print that selected element object
-
-### Nodes & Elements - Querying the DOM Overview
-
-* Refer : nodes-vs-elements.pdf, querying-elements.pdf
-
-* Refer : dom3
-
-* So you can get access to single elements with query selector and get element by ID
-
-* Query selector takes a CSS selector as you could use it in a CSS file, even pseudo selectors are supported and gives you therefore a lot of flexibility and power when it comes to selecting elements with complex query in your DOM. Get element by ID on the other hand takes an ID which you might have assigned to an HTML element and selects an element by that and since ID should be unique on your web page, this is a method which returns one element.
-
-* The query selector method takes any CSS selector and therefore this might be a selector that matches multiple elements but in this case, query selector, this method will always give you access to the first matched element on the page, so in the DOM.
-
-* DOM Nodes are just Javascript Object in the end - ie reference values. These methods returns the object reference(address)
-
-* query selector all, get elements by tag name and there are other methods as well which I'll show you give you access to collections of elements, array-like objects, typically a node list, though that also is not always the case but typically it's such a node list which is not a real array but array-like, so which supports certain behaviors of an array but not all of them.
-
-* You have different ways of querying elements, you can for example use the above methods - query selector all takes a CSS selector as query selector but unlike query selector, it does not return the first element which it matched but all elements that match the selector. Get elements by tag name give you all the elements that have a certain HTML tag and then there are other selectors to select by class name or by the name attribute which you might have assigned, though the query selector all method is the most flexible one where you have the power to select anything you want by CSS selectors.
-
-* let's dive into nodes and elements. I kind of use these terms interchangeably but actually should be careful and you should at least understand what the difference is.
-
-* So you have nodes and elements and nodes are the objects that make up the DOM, everything in the DOM is a node. HTML tags are just element nodes as I mentioned, I will also refer to them as just elements but in the end, these are element nodes to be super precise.
-
-* We also have for example text nodes and there are other nodes as well which aren't really that important though and which with you'll not really work. Attached, you will find a thorough document about all supported nodes but text nodes and element nodes are the important ones.
-
-* Refer : https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
-
-* Now elements therefore are in the end just element nodes as I just explained, so elements are really just the nodes which are created off of HTML tags which were rendered, not the text in there.
-
-* Now why does this matter? Because on element nodes, on elements therefore, you have special properties and methods to interact with the elements, to change their style, to change their content and so on.
-
-* You also have special properties on methods and text nodes but you simply don't work with text nodes as often as you will work with elements because typically you want to add a new HTML element, you want to remove one, you want to change the style of one, you want to edit it in any other way. 
-
-* For text, you typically just want to change the text and then you typically just go to the elements that holds the text and change the child content which is the text of that element, which is why you don't work with text nodes as often.
-
-*  So which exact properties and methods are available on every element, so on every rendered HTML tag depends on the kind of element though, for example on the input where the user can enter content, you have ways of reading that input, on other elements where users just can't edit the content, you don't have access to that of course and you have   different ways of selecting elements,
-
-### Selecting Elements in the DOM
-
-```html
-<!-- index.html -->
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>DOM Interaction</title>
-    <script src="app.js" defer></script>
-  </head>
-  <body>
-    <header><h1 id="main-title">Dive into the DOM!</h1></header>
-    <ul>
-      <li>Item 1</li>
-      <li class="list-item">Item 2</li>
-      <li class="list-item">Item 3</li>
-    </ul>
-    <input type="text" value="default text">
-  </body>
-</html>
-```
+### Creating Arrays
 
 ```js
-// app.js
-const h1 = document.getElementById('main-title');
+const numbers = [1, 2, 3];
+console.log(numbers);
 
-h1.textContent = 'Some new title!';
-h1.style.color = 'white';
-h1.style.backgroundColor = 'black';
+// const moreArray = new Array; // []
+// console.log(moreArray);
 
-const li = document.querySelector('li:last-of-type');
-li.textContent = li.textContent + ' (Changed!)';
+// const moreNumbers = Array(5, 2); // [5,2]
+// console.log(moreNumbers);
 
-const body = document.body;
+const moreNumbers2 = Array(5);  // This is essentially an empty array with a fixed size, with a fixed length of 5
+console.log(moreNumbers2);
 
-// const listItemElements = document.querySelectorAll('li');
-const listItemElements = document.getElementsByTagName('li');
+// const yetMoreNumbers = Array.of(1, 2); //[1,2] This is a special method on this globally available array object, Now again, you should use square brackets, this will be slower from a performance perspective than that.
+// console.log(yetMoreNumbers);
 
-for (const listItemEl of listItemElements) {
-  console.dir(listItemEl);
-}
+const listItems = document.querySelectorAll('li');
+console.log(listItems); // NodeList array like structure
+
+const arrayListItems = Array.from(listItems);
+console.log(arrayListItems);
 ```
 
-###  Node Query Methods
+* Refer array1 - Now these are not all totally different methods as you see but actually, how these methods create arrays also sometimes depends on the kind of data you pass to that method.
 
-* Here's a summary of the various methods you got to reach out to DOM elements (note: you can only query for element nodes).
-Besides the below query methods, you also got these special properties on the document object to select parts of the document:
+* So let's have a look at the different ways of creating arrays before we then work with them and for that of course, we'll not just have a look at that, we'll also see how that behaves and when you might want to use which.
 
-* document.body => Selects the <body> element node.
-
-* document.head => Selects the <head> element node.
-
-* document.documentElement => Selects the <html> element node
-
-#### QUERY METHODS
+* array.from is special. It does not take multiple numbers like this, if I would try to do that, if I would try to console log this here with multiple arguments passed in, you see I get an error because I must not pass in multiple arguments here,
+instead this takes an iterable or an array-like object and that's the interesting thing. Array.from in the end allows you to convert an iterable or an array-like object which isn't an array yet to an array.
 
 ```js
-document.querySelector(<CSS selector>);
+// const arrayItems = Array.from(1,2,3,4); // this will throw error
+// console.log(arrayItems);
+
+const moreNumbers = Array.from("Hi!"); // ["H","i","!"]
+console.log(moreNumbers);
 ```
-* Takes any CSS selector (e.g. '#some-id', '.some-class' or 'div p.some-class') and returns the first (!) matching element in the DOM. Returns null if no matching element could be found. More information: https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector
+###  Which Data Can You Store In Arrays?
 
 ```js
-document.getElementById(<ID>);
-```
-* Takes an ID (without #, just the id name) and returns the element that has this id. Since the same ID shouldn't occur more than once on your page, it'll always return exactly that one element. Returns null if no element with the specified ID could be found. More information: https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById
+const hobbies = ['Cooking', 'Sports'];
+const personalData = [30, 'Max', {moreDetail: []}];
 
-```js
-document.querySelectorAll(<CSS selector>);
-```
-* Takes any CSS selector (e.g. '#some-id', '.some-class' or 'div p.some-class') and returns all matching elements in the DOM as a static (non-live) NodeList. Returns and empty NodeList if no matching element could be found. More information: https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll
+const analyticsData = [[1, 1.6], [-5.4, 2.1]];
 
-```js
-document.getElementsByClassName(<CSS CLASS>);
-```
-* Takes a CSS class g (e.g. 'some-class') and returns a live HTMLCollection of matched elements in your DOM. Returns an empty HTMLCollection if not matching elements were found. More information: https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementsByClassName
-
-```js
-document.getElementsByTagName(<HTML TAG>);
-```
-* Takes an HTML tag (e.g. 'p') and returns a live HTMLCollection of matched elements in your DOM. Returns an empty HTMLCollection if not matching elements were found. More information: https://developer.mozilla.org/en-US/docs/Web/API/Element/getElementsByTagName There also is the getElementsByName() method which really isn't used commonly (https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementsByName).
-
-### Exploring and Changing DOM Properties
-
-* Refer : evaluating-and-manipulating-elements.pdf
-
-### Attributes vs Properties
-
-* Refer : attributes-vs-properties.pdf
-
-### Selecting Multiple Elements & Summary
-
-```js
-// const listItemElement = document.querySelectorAll('li');
-const listItemElement = document.getElementByTagName('li');
-
-for(const listItemEl of listItemElement){
-    console.log(listItemEl);
+for (const data of analyticsData) {
+  for (const dataPoint of data) {
+    console.log(dataPoint);
+  }
 }
 
+console.log(personalData[1]);
 ```
 
-* Minor difference which I also already mentioned earlier, getElementByTagName gives you a live list which reflects changes to the selected elements, querySelectorAll does not gives you a live list.
+### push(), pop(), unshift(), shift() - Adding & Removing Elements
+
+```js
+const hobbies = ['Sports', 'Cooking'];
+hobbies.push('Reading');
+hobbies.unshift('Coding');
+const poppedValue = hobbies.pop();
+hobbies.shift();
+console.log(hobbies);
+```
+* push -> always adds new elements at the end of the array.
+
+* unshift -> always adds new elements at the beginning of the array.
+
+* pop -> Remove last elements
+
+* shift -> Remove First element
+
+* Now what if you need to add items or manipulate items in different places of an array? Well for that, you can use the direct index access.
+
+```js
+hobbies[1] = 'CODING'
+```
+
+* If we would want to insert an element between sports and cooking, there is a different method,the splice method that we will see in sometimes.
+
+* Before we have a look at that, let's have a look at another case, what if we actually target an index which isn't set, like 5? This array only has two elements after all these operations, so 5 actually targets the 6th element which it doesn't have.
+
+```js
+hobbies[5] = 'reading' // Rarely used...
+```
+* we log that to the console, what we'll see is that here we got sports and coding and then at index five, reading and we get three empty slots in between. 
+
+```js
+console.log(hobbies[4]); // undefined  - you get undefined here because nothing could be found in there in the end so that's also nice to know.
+```
+###  The splice() Method
+
+* splice method that would help us insert elements between two elements,by the way is one of the methods which is only available on real arrays, not on iterables, not on array-like objects. That might be one reason why you convert an array-like or iterable object to a real array with array.from because then on that real array, you can use splice.
+
+* Now how does splice work? It takes at least two arguments there but there also is another version if you click on that down arrow here which takes more arguments. So there are two different versions of that function.
+
+```js
+hobbies.splice(1, 0, 'Good Food'); // hobbies.splice(starting index, number of items to remove, item to be added,...)
+//.splice(start, delete, insert more than one comma separated);
+console.log(hobbies);
+
+const removedElements = hobbies.splice(-2, 1);
+console.log(hobbies);
+```
+
+* Now in that version here, you specify a start index so that's zero based and then the amount of items you want to delete from that index on.
+
+* Now we don't want to delete anything here right, so maybe we start with index zero for item 1 and then we add zero because I don't want to delete anything, instead and that's now where the second version comes into play, we can add more arguments and as soon as you add another comma, this automatically jumps to that other definition, now you can add as many other arguments as you want which will be items that are inserted in the place of these deleted values here.
+
+```js
+hobbies.splice(0);// [] -> empty array
+```
+
+* if you just specify splice like this by the way here, you will see that if I reload, the array is empty. So splice without an item count will delete all items from that index on, so for index 0, it will delete all items in the array,
+
+* if you want to delete everything up from a specific element, you would take that index of that specific element and therefore now delete everything past
+
+```js
+hobbies.splice(2);// removes everything past index 2
+```
+* Now splice will also return something, it returns the removed elements so that they're not lost.
+
+* splice also works with a negative index here, you can specify a -1 or -2 and what it will then do is it will go to the end of the array and look from the right,
+
+```js
+hobbies.splice(-2, 1); // look from the right
+```
+* so if I specify -1, it will basically go to the last element of this array and then delete one element
+
+### Selecting Ranges & Creating Copies with slice()
+
+* Now another method you but you can use which has a similar name but does something totally different is slice, so not splice but slice.
+
+* The interesting thing slice does here though is it returns a brand new array and therefore this actually is also a nice way of copying an array, you remember? Arrays are in the end objects and therefore reference values.
+
+*  So if you compare an array to an array that looks totally equal to us humans, it will return false if it's not exactly the same object.
 
 
 ```js
-// app.js
-const h1 = document.getElementById('main-title');
+const testResults = [1, 5.3, 1.5, 10.99, -5, 10];
+// const storedResults = testResults // same array reference if you push to testResults will affect storedResults also
+const storedResults = testResults.slice(2); // new array even its copied from testResults, alternation of testResults won't affect storedResults since slice create a brand new array
 
-h1.textContent = 'Some new title!';
-h1.style.color = 'white';
-h1.style.backgroundColor = 'black';
+testResults.push(5.91);
 
-const li = document.querySelector('li:last-of-type');
-li.textContent = li.textContent + ' (Changed!)';
-
-const body = document.body;
-
-// const listItemElements = document.querySelectorAll('li');
-const listItemElements = document.getElementsByTagName('li');
-
-for (const listItemEl of listItemElements) {
-  console.dir(listItemEl);
-}
+console.log(storedResults, testResults);
 ```
-* Where can you "find" the DOM?
+* but what if you want to select two elements at the same time? So you want to select a part of your array, not the entire array but a part. Well slice helps you with that, you can use it like this and it will give you the full array but you can also specify a start and an end number and these are indexes of the array, start is included end is not
 
-* Don't forget that JavaScript is a "hosted language". The browser as host environment exposes this DOM API to your JS code automatically.
+* start is included end is not !!!!
 
-* What's a difference between document.querySelector('#someId') and document.getElementById('someId')?
+* Though what you can use are negative indexes but then both have to be negative. So you can start at the third last element, this has negative index 1 because there is no negative 0,
 
-* querySelector uses a CSS selector and can match ANY elements (depending on provided selector), getElementById looks only for ID
-
-* What's the difference between querySelector() and querySelectorAll()?
-
-* querySelector finds the first matching element querySelectorAll find all matching elements (and hence returns an array-like object)
-
-### Traversing the DOM - Overview
-
-* what does traversing the DOM mean? It means that once you selected one element, one node therefore, you might be interested in diving into all of its child nodes, for example to add it all list items in a list or anything like that, so rather than manually selecting every element you might be interested in with query selector or so on, you could take an element which you already did select and then move to its children or its siblings and so on based on that element, that's what's traversing the DOM means. 
-
-* Now for that, I first of all want to clarify a couple of terms which I'll use - children, descendants, parent and ancestors because it's important to understand what these things mean.
-
-* So let's have a look at what child or children means, what descendant or descendants mean, what parent or parents mean and what ancestor or ancestors mean.
-
-* Refer : dom-traversal.pdf
-
-### Traversing Child Nodes
+* so in the negative indexes the first element from the end has index 1, negative index 2, negative index 3 and then going up to 2, 
 
 ```js
-const ul = document.querySelector('ul');
-ul.children[1] // this will return 2nd element of li
+const storedResults = testResults.slice(-3,-1); // 10.99, -5
+
+const storedResults = testResults.slice(2); // 1.5, 10.99, -5, 10
 ```
-* ul children, this gives you a so-called HTML collection which is an array-like object in the end, so it's not a real array but it supports looping and so on,
+* You can also just specify a single index here, negative or not, doesn't matter and not specify a second argument and this will then start at this index, so in this case at the element with index 2 which is of course this element and then select everything up from this element all the way to the end,
 
-* This also is a great place to understand the difference between child nodes and child element nodes
+### Adding Arrays to Arrays with concat()
 
-* Here I'm using children and this gives me access to all child element nodes, so only child nodes that are based on HTML tags, HTML elements, text nodes are excluded here.
-
-* DOM tree, of that tree that is created here by the browser to reflect your HTML document and that there, even the whitespace which you add in your HTML file for readability reasons is treated as a text node because it is text in your HTML file, (Refer : dom4)
-
-* So therefore, actually in our HTML code, here of course I also have a bunch of whitespace in front of the body and in front of the header and of course also in front of the list item here, I also have a line break between the unordered list and the list item.
-
-* So here the difference we can actually see is that children gives me this collection of element nodes that are direct children of this unordered list, so no other descendants and also and no other types of nodes.
-
-* If we use child nodes instead, now you see instead of this HTML collection array-like object, we now have a node list array-like object and if we output this, indeed we see there's way more content in there. There are a bunch of text nodes as you can now clearly tell and of course also our element nodes but also the text nodes because child nodes selects all child nodes
+* There also is a useful method for adding elements to an array and returning a brand new array which again can be useful in situations where you want to create a copy of an array, maybe after adding new elements to it, The concat method allows you to concatenate, so to add elements at the end of an array.
 
 ```js
-const ul = document.querySelector('ul');
-ul.childNodes[1] 
+const testResults = [1, 5.3, 1.5, 10.99, -5, 10];
+
+const storedResults = testResults.concat([3.99, 2]);
+
+testResults.push(5.91);
+
+console.log(storedResults, testResults);
 ```
-* whereas children only select child element nodes and child nodes therefore also includes text nodes and here this text for example, in front of this first list item, that is exactly this whitespace which you in the end have here.
 
-* So that's children and child nodes which allows us to select child nodes, often you want to work with children because in most cases you're interested in getting access to the child element nodes but if you need access to all nodes, you can use child nodes
+* Now therefore it's of course a bit like push, with push you can also add items to an array, by the way also more than one item, they will be added at the end but concat actually here takes an array or multiple arrays but not individual numbers or items in general but arrays, one or more arrays and combines these arrays with this array.
 
-* let's say you select that the unordered list with query selector ul and there, you want to get access to the first or the last list item.
+* concat on the other hand will pull out all elements of the array you are passing here and add them as new elements to the existing array and it will then also return a brand new array. So it will create a copy of the array, add these items and return that copied brand new array, hence creating a new place in memory and a new address.
+
+* concat returned a brand new array.
+
+### Retrieving Indexes with indexOf() /& lastIndexOf()
 
 ```js
-document.querySelector('li: last-of-type');
+console.log(testResults.indexOf(1.5)); // Now as the name suggests, this returns the index of the value you're passing as an argument here.
+
+console.log(testResults.indexOf(1.5, 2)); // you also have an optional second argument that would allow you to specify a starting index so that you for example only start searching on elements with index 2 or higher.
+
+// there are a couple of important things to understand, for one if you have the same value more than once,this will stop after it found the first matching value
+
+console.log(testResults.lastIndexOf(1.5)); // you can use that to search from the right 
+
+const personData = [{ name: 'Max' }, { name: 'Manuel' }];
+console.log(personData.indexOf({ name: 'Manuel' })); // -1
 ```
-* that will work but for one, this will cost a little bit of performance because query selector has to scan the entire page and then scan this quite complex CSS query and find the fitting elements and it also just might be redundant if you already got access to the unordered list any ways.
+*  Another important gotcha regarding index of and last index of is that it works fine for primitive values but not for reference values.
+
+* If we do this and I reload my page, we'll get -1 though, -1 is the return value of index of and last index of if it couldn't find any entry, then it always returns -1. So it doesn't throw an error,it doesn't return false or anything like that, it returns -1 if it didn't find anything.
+
+* Objects are reference values and therefore in the end here, I'm creating a brand new object and I'm passing this to index of and behind the scenes, index of is of course comparing all values to the value I passed to index of and because two objects even if they look similar are never similar, it doesn't find any match and therefore it returns -1.
+
+### Finding Stuff: find() and findIndex()
 
 ```js
-const ul = document.querySelector('ul');
-ul.firstchild
-ul.firstElementchild
-ul.lastchild
-ul.lastElementchild
-```
-* If you then know you want to work with the first list item, you can use first child to get the first child node, which in this case is a text node or first element child to get the first element child node which would be the first list item here
-```js
-const ul = document.querySelector('ul');
-ul.querySelector('li: last-of-type')
-```
-* So this might simply be quicker and cheaper to get access to than with a brand new query on the entire document.
+const personData = [{ name: 'Max' }, { name: 'Manuel' }];
+console.log(personData.indexOf({ name: 'Manuel' }));
 
-* Of course as a compromise, you could also go for query selector li last of type, that's certainly better than scanning the entire document but it might still be faster to simply use last element child if you know that you want the last element child in the end.
-
-### Using parentNode & parentElement
-
-* now, let's actually go in the opposite direction. Let's say we already selected a list item, let's say the first one so that we can use a query method without any issues and now we want to reach out to the unordered list, so to the parent.
-
-* Now needless to say, you can of course get access to the unordered list for example with query selector ul, right? But it's about understanding how you can traverse the document so that in a scenario where you have a more complex document, you are able to easily reach out to the parent for example. 
-
-```js
-const li = document.querySelector('li');
-li.parentElement
-li.parentNode
-// both parentElement and parentNode are same..
-```
-* you can't have more than one parent element or parent node. So here, parent node gives us access to the nearest parents node, parent element to the nearest parent element node and in this case, this is actually the same and to be honest, in almost all cases it's the same, why?
-
-* Because only element nodes can have child nodes and therefore of course if you're on a child node so to say and you want to know all about the parent, it's an element node, text nodes can't have child nodes, you can't nest other content into text nodes for example, they can only hold text, no other nested content.!!!!!!!!!
-
-*  So you might wonder, why do we have parent node and parent element then?
-
-* Well there is only one exception to that rule and that is 
-
-```js
-document.documentElement.parentElement // null
-document.documentElement.parentNode // we get the entire document object as a parent node 
-```
-* this might be nice to know it is something which will probably never really matter in the code you write, in your projects because if you want to get access to the document, you can just select it with the document object. Traversing to it from some child node might just be a lot of work for something which is already available on this document object, right? So I don't really see a great use case for this, I just wanted to let you know why both exists, in reality as I said for all other elements, parent element and parent node always refers to the nearest parent element and that always is guaranteed to be an element node and therefore you can use either of the two depending on what you prefer.
-
-* now let's say from that first list item, I want to get access to the body
-we can directly get document.body but this is just for our understanding
-
-```js
-const li = document.querySelector('li');
-li.parentElement
-li.parentNode
-// both parentElement and parentNode are same..
-```
-*  I want to show you that of course selecting the unordered list is easy with parent node or parent element but if we want to reach out to another ancestor and header for example wouldn't be an ancestor because it's not wrapped around the unordered list,
-
-* so if you want to get access to another ancestor, parent node and parent element don't help us because with those, we only get access to the nearest direct parent, not to any other ancestor. To get access to another ancestor like body which is an ancestor, we can use the closest method 
-
-* the closest method takes a CSS selector just like query selector and here for example, I can enter body and if I hit enter, you see now the body element is selected and just to prove that this wouldn't work with header which isn't an ancestor, if we try that, we get null.
-
-```js
-const li = document.querySelector('li');
-li.closest('body'); // with this we will get body element
-li.closest('header'); // null - because header is not ancestor of li
-```
-* So closest is a nice method for selecting any ancestor anywhere up in the element tree !!!
-
-### Selecting Sibling Elements
-
-* what if I actually want to select the header based on a selection of the unordered list or even of the list item?
-
-```js
-const ul = li.parentElement; // both refers same-element
-const ul = document.querySelector('ul');  // both refers same-element
-```
-
-* So we have the unordered list selected and now I want to get access to the header here. Now the header is a sibling of the unordered list, it's on the same level as unordered list. It's not a parent or an ancestor and it's also not a child or a descendant, it's on the same level
-
-* and for that we can use the previous sibling or element sibling properties which are made available by the browser.
-
-```js
-const ul = li.parentElement; 
-ul.previousSibling // gives us the previous sibling node ie text node
-ul.previousElementSibling // gives us the previousElementSibling ie Header
-```
-
-* Of course if I want to reach out to the header, I'm not interested in the nearest node, I'm not interested in this text node which is basically between the header and the unordered list, I want to get the nearest element node and I can do that with previousElementSibling
-
-* this gives us the nearest previous sibling element node, not any node but the nearest element node which of course in this example here is the header
-
-* If I want to get the sibling after the unordered list, so the input here well then of course I can use my unordered list here and then we have next sibling to get the next sibling node.
-
-```js
-const ul = li.parentElement; 
-ul.nextSibling // gives us the next sibling node ie text node
-ul.nextElementSibling // gives us the nextElementSibling ie input node in this example
-```
-* So this is how that works and how you can work with these different DOM traversal techniques, this is always useful if you already selected some element in your document and you know the next operation I want to do should be done to the next sibling or to the first child or something like this.
-
-* Using these traversal properties can simply be quicker, that always starting a new query with query selector and so on and it's also not just faster for you as a developer, where you don't have to find a selection criteria, it's also faster for the browser because with query selector, if you use document query selector, it of course has to go over all elements in your document and find matching ones, that is still not super bad but it's certainly worse for performance than if you say ul next elements sibling. So if you have a possibility of reaching out to the element you want to select with this command, definitely do it because this is then a quick and cheap way of getting access to that sibling element in this case.
-
-### DOM Traversal vs Query Methods
-
-* One important node about all these DOM traversal techniques here by the way - it's super important to be aware of them and as I mentioned, for example if you want the first list item for unordered list and you have the unordered list selected anyways, it might be best to just use first element child to get access to the list item than to run a brand new query with query selector, both for performance reasons but also save some code.
-
-* Here, it also makes sense because a list item is pretty guaranteed to always be a child of an unordered list and therefore even if you later go to your HTML code and you change things around, it's to be expected that this relation between unordered list and list item will be the same. So if you have code where you select the first element child on an unordered list, it will probably always be a list item. That might not be true for your entire page,
-
-```js
-const ul = document.body.firstElementChild.nextElementSibling  // document.body.firstElementChild -> header
-
-const li = ul.firstElementChild;
-```
-* The problem with that is, for one this is a bit hard to read. If I'm reading your code, it's not immediately obvious for me that you are selecting an unordered list here. Sure, I can tell by this constant name but if you're picking a different name here, it gets hard and this code might be simply difficult to understand because I have to look at the HTML code to see what you're doing there, so that's one downside.
-
-* The bigger problem is that if you wrap your ul with section element then it won't work
-
-* of course, don't be shy to use the query methods, they're not bad or anything like that. Just because this could yield a better performance does not mean that the other approach yields horrible performance, you'll not even feel the difference.
-Just try to be smart regarding what you use and that is also something that will come with experience, there also is no strict wrong or right, it's important to know both and in cases where the relation is always the same, DOM traversal properties like this one can be nice for general selection things, like generally selecting an unordered list
-
-### Styling DOM Elements
-
-* Refer : styling-dom-elements.pdf
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>DOM Interaction</title>
-    <style>
-      .red-bg {
-        background-color: red;
-        color: white;
-      }
-
-      .visible {
-        display: block;
-      }
-
-      .invisible {
-        display: none;
-      }
-    </style>
-    <script src="app.js" defer></script>
-  </head>
-  <body>
-    <header><h1 id="main-title">Dive into the DOM!</h1></header>
-    <section class="red-bg visible">
-      <ul>
-        <li class="list-item">Item 1</li>
-        <li class="list-item">Item 2</li>
-        <li class="list-item">Item 3</li>
-      </ul>
-    </section>
-    <button>Toggle Visibility</button>
-    <input type="text" value="default text" />
-  </body>
-</html>
-
-```
-* app.js
-
-```js
-const ul = document.body.firstElementChild.nextElementSibling;
-const firstLi = ul.firstElementChild;
-
-console.log(firstLi);
-
-const section = document.querySelector('section');
-const button = document.querySelector('button');
-
-// section.style.backgroundColor = 'blue';
-section.className = 'red-bg';
-
-button.addEventListener('click', () => {
-  // if (section.className === 'red-bg visible') {
-  //   section.className = 'red-bg invisible';
-  // } else {
-  //   section.className = 'red-bg visible';
-  // }
-
-  // section.classList.toggle('visible');
-  section.classList.toggle('invisible');
+const manuel = personData.find((person, idx, persons) => { // (single element of array, index, fullArray)
+  return person.name === 'Manuel';
 });
+// find work with the same reference array
+manuel.name = 'Anna'; // if we change here this will affect personData also
+
+console.log(manuel, personData);
+
+const maxIndex = personData.findIndex((person, idx, persons) => { // (single element of array, index, fullArray)
+  return person.name === 'Max';
+});
+
+console.log(maxIndex);
 ```
-
-### Creating Elements with JS - Overview
-
-* Refer : dom5
-
-### Adding Elements via HTML in Code
-
-* So innerHTML is useful whenever you want to change everything, all the HTML content of an element, it's not so good if you only want to add something to the existing content, that's one thing to keep in mind. Therefore a better way of updating this, to keep the user input here
+* There also is another useful method for finding out whether is part of an array or not and that's the includes method though it's also most useful for primitive values because it also just checks values like index of does.
 
 ```js
-const div = document. querySelector('div');
-
-div.insertAdjacentHTML('afterend', '<div id="two">two</div>');
+console.log(testResults.includes(1.5)); // This will then return true or false 
 ```
-* Refer : https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
+* includes is a great choice if you're not interested in the index and also not interested in the value but just want to know whether it's part of the array or not. Though it's important to keep in mind that index of will return -1 if something wasn't found.
 
-* 'beforebegin': Before the element itself.
-* 'afterbegin': Just inside the element, before its first child.
-* 'beforeend': Just inside the element, after its last child.
-* 'afterend': After the element itself.
+###  Alternative to for Loops: The forEach() Method
 
 ```js
-<!-- beforebegin -->
-<p>
-  <!-- afterbegin -->
-  foo
-  <!-- beforeend -->
-</p>
-<!-- afterend -->
+const prices = [10.99, 5.99, 3.99, 6.59];
+const tax = 0.19;
+const taxAdjustedPrices = [];
+
+// for (const price of prices) {
+//   taxAdjustedPrices.push(price * (1 + tax));
+// }
+
+prices.forEach((price, idx, prices) => { // (single element of array, index, fullArray)
+  const priceObj = { index: idx, taxAdjPrice: price * (1 + tax) };
+  taxAdjustedPrices.push(priceObj);
+});
+
+console.log(taxAdjustedPrices);
 ```
+### Transforming Data with map()
 
-* So this is one way of adding new content to an existing element with some HTML code which you write in Javascript and this is therefore a great way of manipulating this. Still whilst this might seem perfect, there are scenarios where you don't want to do it like this.
-
-### Adding Elements via createElement()
-
-* Refer : creating-and-inserting-elements.pdf
-
-* Performance is not an issue here with this adjacent HTML method and also not that we would lose user input, so that's not the reason.
-
-* Well a downside of this approach is that you tell the browser which element to render or which content to render and that can be any HTML content, doesn't have to be a single element, can be any as complex as you want HTML code
-
-* The downside just is you have no direct access to the newly rendered content.
-```js
-const div = document. querySelector('div');
-
-div.insertAdjacentHTML('afterend', '<div id="two">two</div>');
-
-div.querySelector('p');
-```
-
-* Now the more complex the HTML code is you inserted here, the more complex is to query for the right things so that you get the objects with which you can work, where you can add event listeners, where you can change the properties and so on. So the missing direct access to the inserted elements can be a problem.
-
-*  if you find yourself inserting content like this and then querying for it thereafter, you're basically running two steps to get access to a newly added element when there actually is only one step required and that's the case with create element, with this other approach of adding new elements.
+* now instead of ForEach, we can use map, another special method available on arrays. Now map has the job of taking an array, running a function which has this form on every item in that array and then and that's important, that function should now return a new element for every element in that array, a possibly transformed element.
 
 ```js
-const list = document. querySelector('ul');
+const prices = [10.99, 5.99, 3.99, 6.59];
+const tax = 0.19;
 
-const newLi = document.createElement('li');
+const taxAdjustedPrices = prices.map((price, idx, prices) => {
+  const priceObj = { index: idx, taxAdjPrice: price * (1 + tax) };
+  return priceObj;
+});
 
-list.appendChild(newLi);
-
-newLi.textContent ="Item 4";
-
+console.log(prices, taxAdjustedPrices);
 ```
+* For map, this function which you pass to it has to do something, has to return something, it has to return the map that transformed the new element for that array.
 
-* Typically of course, you would first finish up configuring this and set the text content and anything else and then append it instead of first appending it and then completing it because you only want to append it once you are done configuring it and you can set the text content and the style prop and so on even if you haven't added the item to the DOM yet because it's already there in Javascript memory, you can work with it.
+### sort()ing and reverse()ing
 
-### inserting DOM Elements
-
-* We did insert it with append child, nothing wrong with that but there also is append. The difference is not only that append is shorter but that append also does not only take our new li which we created but that here you can also add a string, some text for example which is then inserted as a text node next to the other element nodes,so if you want to insert a text node you can conveniently do it like this.
+* Well the thing is sort by default converts everything to a string and then it's simply sorts this in a string logic and there, one is smaller than three for example, this is how it sorts it, For strings, only the first character is compared by default, hence it's not "10" > "3". but "1"< "3".
 
 ```js
-const list = document. querySelector('ul');
-list.append("some string ");
+// sort logic
+const sortedPrices = prices.sort((a, b) => {
+  if (a > b) {
+    return 1;
+  } else if (a === b) {
+    return 0;
+  } else {
+    return -1;
+  }
+});
+
+// reverse logic
+const sortedPrices = prices.sort((a, b) => {
+  if (a > b) {
+    return -1;
+  } else if (a === b) {
+    return 0;
+  } else {
+    return 1;
+  }
+});
+
+// console.log(sortedPrices.reverse());
 ```
-* so if you want to insert a text node you can conveniently do it like this.
 
-* Another difference by the way is that you can add multiple nodes here, simply separated by commas as multiple arguments to append to add multiple nodes at once in that place, that's also a difference to append child.
-
-* Refer : https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/append
+### Filtering Arrays with filter()
 
 ```js
-const list = document. querySelector('ul');
+// const filteredArray = prices.filter((price, idx, prices) => { 
+//   return price  > 6;
+// });
 
-const newLi = document.createElement('li');
+const filteredArray = prices.filter(p => p > 6);
 
-list.appendChild(newLi);
-
-newLi.textContent ="Item 4";
-
-list.prepend(newLi);// insert it as the first element,
-
-// IE doesn't support append, prepend
+console.log(filteredArray);
 ```
+###  The Important reduce() Method
 
-* we want to add it before the currently last list item. Now we can get access to that with list and then last element child,
+* So let's assume here with your prices, let's say the unfiltered, unchanged prices, you want to sum them up. Now of course what you can do is you can create for loop or you can use ForEach and you could create a sum here, let sum, set it to equal
+and then you could go through your prices, let's say with ForEach where you have the value of each price and then here in the end you say sum plus equal price, right? And if you do that and you console log the sum thereafter, we should have the sum of all prices. So that's not too much code and if I reload this, this probably is to sum.
+
+* Now of course that's not too difficult or not too problematic here, it's a quite short code snippet but we can actually write this with less code.
 
 ```js
-const list = document. querySelector('ul');
-const newLi = document.createElement('li');
-ist.prepend(newLi); // added at the top
-newLi.textContent ="Item 4";
-list.lastElementChild.before(newLi); // Now Item 4 added before Item 3
+const sum = prices.reduce((prevValue, curValue) => prevValue + curValue, 0); 
+// prices.reduce((prevValue, curValue, currentIndex, prices) => prevValue + curValue, default initial value);
+console.log(sum);
 ```
-* but the interesting thing we see here is that item 4 is now actually removed from the beginning of the list and basically moved into this place. If you have an element selected, either because you selected it in the DOM with query selector or because you created it with create element and that element is already part of the DOM, so it is already rendered, if you then insert it somewhere else, this is not copied or anything like that,
+* Reduce, as the name suggests, reduces an array to a simpler value, for example it can reduce an array of numbers to the sum of these numbers. Of course that's not the only kind of reduction it can do, you can reduce any array to any value you need, so the idea always is that you reduce an array to a simpler value. Typically an array to a single number or a single string or whatever it is. Now the second argument you pass to reduce is the initial value with which you want to start,
 
-* instead the existing element is detached from the place where it was and moved to the new place and I guess this actually makes a lot of sense since objects are reference values as you learned and the DOM objects you're working here are nothing but normal objects in the end and therefore if we do something with it and we add it somewhere else, we always work with the same object, so of course it's detached from the existing place and moved to the new one, it's just something to be aware of. If you want a brand new one, you have to create a brand new one with document create element.
+### Chaining Methods in JavaScript
+
+* With all these useful array methods you learned about, it's important to understand how you can combine them. Let's take map() and reduce() as an example:
 
 ```js
-const list = document. querySelector('ul');
-const newLi = document.createElement('li');
-list.prepend(newLi); // added at the top
-newLi.textContent ="Item 4";
-list.lastElementChild.after(newLi); // Now Item 3 added before Item 4
-
-list.firstElementChild.replaceWith(newLi); // Replace one with new Li
-
+const originalArray = [{price: 10.99}, {price: 5.99}, {price: 29.99}];
+const transformedArray = originalArray.map(obj => obj.price); // produces [10.99, 5.99, 29.99]
+const sum = transformedArray.reduce((sumVal, curVal) => sumVal + curVal, 0); // => 46.97
 ```
+* Of course, you could skip the map step and just add the extraction logic to reduce():
 
 ```js
-const list = document. querySelector('ul');
-const secondLi = list.children[1];
-const newLi = document.createElement('li');
-newLi.textContent ="Item 4";
-secondLi.insertAdjacentElement('afterend',newLi); // Now item4 inserted after item2 element
-
+const originalArray = [{price: 10.99}, {price: 5.99}, {price: 29.99}];
+const sum = originalArray.reduce((sumVal, curVal) => sumVal + curVal.price, 0); // => 46.97
 ```
-###  Cloning DOM Nodes
-
-* So you learned that inserting an element more than once will move it and not copy it, if you would want to copy an element, well then you can do this with another method which is available on every DOM node object,
-
-* It takes one optional argument and that's a boolean which can be true or false which by default is false, which simply determines whether a deep clone, so with all child and descendant elements should be done or not.
-
-* If you pass false here, which is the default, then only the list item itself is cloned but no nested elements you might have in there.
-
-* If you pass true here, then not only the direct child element but also all child elements of that element and all descendants in general will be part of the clone.
+* But let's say you have a more complex extraction logic and hence want to split this into multiple method calls. Or you have a re-usable map function which you want to be able to use in different places of your app. Then you can still write the initial example in a more concise way if you leverage method chaining:
 
 ```js
-const newLi = document.createElement('li');
-newLi.textContent ="Item 4";
-const newLi2 = newLi.cloneNode(true);
-list.append(newLi, newLi2); // Item 4 will be added twice
+const originalArray = [{price: 10.99}, {price: 5.99}, {price: 29.99}];
+const sum = originalArray.map(obj => obj.price)
+    .reduce((sumVal, curVal) => sumVal + curVal, 0); // => 46.97
 ```
-### Live Node Lists vs Static Node Lists
+* We call .reduce() directly on the result of map() (which produces an array, that's why this is possible). Hence we can avoid storing the mapped array in a separate constant or variable that we might not need in any other place.
 
-* let me come back to that live node list versus non-live node list thing.
+### Arrays & Strings - split() and join()
 
 ```js
-const list1 = document.querySelector('ul');
-const ListItems = document.querySelectorAll('li'); // So of course not just in this list1 but on the entire page,
+const data = 'new york;10.99;2000';
+
+const transformedData = data.split(';');
+transformedData[1] = +transformedData[1];
+console.log(transformedData);
+
+const nameFragements = ['Max', 'Schwarz'];
+const name = nameFragements.join(' ');
+console.log(name);
 ```
+### The Spread Operator (...)
 
 ```js
-const ListItems2 = document.getElementsByTagName('li'); 
-const newLi = document.createElement('li');
-newLi.textContent ="Item 4";
-list.append(newLi);
+const copiedNameFragments = [...nameFragments];
+const persons = [{ name: 'Max', age: 30 }, { name: 'Manuel', age: 31 }];
+
+const copiedPersons = [...persons]; // you
+persons[0].age = 31 ; // this change will overwrite copiedPersons also..
+
+// if you want a new reference array ... do like this
+const copiedPersons = persons.map(person => ({
+  name: person.name,
+  age: person.age
+}));
+
+console.log(Math.min(...prices));
 ```
-
-* We got our two list items constants, list items and list items 2 and on list items, you can already see this still is a node list with three items. So our most recent addition is not reflected here, that's what I mean with non-live array or non-live list.
-
-* Now, that's not necessarily a disadvantage from a performance perspective, from a memory consumption perspective, this might even be better and I also want to highlight that of course the individual objects in there are still reference values, so an object in there is still of course a live reference to the DOM objects that are responsible for what we see on the page.
+### Understanding Array Destructuring
 
 ```js
-ListItems[0].textContent = "Item 11"; // this will get reflected on the screen but still this is not live list ie this is non-live list
+const nameData = ['Max', 'Schwarz', 'Mr', 30];
+
+const [ firstName, lastName, ...otherInformation ] = nameData;
+console.log(firstName, lastName, otherInformation); // 'Max', 'Schwarz', ['Mr', 30]
 ```
-* Now if we have a look at list items 2 however which is this HTML collection I got with get elements by tag name, we can see this indeed is a live list which also includes our most recent addition. getElementsByTagName, getElementsByClassName always gives live list
 
-* It could lead to a higher memory consumption if you're managing a lot of such collections which change all the time but again, that will also probably only matter in rare niche cases but for the most part, query selector all simply should be used because it is more flexible, supports richer queries and therefore often is a common choice if you want to query for multiple items.
+### Maps & Sets - Overview
 
-### Removing Elements
+* Refer : array2
+
+* Let's create a new set of let's say IDs because that is a super example, IDs should be unique and therefore you might want to store them in a data structure where you can't have any duplicates.
 
 ```js
-const list = document.querySelector('ul');
-list.remove(); // otherthan IE
-list.parentElement.removeChild(list);  // for IE
+// const ids = new Set(); // empty set
+
+// const ids = new Set([1,2,3]); // if you try to access with index it will throw undefined.
+const ids = new Set(['Hi', 'from', 'set!']);
+ids.add(2);
+if (ids.has('Hi')) {
+  ids.delete('Hi');
+}
 ```
-*  this is the safest way of removing an element, reaching out to its parent and then remove child and then passing the item you want to remove but again, remove also has pretty good support. If Internet Explorer support doesn't matter for you, then just remove on the item you want to remove
+* and you can alternatively also initialize it by passing in an existing iterable, any iterable goes. So it can be an array, can be another set, can be a node list.
 
-### Insertion & Removal Method Summary
+* to retrieve a value from the set, you can use one of these specific set methods which you see if you type a dot here and then you get this auto completion. You got add to add a new entry, clear to clear all entries, delete to delete a single entry entries which we'll have a look at in a second.
 
-* Refer : insertion-removal-summary.pdf
+* Now what you don't have here is a method to get a value, there is no get method or anything like that.
 
-### Summary: Insert, Replace, Remove
+* Well if you think about a set, since every value can only be stored once there, you typically don't want to retrieve a value from there, instead you can check if it has a certain value, if one is stored in there and if it is, well in your subsequent code that depends on this existence in the set, you can just continue with one, you can just use this value of one because you know it's in the set.
 
-* There are many ways of creating, inserting, replacing and removing DOM elements - here's a summary of the options you have. For browser support, check the provided links and also the "Browser Support" module you find later in the course.
+* this is how you work with a set, it's a data storage that basically tells you whether it contains something or not. 
 
-#### Create & Insert
-* You got two main options: Provide an HTML snippet (e.g. via innerHTML) to a valid HTML snippet and let the browser render it OR create a DOM object in JS code and append/ insert it manually. The latter approach has the advantage of giving you direct access to the DOM object (useful for setting its properties or adding event listeners). The downside is that you have to write more code.
+* if you add a duplicate value lets say ids.add(2);, even after try to add a duplicate entry only one entry will be there in the set.
 
-#### Adding HTML Code:
+* So if I now check if it has two and I reload, I get true
+
+* Now if you would want to go through all elements in a set, you can do that with ids.entries. ids.entries, entries is a method which you can execute and it returns, as you can see, an iterable, which means you can use it in a for loop,
 
 ```js
-const root = document.getElementById('root-el'); // selects something like <div id="root-el">
-root.innerHTML = `
-    <div>
-        <h2>Welcome!</h2>
-        <p>This is all create & rendered automatically!</p>
-    </div>
-`;
+for (const entry of ids.entries()) {
+  console.log(entry); // this will console values twice
+}
 ```
-* Important: Any existing content in root is  completely replaced when using innerHTML. If you want to append/ insert HTML code, you can use insertAdjacentHTML instead: https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
+* why would you have it twice? Why would it give you these arrays where you have the same value twice? Well this is there to be in line with the entries method on the map which we'll also later see where you also get two values but there, they will be different.
 
-```
-const root = document.getElementById('root-el'); // selects something like <div id="root-el">
-root.insertAdjacentHTML('afterbegin', `
-    <div>
-        <h2>Welcome!</h2>
-        <p>This is all create & rendered automatically!</p>
-    </div>
-`);
-```
-#### Creating & Inserting DOM Objects Manually:
+* Alternatively use values() instead of entries(). this returns an iterable that only yields the set values once.
+
 ```js
-const someParagraph = document.createElement('p'); // creates a "p" element (i.e. a <p> element)
-const root = document.getElementById('root-el'); // selects something like <div id="root-el">
-root.append(someParagraph);
+for (const value of ids.values()) {
+  console.log(value); 
+}
 ```
 
-* In this example, we create a paragraph and append it to root - append means that it's inserted at the end of root (i.e. inside of it but AFTER all other child nodes it holds).
+* While delete if you try to delete a value of set which is not the part of the set you won't get any errors its just ignored
 
-#### Insertion Methods:
+* So to summarize, sets are a data structure or are data structures which help you manage unique values and in some cases, that can be useful. Now as I mentioned earlier already, the array is the most important data structure, so you will probably not use sets everywhere but if you have an application, a more complex application where you want to manage let's say ID which are already in use by logged in users, then you could use a set to keep track of these IDs and you might want to use a set instead of an array because you want to ensure that a single ID can't be part of the set more than once so that it doesn't get too big, doesn't consume too much memory or leads to other logical errors you might have in your code. So sets are great if you need uniqueness amongst your data.
 
-* append() => https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/append
+### Working with Maps
 
-* Browser support is decent but for IE, appendChild() could be preferred => https://developer.mozilla.org/en-US/docs/Web/API/Node/appendChild
+* With a map where you stored the extra information, the object itself can be the key and therefore you don't have to add any ID or extract that or create arbitrary string keys, instead you can use the object as a key and retrieve values by just using that object as a key and hence if you save that and you reload here, you indeed get this object output there, so this works just fine.
 
-* prepend() => https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/prepend
-
-* Browser support is decent but for IE, insertBefore() could be preferred => https://developer.mozilla.org/en-US/docs/Web/API/Node/insertBefore
-
-* before(), after() => https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/before & https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/after
-
-* Browser support is okay but IE and Safari don't support it. Consider insertBefore() (https://developer.mozilla.org/en-US/docs/Web/API/Node/insertBefore) or insertAdjacentElement() (https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement) as substitutes.
-
-* Important (no matter how you insert elements): Whenever you insert elements, you MOVE the element to that new place if you already inserted it before. It's NOT copied (you can copy an element via someElement.cloneNode(true) though).
-
-#### Replace
-* You can replace elements in the DOM with two main methods:
-
-* replaceWith() => https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/replaceWith
-
-* replaceChild() => https://developer.mozilla.org/en-US/docs/Web/API/Node/replaceChild
-
-* replaceWith() is a bit easier to use and has decent browser support - with IE being the exception. To support that as well, consider using replaceChild().
-
-#### Remove
-* You can remove elements with three main methods:
-
-* someElement.innerHTML = '' => Clears all HTML content of someElement and hence removes any objects rendered in there.
-
-* someElement.remove() => Removes a single element (someElement) from the DOM (https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/remove). Browser support is good, IE again doesn't like it though. Use removeChild (see below) instead.
-
-* someElement.parentNode.removeChild(someElement) =>  Removes the provided child element (NOT the element on which you call it). Provides broad browser support but of course requires a bit more code (https://developer.mozilla.org/en-US/docs/Web/API/Node/removeChild).
-
-* What about Text Nodes?
-* You can easily create & insert text nodes in one go:
 ```js
-someElement.textContent = 'Hi there!';
-```
-* This creates and inserts the text node with a content of 'Hi there!'. Want to append to existing text?
+const person1 = { name: 'Max' };
+const person2 = { name: 'Manuel' };
 
-* Just use:
+const personData = new Map([[person1, [{ date: 'yesterday', price: 10 }]]]); // So here you could have key and then some value and the key can be of any kind, doesn't have to be a string, can be a number, can be another object and values can also be of any kind.
+
+personData.set(person2, [{ date: 'two weeks ago', price: 100 }]); // set person2 data
+
+console.log(personData);
+console.log(personData.get(person1)); // get data
+
+for (const [key, value] of personData.entries()) {
+  console.log(key, value);
+}
+
+for (const key of personData.keys()) {
+  console.log(key);
+}
+
+for (const value of personData.values()) {
+  console.log(value);
+}
+
+console.log(personData.size);
+```
+
+* we log an array essentially with always exactly two elements, where the first element is the key and the second element is the value. So for a map, it makes sense that this is an array of exactly two elements because we can then have key and value combined in one value, in one array here.
+
+* Refer : maps-sets-objects.pdf
+
+### Understanding WeakSet
+
+* WeakSet similar like normal set but way less methods available like add ,delete and has. There is no method to get all the entries for example and the reason for that is that weak set,internally works such that it can only store objects so that it can actually clear these objects for you, release them to garbage collection if you don't work with a certain piece of data anymore.
+
+* Conveniently if we console log persons here, the browser dev tools console still allows me to look inside of that
+
 ```js
-someElement.textContent = someElement.textContent + 'More text!';
+let person = {name: 'Max'};
+const persons = new WeakSet();
+persons.add(person);
+person = null 
+```
+* Now you might wonder, why would I need this strange thing? Well if you have an application where you store data, let's say in a set, object data in a set or other arrays, where you eventually will let go of data, then you want to make sure that this data can be garbage collected. Now if we work with that person here let's say and then we do some operations with it and we needed it in the set for these operations and we still need the set thereafter, maybe for other operations but this person is not really required anymore, then we can set person equal to null. This means we set this variable to null, so this object no longer has anyone who is interested in it. This person variable, which stored its address is now reset to null, so the address is released from there and the Javascript engine then is able to pick this up and eventually clear this object from the heap, that's what garbage collection does, it clears that data from memory.
+
+* Now if you would use a normal set here which you can normally, then the person you created here would still be part of that set. So even if you cleared your variable here, you added that object, that pointer at this object to this set and Javascript thankfully detects that and will not clear the object because the set still holds a reference to it and that's good because Javascript would expect that you plan on working with that and deleting it therefore would be bad. Now let's say you eventually never end up working with that person again, then with a normal set, you have that unnecessary data stored in memory because you have that data in a set even though you don't need it anymore.
+
+* Sure, you could have done persons delete and deleted that value but if you forgot that, well there you go. Now with weak set, if you reset all other places where you point that this object, the weak set will not hold onto it. So the weak set allows garbage collection to delete items that are part of the set as long as no other part of your code uses these items,
+
+
+* So weak set is an interesting option in cases where you store object data in a set and you eventually release some of that data and you want to make sure that this thing can be garbage collected. Obviously super advanced, not something you'll use in many applications, not something we need here in the majority of this course to be honest but something to be aware of, especially as you grow as a developer and you will encounter more and more advanced programs, advanced code snippets where something like that might get used.
+
+###  Understanding WeakMap
+
+* Now with weak map, we have a similar idea as with weak set.
+
+* if the map is a normal map and we have person as a key there, the map will hold onto it and not release it for garbage collection, might be what you want but if you know you don't need that, you could use a weak map instead.
+
+* Now on a weak map, you can of course also call a couple of methods, way less than before because again you can't loop through the entries because the entries, the amount of entries and so on is simply not guaranteed which is why the size property is also not available. Javascript can't really tell what's in the map because it can look at it if you ask it with has and get if something is in there but other than that, it doesn't know if something has been released yet
+
+* and now here, keys have to be objects so that this garbage collection thing makes sense and any value, the value does not have to be an object, that could just be a string or whatever you want here.
+
+```js
+let person = {name: 'Max'};
+const personData = new WeakMap();
+personData.set(person, 'Extra info!');
+
+console.log(personData);
+
+person = null // Now with that same logic as before, as soon as we let go of that person object in all other places, like here where I set my variable to null 
+
+console.log(personData); // still we will probably see the person if we log this weak map but eventually that will be garbage collected and it will not be part of that weak map anymore.
 ```
 
+* and therefore I get rid of the address which was stored in there, Javascript is able to garbage collect this and the weak map won't stop it from garbage collecting this
+
+* So weak map and weak set, advanced, very advanced concepts which you will rarely use but which can help you manage memory more efficient in large applications where you have data which is fine to be deleted at some point which you might want to manage in a map or a set and where you don't want to take care about manually clearing data, well then weak map and weak that are great.
