@@ -1,537 +1,736 @@
 # Javascript Complete
 
-##  More on Arrays & Iterables
+##  More Object
 
-### What are "Iterables" and "Array-like Objects"?
+### Objects
 
-* Refer : iterables-array-like.pdf
+* Refer : what-are-objects.pdf
 
-* So what's an iterable in Javascript? An iterable can be defined technically, there it's basically an object or any objects that implement the iterable protocol and have to is @@iterator method with the symbol iterator property. Now symbols are a special type of values in Javascript
+### Objects & Primitive Values
 
-* human readable definition of an iterable in the end is that we can use a for/of loop on it. Yes, it's indeed as simple as that, we can loop through it with for/of.
+* Objects are reference values - you learned that.
 
-* Now the important thing is that not every iterable in Javascript is an array. We work with arrays thus far but there also are other iterable objects, like a node list for example which we saw in the last course module but also strings and also maps and sets which we'll have a look at later.
-
-* Now there also is another term which I already used and that's array-like and that's actually not the same as an iterable,both iterable and array-like are official terms in the Javascript language.
-
-* Now what are array-like objects therefore? Again, the technical definition is here, much more readable, that an array-like object are in the end any objects that have a length property and use indexes to access items, it's as simple as that and I'd say it is also pretty clear to us humans.
-
-* Now just as with iterables, not every array-like object is an array, that's why it's called array-like. 
-
-* We have array-like objects, like node list and string. Node lists and strings are objects that have a length, that have indexes and where we can use for/of and still, they're not real arrays because as you will learn in this module, real arrays have a couple of interesting behaviors and also a bunch of important methods available to them which do not exist on these array-like or iterable objects.
-
-### Creating Arrays
+* It might not have been obvious yet but it's also important to recognize that, in the end, objects are of course made up of primitive values.
 
 ```js
-const numbers = [1, 2, 3];
-console.log(numbers);
-
-// const moreArray = new Array; // []
-// console.log(moreArray);
-
-// const moreNumbers = Array(5, 2); // [5,2]
-// console.log(moreNumbers);
-
-const moreNumbers2 = Array(5);  // This is essentially an empty array with a fixed size, with a fixed length of 5
-console.log(moreNumbers2);
-
-// const yetMoreNumbers = Array.of(1, 2); //[1,2] This is a special method on this globally available array object, Now again, you should use square brackets, this will be slower from a performance perspective than that.
-// console.log(yetMoreNumbers);
-
-const listItems = document.querySelectorAll('li');
-console.log(listItems); // NodeList array like structure
-
-const arrayListItems = Array.from(listItems);
-console.log(arrayListItems);
+const complexPerson = {
+    name: 'Max',
+    hobbies: ['Sports', 'Cooking'],
+    address: {
+        street: 'Some Street 5',
+        stateId: 5,
+        country: 'Germany',
+        phone: {
+            number: 12 345 678 9,
+            isMobile: true
+        }
+    },
+};
 ```
+* Event though complexPerson has multiple nested reference values (nested arrays and objects), you end up with primitive values if you drill into the object.
 
-* Refer array1 - Now these are not all totally different methods as you see but actually, how these methods create arrays also sometimes depends on the kind of data you pass to that method.
+* name holds a string ('Max') => Primitive value
 
-* So let's have a look at the different ways of creating arrays before we then work with them and for that of course, we'll not just have a look at that, we'll also see how that behaves and when you might want to use which.
+* hobbies holds an array (i.e. a reference value) which is full of strings ('Sports', 'Cooking') => Primitive values
 
-* array.from is special. It does not take multiple numbers like this, if I would try to do that, if I would try to console log this here with multiple arguments passed in, you see I get an error because I must not pass in multiple arguments here,
-instead this takes an iterable or an array-like object and that's the interesting thing. Array.from in the end allows you to convert an iterable or an array-like object which isn't an array yet to an array.
+* address holds an object which in turn holds a mixture of primitive values like 'Some Street 5' and nested objects (phone), but if you dive into phone, you find only numbers and booleans in there => Primitive values
 
-```js
-// const arrayItems = Array.from(1,2,3,4); // this will throw error
-// console.log(arrayItems);
+* So you could say: Primitive values are the core building blocks that hold your data, objects (and arrays) are helpful for organizing and working with that data.
 
-const moreNumbers = Array.from("Hi!"); // ["H","i","!"]
-console.log(moreNumbers);
-```
-###  Which Data Can You Store In Arrays?
+### Adding, Modifying & Deleting Properties
 
 ```js
-const hobbies = ['Cooking', 'Sports'];
-const personalData = [30, 'Max', {moreDetail: []}];
-
-const analyticsData = [[1, 1.6], [-5.4, 2.1]];
-
-for (const data of analyticsData) {
-  for (const dataPoint of data) {
-    console.log(dataPoint);
+let person = {
+  name: 'Max',
+  age: 30,
+  hobbies: ['Sports', 'Cooking'],
+  greet: function() {
+    alert('Hi there!');
   }
-}
+};
 
-console.log(personalData[1]);
+// ...
+
+// person.age = 31;
+delete person.age; // deleting a property basically set to undefined
+// person.age = undefined;
+// person.age = null;
+person.isAdmin = true;
+
+console.log(person);
 ```
 
-### push(), pop(), unshift(), shift() - Adding & Removing Elements
+* deleting a property basically set to undefined, but it is a good rule to keep in mind that you should actually never assign undefined to any value.
+
+* NULL which really just means the person has this property. We just don't have a value in there right now.
+
+### Special Key Names & Square Bracket Property Access
 
 ```js
-const hobbies = ['Sports', 'Cooking'];
-hobbies.push('Reading');
-hobbies.unshift('Coding');
-const poppedValue = hobbies.pop();
-hobbies.shift();
-console.log(hobbies);
+const movieList = document.getElementById('movie-list');
+
+movieList.style['background-color'] = 'red';
+movieList.style.display = 'block';
 ```
-* push -> always adds new elements at the end of the array.
-
-* unshift -> always adds new elements at the beginning of the array.
-
-* pop -> Remove last elements
-
-* shift -> Remove First element
-
-* Now what if you need to add items or manipulate items in different places of an array? Well for that, you can use the direct index access.
+###  Property Types & Property Order
 
 ```js
-hobbies[1] = 'CODING'
+let person = {
+  'first name': 'Max',
+  age: 30,
+  hobbies: ['Sports', 'Cooking'],
+  greet: function() {
+    alert('Hi there!');
+  },
+  1.5: 'hello'
+};
+
+console.log(person[1.5]);
 ```
-
-* If we would want to insert an element between sports and cooking, there is a different method,the splice method that we will see in sometimes.
-
-* Before we have a look at that, let's have a look at another case, what if we actually target an index which isn't set, like 5? This array only has two elements after all these operations, so 5 actually targets the 6th element which it doesn't have.
+### Dynamic Property Access & Setting Properties Dynamically
 
 ```js
-hobbies[5] = 'reading' // Rarely used...
-```
-* we log that to the console, what we'll see is that here we got sports and coding and then at index five, reading and we get three empty slots in between. 
+const userChosenKeyName = 'level';
 
-```js
-console.log(hobbies[4]); // undefined  - you get undefined here because nothing could be found in there in the end so that's also nice to know.
-```
-###  The splice() Method
+let person = {
+  'first name': 'Max',
+  age: 30,
+  hobbies: ['Sports', 'Cooking'],
+  [userChosenKeyName]: 'anything', // [userChosenKeyName] ==> 'level'
+  greet: function() {
+    alert('Hi there!');
+  },
+  1.5: 'hello'
+};
 
-* splice method that would help us insert elements between two elements,by the way is one of the methods which is only available on real arrays, not on iterables, not on array-like objects. That might be one reason why you convert an array-like or iterable object to a real array with array.from because then on that real array, you can use splice.
+const keyName = 'first name';
 
-* Now how does splice work? It takes at least two arguments there but there also is another version if you click on that down arrow here which takes more arguments. So there are two different versions of that function.
+console.log(person[keyName]);
 
-```js
-hobbies.splice(1, 0, 'Good Food'); // hobbies.splice(starting index, number of items to remove, item to be added,...)
-//.splice(start, delete, insert more than one comma separated);
-console.log(hobbies);
-
-const removedElements = hobbies.splice(-2, 1);
-console.log(hobbies);
 ```
 
-* Now in that version here, you specify a start index so that's zero based and then the amount of items you want to delete from that index on.
-
-* Now we don't want to delete anything here right, so maybe we start with index zero for item 1 and then we add zero because I don't want to delete anything, instead and that's now where the second version comes into play, we can add more arguments and as soon as you add another comma, this automatically jumps to that other definition, now you can add as many other arguments as you want which will be items that are inserted in the place of these deleted values here.
+#### Rendering Elements based on Objects
 
 ```js
-hobbies.splice(0);// [] -> empty array
-```
+const addMovieBtn = document.getElementById('add-movie-btn');
+const searchBtn = document.getElementById('search-btn');
 
-* if you just specify splice like this by the way here, you will see that if I reload, the array is empty. So splice without an item count will delete all items from that index on, so for index 0, it will delete all items in the array,
+const movies = [];
 
-* if you want to delete everything up from a specific element, you would take that index of that specific element and therefore now delete everything past
+const renderMovies = () => {
+  const movieList = document.getElementById('movie-list');
 
-```js
-hobbies.splice(2);// removes everything past index 2
-```
-* Now splice will also return something, it returns the removed elements so that they're not lost.
-
-* splice also works with a negative index here, you can specify a -1 or -2 and what it will then do is it will go to the end of the array and look from the right,
-
-```js
-hobbies.splice(-2, 1); // look from the right
-```
-* so if I specify -1, it will basically go to the last element of this array and then delete one element
-
-### Selecting Ranges & Creating Copies with slice()
-
-* Now another method you but you can use which has a similar name but does something totally different is slice, so not splice but slice.
-
-* The interesting thing slice does here though is it returns a brand new array and therefore this actually is also a nice way of copying an array, you remember? Arrays are in the end objects and therefore reference values.
-
-*  So if you compare an array to an array that looks totally equal to us humans, it will return false if it's not exactly the same object.
-
-
-```js
-const testResults = [1, 5.3, 1.5, 10.99, -5, 10];
-// const storedResults = testResults // same array reference if you push to testResults will affect storedResults also
-const storedResults = testResults.slice(2); // new array even its copied from testResults, alternation of testResults won't affect storedResults since slice create a brand new array
-
-testResults.push(5.91);
-
-console.log(storedResults, testResults);
-```
-* but what if you want to select two elements at the same time? So you want to select a part of your array, not the entire array but a part. Well slice helps you with that, you can use it like this and it will give you the full array but you can also specify a start and an end number and these are indexes of the array, start is included end is not
-
-* start is included end is not !!!!
-
-* Though what you can use are negative indexes but then both have to be negative. So you can start at the third last element, this has negative index 1 because there is no negative 0,
-
-* so in the negative indexes the first element from the end has index 1, negative index 2, negative index 3 and then going up to 2, 
-
-```js
-const storedResults = testResults.slice(-3,-1); // 10.99, -5
-
-const storedResults = testResults.slice(2); // 1.5, 10.99, -5, 10
-```
-* You can also just specify a single index here, negative or not, doesn't matter and not specify a second argument and this will then start at this index, so in this case at the element with index 2 which is of course this element and then select everything up from this element all the way to the end,
-
-### Adding Arrays to Arrays with concat()
-
-* There also is a useful method for adding elements to an array and returning a brand new array which again can be useful in situations where you want to create a copy of an array, maybe after adding new elements to it, The concat method allows you to concatenate, so to add elements at the end of an array.
-
-```js
-const testResults = [1, 5.3, 1.5, 10.99, -5, 10];
-
-const storedResults = testResults.concat([3.99, 2]);
-
-testResults.push(5.91);
-
-console.log(storedResults, testResults);
-```
-
-* Now therefore it's of course a bit like push, with push you can also add items to an array, by the way also more than one item, they will be added at the end but concat actually here takes an array or multiple arrays but not individual numbers or items in general but arrays, one or more arrays and combines these arrays with this array.
-
-* concat on the other hand will pull out all elements of the array you are passing here and add them as new elements to the existing array and it will then also return a brand new array. So it will create a copy of the array, add these items and return that copied brand new array, hence creating a new place in memory and a new address.
-
-* concat returned a brand new array.
-
-### Retrieving Indexes with indexOf() /& lastIndexOf()
-
-```js
-console.log(testResults.indexOf(1.5)); // Now as the name suggests, this returns the index of the value you're passing as an argument here.
-
-console.log(testResults.indexOf(1.5, 2)); // you also have an optional second argument that would allow you to specify a starting index so that you for example only start searching on elements with index 2 or higher.
-
-// there are a couple of important things to understand, for one if you have the same value more than once,this will stop after it found the first matching value
-
-console.log(testResults.lastIndexOf(1.5)); // you can use that to search from the right 
-
-const personData = [{ name: 'Max' }, { name: 'Manuel' }];
-console.log(personData.indexOf({ name: 'Manuel' })); // -1
-```
-*  Another important gotcha regarding index of and last index of is that it works fine for primitive values but not for reference values.
-
-* If we do this and I reload my page, we'll get -1 though, -1 is the return value of index of and last index of if it couldn't find any entry, then it always returns -1. So it doesn't throw an error,it doesn't return false or anything like that, it returns -1 if it didn't find anything.
-
-* Objects are reference values and therefore in the end here, I'm creating a brand new object and I'm passing this to index of and behind the scenes, index of is of course comparing all values to the value I passed to index of and because two objects even if they look similar are never similar, it doesn't find any match and therefore it returns -1.
-
-### Finding Stuff: find() and findIndex()
-
-```js
-const personData = [{ name: 'Max' }, { name: 'Manuel' }];
-console.log(personData.indexOf({ name: 'Manuel' }));
-
-const manuel = personData.find((person, idx, persons) => { // (single element of array, index, fullArray)
-  return person.name === 'Manuel';
-});
-// find work with the same reference array
-manuel.name = 'Anna'; // if we change here this will affect personData also
-
-console.log(manuel, personData);
-
-const maxIndex = personData.findIndex((person, idx, persons) => { // (single element of array, index, fullArray)
-  return person.name === 'Max';
-});
-
-console.log(maxIndex);
-```
-* There also is another useful method for finding out whether is part of an array or not and that's the includes method though it's also most useful for primitive values because it also just checks values like index of does.
-
-```js
-console.log(testResults.includes(1.5)); // This will then return true or false 
-```
-* includes is a great choice if you're not interested in the index and also not interested in the value but just want to know whether it's part of the array or not. Though it's important to keep in mind that index of will return -1 if something wasn't found.
-
-###  Alternative to for Loops: The forEach() Method
-
-```js
-const prices = [10.99, 5.99, 3.99, 6.59];
-const tax = 0.19;
-const taxAdjustedPrices = [];
-
-// for (const price of prices) {
-//   taxAdjustedPrices.push(price * (1 + tax));
-// }
-
-prices.forEach((price, idx, prices) => { // (single element of array, index, fullArray)
-  const priceObj = { index: idx, taxAdjPrice: price * (1 + tax) };
-  taxAdjustedPrices.push(priceObj);
-});
-
-console.log(taxAdjustedPrices);
-```
-### Transforming Data with map()
-
-* now instead of ForEach, we can use map, another special method available on arrays. Now map has the job of taking an array, running a function which has this form on every item in that array and then and that's important, that function should now return a new element for every element in that array, a possibly transformed element.
-
-```js
-const prices = [10.99, 5.99, 3.99, 6.59];
-const tax = 0.19;
-
-const taxAdjustedPrices = prices.map((price, idx, prices) => {
-  const priceObj = { index: idx, taxAdjPrice: price * (1 + tax) };
-  return priceObj;
-});
-
-console.log(prices, taxAdjustedPrices);
-```
-* For map, this function which you pass to it has to do something, has to return something, it has to return the map that transformed the new element for that array.
-
-### sort()ing and reverse()ing
-
-* Well the thing is sort by default converts everything to a string and then it's simply sorts this in a string logic and there, one is smaller than three for example, this is how it sorts it, For strings, only the first character is compared by default, hence it's not "10" > "3". but "1"< "3".
-
-```js
-// sort logic
-const sortedPrices = prices.sort((a, b) => {
-  if (a > b) {
-    return 1;
-  } else if (a === b) {
-    return 0;
+  if (movies.length === 0) {
+    movieList.classList.remove('visible');
+    return;
   } else {
-    return -1;
+    movieList.classList.add('visible');
   }
-});
+  movieList.innerHTML = '';
 
-// reverse logic
-const sortedPrices = prices.sort((a, b) => {
-  if (a > b) {
-    return -1;
-  } else if (a === b) {
-    return 0;
+  movies.forEach((movie) => {
+    const movieEl = document.createElement('li');
+    movieEl.textContent = movie.info.title;
+    movieList.append(movieEl);
+  });
+};
+
+const addMovieHandler = () => {
+  const title = document.getElementById('title').value;
+  const extraName = document.getElementById('extra-name').value;
+  const extraValue = document.getElementById('extra-value').value;
+
+  if (
+    title.trim() === '' ||
+    extraName.trim() === '' ||
+    extraValue.trim() === ''
+  ) {
+    return;
+  }
+
+  const newMovie = {
+    info: {
+      title,
+      [extraName]: extraValue
+    },
+    id: Math.random()
+  };
+
+  movies.push(newMovie);
+  renderMovies();
+};
+
+addMovieBtn.addEventListener('click', addMovieHandler);
+
+```
+### for-in Loops & Outputting Dynamic Properties
+
+```js
+movies.forEach((movie) => {
+  const movieEl = document.createElement('li');
+  let text = movie.info.title + ' - ';
+  for (const key in movie.info) {
+    if (key !== 'title') {
+      text = text + `${key}: ${movie.info[key]}`;
+    }
+  }
+  movieEl.textContent = text;
+  movieList.append(movieEl);
+});
+```
+### Adding the Filter Functionality
+
+```js
+const searchMovieHandler = () => {
+  const filterTerm = document.getElementById('filter-title').value;
+  renderMovies(filterTerm);
+};
+
+const renderMovies = (filter = '') => {
+  const movieList = document.getElementById('movie-list');
+
+  if (movies.length === 0) {
+    movieList.classList.remove('visible');
+    return;
   } else {
-    return 1;
+    movieList.classList.add('visible');
   }
-});
+  movieList.innerHTML = '';
 
-// console.log(sortedPrices.reverse());
+  const filteredMovies = !filter
+    ? movies
+    : movies.filter(movie => movie.info.title.includes(filter)); // movie -> includes -> filter title
+
+  filteredMovies.forEach(movie => {
+    const movieEl = document.createElement('li');
+    let text = movie.info.title + ' - ';
+    for (const key in movie.info) {
+      if (key !== 'title') {
+        text = text + `${key}: ${movie.info[key]}`;
+      }
+    }
+    movieEl.textContent = text;
+    movieList.append(movieEl);
+  });
+};
 ```
 
-### Filtering Arrays with filter()
+### The Object Spread Operator (...)
 
 ```js
-// const filteredArray = prices.filter((price, idx, prices) => { 
-//   return price  > 6;
-// });
+var person = {name: "Max", hobbies: ["h1","h2","h3","h4","h5","h6"]};
+var anotherPerson = person;
+person.age = 31; // this will affect both person and anotherPerson
 
-const filteredArray = prices.filter(p => p > 6);
+var person2 = {...person} // this will create a entire new person2 object
+person.age = 41; // this will change only person not person2
 
-console.log(filteredArray);
-```
-###  The Important reduce() Method
+person.hobbies.push("h7"); // this will affect person and person2 also why ??
 
-* So let's assume here with your prices, let's say the unfiltered, unchanged prices, you want to sum them up. Now of course what you can do is you can create for loop or you can use ForEach and you could create a sum here, let sum, set it to equal
-and then you could go through your prices, let's say with ForEach where you have the value of each price and then here in the end you say sum plus equal price, right? And if you do that and you console log the sum thereafter, we should have the sum of all prices. So that's not too much code and if I reload this, this probably is to sum.
-
-* Now of course that's not too difficult or not too problematic here, it's a quite short code snippet but we can actually write this with less code.
-
-```js
-const sum = prices.reduce((prevValue, curValue) => prevValue + curValue, 0); 
-// prices.reduce((prevValue, curValue, currentIndex, prices) => prevValue + curValue, default initial value);
-console.log(sum);
-```
-* Reduce, as the name suggests, reduces an array to a simpler value, for example it can reduce an array of numbers to the sum of these numbers. Of course that's not the only kind of reduction it can do, you can reduce any array to any value you need, so the idea always is that you reduce an array to a simpler value. Typically an array to a single number or a single string or whatever it is. Now the second argument you pass to reduce is the initial value with which you want to start,
-
-### Chaining Methods in JavaScript
-
-* With all these useful array methods you learned about, it's important to understand how you can combine them. Let's take map() and reduce() as an example:
-
-```js
-const originalArray = [{price: 10.99}, {price: 5.99}, {price: 29.99}];
-const transformedArray = originalArray.map(obj => obj.price); // produces [10.99, 5.99, 29.99]
-const sum = transformedArray.reduce((sumVal, curVal) => sumVal + curVal, 0); // => 46.97
-```
-* Of course, you could skip the map step and just add the extraction logic to reduce():
-
-```js
-const originalArray = [{price: 10.99}, {price: 5.99}, {price: 29.99}];
-const sum = originalArray.reduce((sumVal, curVal) => sumVal + curVal.price, 0); // => 46.97
-```
-* But let's say you have a more complex extraction logic and hence want to split this into multiple method calls. Or you have a re-usable map function which you want to be able to use in different places of your app. Then you can still write the initial example in a more concise way if you leverage method chaining:
-
-```js
-const originalArray = [{price: 10.99}, {price: 5.99}, {price: 29.99}];
-const sum = originalArray.map(obj => obj.price)
-    .reduce((sumVal, curVal) => sumVal + curVal, 0); // => 46.97
-```
-* We call .reduce() directly on the result of map() (which produces an array, that's why this is possible). Hence we can avoid storing the mapped array in a separate constant or variable that we might not need in any other place.
-
-### Arrays & Strings - split() and join()
-
-```js
-const data = 'new york;10.99;2000';
-
-const transformedData = data.split(';');
-transformedData[1] = +transformedData[1];
-console.log(transformedData);
-
-const nameFragements = ['Max', 'Schwarz'];
-const name = nameFragements.join(' ');
-console.log(name);
-```
-### The Spread Operator (...)
-
-```js
-const copiedNameFragments = [...nameFragments];
-const persons = [{ name: 'Max', age: 30 }, { name: 'Manuel', age: 31 }];
-
-const copiedPersons = [...persons]; // you
-persons[0].age = 31 ; // this change will overwrite copiedPersons also..
-
-// if you want a new reference array ... do like this
-const copiedPersons = persons.map(person => ({
-  name: person.name,
-  age: person.age
-}));
-
-console.log(Math.min(...prices));
-```
-### Understanding Array Destructuring
-
-```js
-const nameData = ['Max', 'Schwarz', 'Mr', 30];
-
-const [ firstName, lastName, ...otherInformation ] = nameData;
-console.log(firstName, lastName, otherInformation); // 'Max', 'Schwarz', ['Mr', 30]
 ```
 
-### Maps & Sets - Overview
-
-* Refer : array2
-
-* Let's create a new set of let's say IDs because that is a super example, IDs should be unique and therefore you might want to store them in a data structure where you can't have any duplicates.
+* that's just something which I explained in the arrays section already. This is normal, this is how reference values behave and the spread operator does not do a deep copy where it goes through all level of nested reference values you might have in this object or array and then copies it from scratch, instead it just copies the top level key-value pairs into a brand new object and any nested reference values are kept, the addresses there are kept, there are no hobbies created. If you would want to copy those as well, you would have to do it manually by assigning a new hobbies array where you copy over the old array and that's actually quite interesting
 
 ```js
-// const ids = new Set(); // empty set
+var person = {name: "Max", hobbies: ["h1","h2","h3","h4","h5","h6"], age : 30, lastName : "Karthick"};
+var person3 = {...person, hobbies: [...person.hobbies], age : 50 } // this will copy/ create / overwrite person3 hobbies and age(if need to update age not must)
+```
+* Now it's not a must do that you always do that if you have nested reference values, you don't always need to copy everything, it's just an option that you can do that if you then plan on changing hobbies for example on person and you don't want that reflected on your copy persons, then you would have to use that approach, if you don't plan on changing hobbies ever, then you of course don't need to create that deep copy because ultimately, every operation costs a little bit of performance.
 
-// const ids = new Set([1,2,3]); // if you try to access with index it will throw undefined.
-const ids = new Set(['Hi', 'from', 'set!']);
-ids.add(2);
-if (ids.has('Hi')) {
-  ids.delete('Hi');
+### Understanding Object.assign()
+
+```js
+var person = {name: "Max"};
+// var person2 = {...person}  we can do like this but there is alternative approach is object.assign()
+ var person2 = object.assign({}, person); // this will create a new reference object
+```
+
+### Object Destructuring
+
+* Just like array destructuring 
+
+```js
+ const { info, ...otherProps } = movie;
+```
+
+### Checking for Property Existance
+
+```js
+if('info' in movie) { // info is a property of movie object
+  // your logic
 }
 ```
-* and you can alternatively also initialize it by passing in an existing iterable, any iterable goes. So it can be an array, can be another set, can be a node list.
-
-* to retrieve a value from the set, you can use one of these specific set methods which you see if you type a dot here and then you get this auto completion. You got add to add a new entry, clear to clear all entries, delete to delete a single entry entries which we'll have a look at in a second.
-
-* Now what you don't have here is a method to get a value, there is no get method or anything like that.
-
-* Well if you think about a set, since every value can only be stored once there, you typically don't want to retrieve a value from there, instead you can check if it has a certain value, if one is stored in there and if it is, well in your subsequent code that depends on this existence in the set, you can just continue with one, you can just use this value of one because you know it's in the set.
-
-* this is how you work with a set, it's a data storage that basically tells you whether it contains something or not. 
-
-* if you add a duplicate value lets say ids.add(2);, even after try to add a duplicate entry only one entry will be there in the set.
-
-* So if I now check if it has two and I reload, I get true
-
-* Now if you would want to go through all elements in a set, you can do that with ids.entries. ids.entries, entries is a method which you can execute and it returns, as you can see, an iterable, which means you can use it in a for loop,
+* Oppisite to check if not property exists
 
 ```js
-for (const entry of ids.entries()) {
-  console.log(entry); // this will console values twice
+if(!('info' in movie)){ 
+  // your logic
 }
 ```
-* why would you have it twice? Why would it give you these arrays where you have the same value twice? Well this is there to be in line with the entries method on the map which we'll also later see where you also get two values but there, they will be different.
+### Introducing "this"
 
-* Alternatively use values() instead of entries(). this returns an iterable that only yields the set values once.
+*  what's the this keyword?
+
+* sometimes you want to bake certain logic into your objects,
 
 ```js
-for (const value of ids.values()) {
-  console.log(value); 
-}
+const newMovie = {
+    info: {
+      title,
+      [extraName]: extraValue
+    },
+    id: Math.random().toString(),
+    getFormattedTitle: function() {
+      return this.info.title.toUpperCase(); // this refers to newMovie object 
+    }
+  };
 ```
+* the this keyword will refer to whatever called that function, whatever was responsible for executing that function.
 
-* While delete if you try to delete a value of set which is not the part of the set you won't get any errors its just ignored
+* So this is the keyword to tell Javascript look into the object where this function is part of, though to be precise as you learned, look at the thing which is responsible for executing the function which typically is this newMovie object since this function is part of that object and then dive into some info property, into some title property and try to call toUppercase on this.
 
-* So to summarize, sets are a data structure or are data structures which help you manage unique values and in some cases, that can be useful. Now as I mentioned earlier already, the array is the most important data structure, so you will probably not use sets everywhere but if you have an application, a more complex application where you want to manage let's say ID which are already in use by logged in users, then you could use a set to keep track of these IDs and you might want to use a set instead of an array because you want to ensure that a single ID can't be part of the set more than once so that it doesn't get too big, doesn't consume too much memory or leads to other logical errors you might have in your code. So sets are great if you need uniqueness amongst your data.
-
-### Working with Maps
-
-* With a map where you stored the extra information, the object itself can be the key and therefore you don't have to add any ID or extract that or create arbitrary string keys, instead you can use the object as a key and retrieve values by just using that object as a key and hence if you save that and you reload here, you indeed get this object output there, so this works just fine.
+* Then wherever need formatted title we can call like below
 
 ```js
-const person1 = { name: 'Max' };
-const person2 = { name: 'Manuel' };
+const { getFormattedTitle } = movie;
 
-const personData = new Map([[person1, [{ date: 'yesterday', price: 10 }]]]); // So here you could have key and then some value and the key can be of any kind, doesn't have to be a string, can be a number, can be another object and values can also be of any kind.
+or
 
-personData.set(person2, [{ date: 'two weeks ago', price: 100 }]); // set person2 data
-
-console.log(personData);
-console.log(personData.get(person1)); // get data
-
-for (const [key, value] of personData.entries()) {
-  console.log(key, value);
-}
-
-for (const key of personData.keys()) {
-  console.log(key);
-}
-
-for (const value of personData.values()) {
-  console.log(value);
-}
-
-console.log(personData.size);
+let text = movie.getFormattedTitle() + ' - ';
 ```
 
-* we log an array essentially with always exactly two elements, where the first element is the key and the second element is the value. So for a map, it makes sense that this is an array of exactly two elements because we can then have key and value combined in one value, in one array here.
+### Method shorthand syntax
 
-* Refer : maps-sets-objects.pdf
-
-### Understanding WeakSet
-
-* WeakSet similar like normal set but way less methods available like add ,delete and has. There is no method to get all the entries for example and the reason for that is that weak set,internally works such that it can only store objects so that it can actually clear these objects for you, release them to garbage collection if you don't work with a certain piece of data anymore.
-
-* Conveniently if we console log persons here, the browser dev tools console still allows me to look inside of that
 
 ```js
-let person = {name: 'Max'};
-const persons = new WeakSet();
-persons.add(person);
-person = null 
+const newMovie = {
+    info: {
+      title,
+      [extraName]: extraValue
+    },
+    id: Math.random().toString(),
+    getFormattedTitle() { // . So you no longer have a traditional key-value pair here with a colon but instead you have this syntax.
+      return this.info.title.toUpperCase(); 
+    }
+  };
 ```
-* Now you might wonder, why would I need this strange thing? Well if you have an application where you store data, let's say in a set, object data in a set or other arrays, where you eventually will let go of data, then you want to make sure that this data can be garbage collected. Now if we work with that person here let's say and then we do some operations with it and we needed it in the set for these operations and we still need the set thereafter, maybe for other operations but this person is not really required anymore, then we can set person equal to null. This means we set this variable to null, so this object no longer has anyone who is interested in it. This person variable, which stored its address is now reset to null, so the address is released from there and the Javascript engine then is able to pick this up and eventually clear this object from the heap, that's what garbage collection does, it clears that data from memory.
+* So this is now a method shorthand syntax and it behaves just as before,
 
-* Now if you would use a normal set here which you can normally, then the person you created here would still be part of that set. So even if you cleared your variable here, you added that object, that pointer at this object to this set and Javascript thankfully detects that and will not clear the object because the set still holds a reference to it and that's good because Javascript would expect that you plan on working with that and deleting it therefore would be bad. Now let's say you eventually never end up working with that person again, then with a normal set, you have that unnecessary data stored in memory because you have that data in a set even though you don't need it anymore.
+### The "this" Keyword And Its Strange Behavior
 
-* Sure, you could have done persons delete and deleted that value but if you forgot that, well there you go. Now with weak set, if you reset all other places where you point that this object, the weak set will not hold onto it. So the weak set allows garbage collection to delete items that are part of the set as long as no other part of your code uses these items,
+* So now what's the problem with this?
 
-
-* So weak set is an interesting option in cases where you store object data in a set and you eventually release some of that data and you want to make sure that this thing can be garbage collected. Obviously super advanced, not something you'll use in many applications, not something we need here in the majority of this course to be honest but something to be aware of, especially as you grow as a developer and you will encounter more and more advanced programs, advanced code snippets where something like that might get used.
-
-###  Understanding WeakMap
-
-* Now with weak map, we have a similar idea as with weak set.
-
-* if the map is a normal map and we have person as a key there, the map will hold onto it and not release it for garbage collection, might be what you want but if you know you don't need that, you could use a weak map instead.
-
-* Now on a weak map, you can of course also call a couple of methods, way less than before because again you can't loop through the entries because the entries, the amount of entries and so on is simply not guaranteed which is why the size property is also not available. Javascript can't really tell what's in the map because it can look at it if you ask it with has and get if something is in there but other than that, it doesn't know if something has been released yet
-
-* and now here, keys have to be objects so that this garbage collection thing makes sense and any value, the value does not have to be an object, that could just be a string or whatever you want here.
+* Let's go back to the place where we use get formatted title and let's go back to destructuring. So I pull out get formatted title from movie, we can still do that even with the shorter function or method to be precise syntax, it still can be pulled out with object destructuring but of course now we just use it like that.
 
 ```js
-let person = {name: 'Max'};
-const personData = new WeakMap();
-personData.set(person, 'Extra info!');
+const { getFormattedTitle } = movie;
+let text = getFormattedTitle() + ' - '; // since we destructured we can directly use like this
+```
+* Now with this change this will throw an error "cannot read the property of title" because info is undefined in below code
 
-console.log(personData);
+```js
+getFormattedTitle: function() {
+      return this.info.title.toUpperCase(); // this.info is undefined why ???
+    }
+```
+* we do have this info property which holds an object in movie so what's wrong? Remember, this does not automatically refer to the object that kind of surrounds it, it instead refers to who or what was responsible for calling this function
 
-person = null // Now with that same logic as before, as soon as we let go of that person object in all other places, like here where I set my variable to null 
+* and I mentioned that the best way to memorize this is to look in front of that function. Previously, we had movie. and therefore movie, that object, was in the end responsible for triggering this function.
 
-console.log(personData); // still we will probably see the person if we log this weak map but eventually that will be garbage collected and it will not be part of that weak map anymore.
+* Now we have nothing there and then the thing responsible for triggering the function is our global execution context. In non-strict mode which I'm using here, this will then actually refer to the window object
+
+* that's just the default in non-strict mode and then this, if it refers to nothing else, refers to the global object.
+
+* If we were in strict mode which we can quickly enter of course by just adding use strict at the top, so if we were in strict mode, if we tried it again, you will see that this will actually be undefined, either way it will never refer to my movie.
+
+* So how can we work around that then, how can we make sure that this refers to the right thing? We can do that with something we already learned about earlier in this course, the good old bind method.
+
+* In the past we used bind() to preconfigure argument. Now we can also use bind to not only preconfigure arguments a function will get but also to preconfigure what this will refer to.
+
+* So in this case here, of course one fix would be to simply go back to movie.right, this worked and there is nothing wrong with it
+
+```js
+let text = movie.getFormattedTitle() + ' - ';
+```
+* but if that isn't an option or for whatever reason we don't want to do it, we can use bind here as well,
+
+```js
+let { getFormattedTitle } = movie;
+
+getFormattedTitle = getFormattedTitle.bind(movie); 
+
+```
+* now we're saying when this function executes which it does here, then this inside of the function, so here this keyword should not refer to what it normally would refer to, which is the thing that is responsible for executing the function but instead in this example here, it should refer to this movie
+
+```js
+"use strict";
+const addMovieBtn = document.getElementById('add-movie-btn');
+const searchBtn = document.getElementById('search-btn');
+
+const movies = [];
+
+const renderMovies = (filter = '') => {
+  const movieList = document.getElementById('movie-list');
+
+  if (movies.length === 0) {
+    movieList.classList.remove('visible');
+    return;
+  } else {
+    movieList.classList.add('visible');
+  }
+  movieList.innerHTML = '';
+
+  const filteredMovies = !filter
+    ? movies
+    : movies.filter(movie => movie.info.title.includes(filter));
+
+  filteredMovies.forEach(movie => {
+    const movieEl = document.createElement('li');
+    const { info, ...otherProps } = movie;
+    console.log(otherProps);
+    // const { title: movieTitle } = info;
+    let { getFormattedTitle } = movie;
+    getFormattedTitle = getFormattedTitle.bind(movie);
+    let text = getFormattedTitle() + ' - ';
+    for (const key in info) {
+      if (key !== 'title') {
+        text = text + `${key}: ${info[key]}`;
+      }
+    }
+    movieEl.textContent = text;
+    movieList.append(movieEl);
+  });
+};
+
+const addMovieHandler = () => {
+  const title = document.getElementById('title').value;
+  const extraName = document.getElementById('extra-name').value;
+  const extraValue = document.getElementById('extra-value').value;
+
+  if (
+    title.trim() === '' ||
+    extraName.trim() === '' ||
+    extraValue.trim() === ''
+  ) {
+    return;
+  }
+
+  const newMovie = {
+    info: {
+      title,
+      [extraName]: extraValue
+    },
+    id: Math.random().toString(),
+    getFormattedTitle() {
+      console.log(this);
+      return this.info.title.toUpperCase();
+    }
+  };
+
+  movies.push(newMovie);
+  renderMovies();
+};
+
+const searchMovieHandler = () => {
+  const filterTerm = document.getElementById('filter-title').value;
+  renderMovies(filterTerm);
+};
+
+addMovieBtn.addEventListener('click', addMovieHandler);
+searchBtn.addEventListener('click', searchMovieHandler);
+
+```
+### call() and apply()
+
+* Now you might argue though that this syntax is a bit redundant or this code here is a bit redundant, if we pull out get formatted title just to then reassign it to itself with the right this configuration and you'd be right.
+
+* Bind is useful whenever you want to preconfigure a function for the future execution but here we actually plan on executing the function right away, so instead of doing that we can also use a different method which we can call on a function.
+
+* Besides bind, you also have call. Call also takes multiple arguments, the first argument just as for bind is what this, the this keyword should refer to inside of the function that is about to be executed, second and more arguments, you can add as many as you want, are then the arguments that are passed into the function if it needs any.
+
+* Now here we don't need to pass in any arguments so I'm only interested in the first parameter which we pass to call and that again would be movie here.
+
+```js
+ let { getFormattedTitle } = movie;
+    getFormattedTitle = getFormattedTitle.call(movie);
+```
+* So how is call different from bind then? Well bind prepares a function for future execution, bind returns a new function object in the end which we then store here in get formatted title, call does not do that, call instead goes ahead and executes the function right away.
+
+* so it executes a function for you when you want to change what this refers to, that's where call is important.
+
+* we also got apply, apply is pretty similar to call, it also will execute the function right away, the difference is that there, first argument still is what this should refer to but then you don't have an infinite amount of additional arguments but instead it only takes one additional argument and that however has to be an array and that can now be your values for the different arguments this function might be taking
+
+```js
+ let { getFormattedTitle } = movie;
+    getFormattedTitle = getFormattedTitle.apply(movie,[]);
 ```
 
-* and therefore I get rid of the address which was stored in there, Javascript is able to garbage collect this and the weak map won't stop it from garbage collecting this
+* So in the end, the difference is call allows you to pass additional arguments as a comma separated list, apply allows you to pass additional arguments as an array,
 
-* So weak map and weak set, advanced, very advanced concepts which you will rarely use but which can help you manage memory more efficient in large applications where you have data which is fine to be deleted at some point which you might want to manage in a map or a set and where you don't want to take care about manually clearing data, well then weak map and weak that are great.
+* always keep in mind, this inside of a function always refers to what called that function or to be precise, always refers to the thing in front of your function execution here you could say.
+
+### What the Browser (Sometimes) Does to "this"
+
+* Now one use case where this thing in front of your function execution will not really work is for example when you bind or set your function on an event listener. So the key thing really is that this refers to what called a function, the thing with what's in front of the function only works if you're executing the function on your own in your code.
+
+* If you're setting it to an event listener like we're doing here with add movie handler, then we'll see something interesting,
+
+```js
+const searchMovieHandler = function (){
+  console.log(this)
+  const filterTerm = document.getElementById('filter-title').value;
+  renderMovies(filterTerm);
+};
+
+searchBtn.addEventListener('click', searchMovieHandler);
+```
+* would you expect that this refers to here? Well since there is nothing in front of it, it would be the global context right but that's wrong,
+
+* what's in front of it thing only makes sense if you're executing a function on your own, so if you added parentheses or if you're using apply or call, here we're not doing that.
+
+* We're indirectly executing this if you will by binding it to an event listener. So therefore we have to focus on the first definition I named, which is that this refers to who's responsible for calling this and here, that will actually be the event if you will, so the browser will trigger that event where we click on a button the browser then triggers the function,
+
+* so the browser is kind of responsible for executing this but in the end it's this event which is responsible, right? It's this click event which in the end is responsible for triggering this function and if we break it down even more it's the button that is responsible for executing this,and that's actually how the browser configures this. 
+
+* When a function executes based on an event, then this inside of the function will actually refer to the object, to the element that's triggered that event which in the end triggered that function.
+
+* To Make this really clear: The browser binds "this" for you (on event listener) to the DOM element that trigger that.
+
+* However that's now also important, only if you're not using an arrow function because there is something special about arrow functions to which I'll come back in a second.
+
+* click on search, we indeed see the button is output there, so this inside of a function that's triggered based on an event listener refers to the element or to the thing that is responsible for triggering this event.
+
+* Now I said for arrow functions that would be different though, so let's have a look at that now.
+
+### "this" and Arrow Functions
+
+```js
+const searchMovieHandler = () => {
+  console.log(this); // this refers to window object
+  const filterTerm = document.getElementById('filter-title').value;
+  renderMovies(filterTerm);
+};
+
+addMovieBtn.addEventListener('click', addMovieHandler);
+searchBtn.addEventListener('click', searchMovieHandler)
+```
+*  arrow functions have a lot of advantages, for example shorter syntax and so on and one other advantage which they have which really only makes sense now that we know about this is that they don't know "this". 
+
+* Every function has its own this, every function created with the function keyword or with this method shortcut here has its own this binding,
+
+* so in the end it ensures that this inside of that function is bound to something, it's bound to whatever is responsible for executing the function.
+
+* This outside of the arrow function and this inside of arrow function refers to the same thing.
+
+* Now if you paid close attention, this might be strange, shouldn't use strict lead to undefined being logged here? Why do we log the window? Use strict indeed leads to undefined being logged instead of the global window object
+
+* if you're using this in a normal function with the function keyword and this is not bound to anything else, that's the use case we had earlier,
+
+* Now arrow functions don't know this, they don't know the this keyword, therefore they don't trigger this strict mode fix or however you want to call it, where this inside of functions doesn't lead to the global object being referenced because this inside of an arrow function behaves exactly like this outside of that arrow function because again, arrow functions simply don't know this, they don't assign any special meaning to it, this inside just behaves as outside of the arrow function and there, strict mode does not lead to this, not referring to the global object, that's just a fix that is applied to this inside of normal functions that's not bound to anything else.
+
+* but then this might be undesired but actually in a lot of use cases, arrow functions can fix strange this behavior.
+
+* this refers to the same thing it would refer to outside of the function.
+
+* Just keep it in mind that arrow functions don't bind this to anything, instead they keep the context or the binding this has to the binding it would have outside of the function
+
+* For now, just be aware of that special behavior of arrow functions, they work differently with this than normal functions, with the function keyword and that can or cannot be desired.
+
+```js
+const memebers = { 
+  teamName : "Bonjour",
+  people : ["Guna", "maneesh"],
+  getTeamMembers(){
+    this.people.forEach(p => {
+      console.log(p+ " - " + this.teamName);
+    });
+  }
+}
+// Output -> memebers.getTeamMembers();
+// Guna - Bonjour
+// Maneesh - Bonjour
+```
+* This should refer to our members object inside of get team members because I'm calling get team members on members like this with a dot, so this should refer to members
+
+* let me show you how this would work without an arrow function there.
+
+```js
+const memebers = { 
+  teamName : "Bonjour",
+  people : ["Guna", "maneesh"],
+  getTeamMembers(){
+    this.people.forEach(function(p){
+      console.log(p+ " - " + this.teamName); 
+    });
+  }
+}
+// Output -> memebers.getTeamMembers();
+// Guna - undefined
+// Maneesh - undefined
+```
+* why undefined ?? Previously it worked, now it doesn't anymore, now why is that?
+
+* The reason is the way we create this function which we pass to ForEach. Now when I create this function like this with the function keyword.
+
+* This function gets executed on our behalf by ForEach and that in the end happens when we call get team members here.
+
+* So we don't know how exactly the browser executes function here for us. For event listeners, we saw that there, it would actually bind this to the object that triggered the event, that was something the browser did, now for ForEach, it doesn't seem to do any binding and therefore it just lets this be bound to the global object.
+
+* It certainly does not bind it to the surrounding object because this function gets executed because of ForEach, which is inside of that object but that's the only connection, it's not our object itself that would trigger this function somehow, instead it's ForEach and therefore the browser which triggers this function.
+
+* So this has the wrong value when we use it like that and the correct value if we use an arrow function instead here inside of ForEach because the arrow function doesn't change the binding of this and therefore this has the binding it would have if we write it outside of this function and what is outside of this function? Right, it's the get team members function and what is the binding of this in get team members? It's our object. That's why it works if we have an arrow function here.
+
+* and why doesn't work when we have this function. This function tries to bind this and it binds it to what this refers to when the function executes which is the global object,
+
+### "this" - Summary
+
+* The this keyword can lead to some headaches in JavaScript - this summary hopefully acts as a remedy.
+
+* this refers to different things, depending on where it's used and how (if used in a function) a function is called.
+
+* Generally, this refers to the "thing" which called a function (if used inside of a function). That can be the global context, an object or some bound data/ object (e.g. when the browser binds this to the button that triggered a click event).
+
+* 1. this in Global Context (i.e. outside of any function)
+
+```js
+function something() { ... }
+ 
+console.log(this); // logs global object (window in browser) - ALWAYS (also in strict mode)!
+
+```
+* 2. this in a Function (non-Arrow) - Called in the global context
+
+```js
+function something() { 
+    console.log(this);
+}
+ 
+something(); // logs global object (window in browser) in non-strict mode, undefined in strict mode
+```
+* 3. this in an Arrow-Function - Called in the global context
+
+```js
+const something = () => { 
+    console.log(this);
+}
+ 
+something(); // logs global object (window in browser) - ALWAYS (also in strict mode)!
+```
+* 4. this in a Method (non-Arrow) - Called on an object
+
+```js
+const person = { 
+    name: 'Max',
+    greet: function() { // or use method shorthand: greet() { ... }
+        console.log(this.name);
+    }
+};
+ 
+person.greet(); // logs 'Max', "this" refers to the person object
+```
+* 5. this in a Method (Arrow Function) - Called on an object
+
+```js
+const person = { 
+    name: 'Max',
+    greet: () => {
+        console.log(this.name);
+    }
+};
+ 
+person.greet(); // logs nothing (or some global name on window object), "this" refers to global (window) object, even in strict mode
+```
+
+* this can refer to unexpected things if you call it on some other object, e.g.:
+
+```js
+const person = { 
+    name: 'Max',
+    greet() {
+        console.log(this.name);
+    }
+};
+ 
+const anotherPerson = { name: 'Manuel' }; // does NOT have a built-in greet method!
+ 
+anotherPerson.sayHi = person.greet; // greet is NOT called here, it's just assigned to a new property/ method on the "anotherPerson" object
+ 
+anotherPerson.sayHi(); // logs 'Manuel' because method is called on "anotherPerson" object => "this" refers to the "thing" which called it
+```
+* If in doubt, a console.log(this); can always help you find out what this is referring to at the moment!
+
+```js
+const person = {
+    name: 'Max',
+    greet() {
+        console.log(this); // ???
+        console.log(this.name);
+    }
+};
+ 
+const { greet } = person;
+greet();
+
+// The Global object (or undefined) That's correct! Due to the way greet is called (not "on" any object), "this" will refer to the global object or undefined (in strict mode).
+```
+
+### Getters & Setters
+
+* there's one last nice feature which I want to introduce here and that are getters and setters, now what's that?
+
+* Now we have normal properties here, info for example and sometimes we want to control how a property can be set, so how a value can be assigned or how you can get it, so how you can retrieve it. Let's say here on our title, here I'm checking the validity of the inputs and then I'm assigning these properties all in one go when I create the new movie object. Well let's say for the title, so for properties where we know in advance that they will be part, I want to do that differently.
+
+```js
+  const title = document.getElementById('title').value;
+  const extraName = document.getElementById('extra-name').value;
+  const extraValue = document.getElementById('extra-value').value;
+
+  if (
+    extraName.trim() === '' ||
+    extraValue.trim() === ''
+  ) {
+    return;
+  }
+
+const newMovie = {
+  info: {
+    set title(val) { // and for the outside world, you have title with your getter and setter
+      if (val.trim() === '') {
+        this._title = 'DEFAULT'; // _title  to make it clear that this is like the internal value
+        return; 
+      }
+      this._title = val;
+    },
+    get title() { // title- name can be anything not necessarily title, and for the outside world, you have title with your getter and setter
+      return this._title;
+    },
+    [extraName]: extraValue
+  },
+  id: Math.random().toString(),
+  getFormattedTitle() {
+    console.log(this);
+    return this.info.title.toUpperCase();
+  }
+};
+```
+
+* Now So how do we now use that?
+
+* You use it like a property, so you don't add parentheses here, instead you can assign a value like you assign it to a property because setters and getters are a special kind of property, a special syntax
+
+understood by Javascript 
+```js
+// setter which will be triggered whenever we assign a value to this title property 
+newMovie.info.title = title; // title -> we already called at top as document.getElementById('title').value;
+console.log(newMovie.info.title); // the getter is triggered whenever we access the property, for example like this.
+```
+*  When I access it and want to read from it, then the getter runs, so then Javascript looks for this title property and again even though this looks like a method, we don't execute it as one because combined with the get keyword, Javascript allows us to access it like a normal property and it will execute this function for us and here we could also do additional transformations, additional checks
+
+* So getters and setters can be nice if you want to add some extra validation, maybe a fallback or add some extra transformation when getting a value and as I mentioned, what also is nice is of course that it allows you to also work with kind of read only values.
+
+* If we wouldn't have a setter here, if we tried to assign it, we'll actually get an error if I reload here and we try to enter Javascript here and then any values here, you'll see I get an error because I can't set a property which only has a getter.
+
+* So this allows us to add read-only properties and make sure you can only assign it here initially maybe but never thereafter by adding a getter but no setter.
+
+*  You can also add both or none of that, you'll not need getters and setters for every single property you use in your projects, actually you will only use them sometimes but it's nice to know about them and to be able to create read-only properties, to add extra validation with fallback values and to also set up some default transformations for when you're reaching out to some data.
+
