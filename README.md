@@ -1,1508 +1,425 @@
 # Javascript Complete
 
-## Classes & Object-oriented Programming (OOP)
+## Deep Dive: Constructor Functions & Prototypes
 
-### What is "Object-oriented Programming" (OOP)?
+###  Introducing Constructor Functions
 
-* It's an approach, it's a way of writing and of structuring your code in the end, it's a way of thinking or reasoning about your code and planning your code and the idea behind object oriented programming is that you work with kind of real life entities in your code.
-
-* Refer : whats-oop.pdf
-
-### Defining & Using a First Class
-
-* Classes allow us to build objects in an easier way or to build objects based on some blueprint to be precise.So we have objects and we have classes.
-
-* Now classes are something we can create in Javascript too, which do not replace objects but instead which allow us to define blueprints for objects so that we can easily recreate objects based on these classes because indeed objects then are also called instances of classes.
-
-* So we can create an object based on some class thereafter and therefore a class is just a definition of how the object looks like, which properties and methods it has, the place where we store our logic and then the object is the concrete thing we build based on that class with which we work in our code. So this class based creation which I'll show you in this module is an alternative to using object literals.
-
-* Refer : classes-and-instances.pdf
 
 ```js
-// we could create a function that builds us such an object, well a class in the end is such a function,
-
-class Product { // Make sure to use capital character for every sub words 
-
-// what's inside of that class is basically your blueprint of how an object created based on that class should look like.
-
-  // title = 'DEFAULT';
-  // imageUrl;
-  // description;
-  // price;
-
-  constructor(title, image, desc, price) {
-    //  When we create a product based on such a class, it would be nice if we could create it with some initial values
-    this.title = title;
-    this.imageUrl = image;
-    this.description = desc;
-    this.price = price;
-  }
-}
-
-const productList = {
-  products: [
-    new Product( // New in the end is a keyword Javascript understands that together with such a function execution which is based on a class,
-      'A Pillow',
-      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
-      'A soft pillow!',
-      19.99
-    ),
-    new Product(
-      'A Carpet',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
-      'A carpet which you might like - or not.',
-      89.99
-    )
-  ],
-  render() {
-    const renderHook = document.getElementById('app');
-    const prodList = document.createElement('ul');
-    prodList.className = 'product-list';
-    for (const prod of this.products) {
-      const prodEl = document.createElement('li');
-      prodEl.className = 'product-item';
-      prodEl.innerHTML = `
-        <div>
-          <img src="${prod.imageUrl}" alt="${prod.title}" >
-          <div class="product-item__content">
-            <h2>${prod.title}</h2>
-            <h3>\$${prod.price}</h3>
-            <p>${prod.description}</p>
-            <button>Add to Cart</button>
-          </div>
-        </div>
-      `;
-      prodList.append(prodEl);
-    }
-    renderHook.append(prodList);
-  }
-};
-
-productList.render();
-
-```
-* what's inside of that class is basically your blueprint of how an object created based on that class should look like.
-
-* So you define which properties such an object should have and which methods it should have.
-
-* New in the end is a keyword Javascript understands that together with such a function execution which is based on a class,
-
-*  When we create a product based on such a class, it would be nice if we could create it with some initial values.
-
-* I want to make sure that when we call new product, we can kind of pass our initial values here to new product so that we can create a new object with some initial values. Of course by the way, we could of course create a new product like this and then just assign values with the dot notation but that's not what we want to do, we want to create it in one go,
-
-### Working with Constructor Methods
-
-
-* It would be nice if we could call new product and just pass information to that product function because we call it like a function, wouldn't it be nice if you could pass some arguments like a title, a price and so on here?
-
-* Note!!!! while adding method shorthand syntax don't add semi-colan at the end even if you add multiple methods add at the new line don't add semi-colan.
-
-* special method which Javascript executes for us is called the constructor method or the constructor function. We add constructor here as a method name and that's a reserved name
-
-* The idea behind a constructor is that it can accept arguments like any normal method.
-
-* in the curly braces and that's the interesting thing now, you can assign the values you're getting here for these parameters, so you can assign the arguments you're getting, to your class field, so to the properties of the object when it is instantiated then and you do this with the good old this keyword.
-
-```js
-class Product { 
-  constructor(title, image, desc, price) {
-    this.title = title; // This in here refers to your class or to be precise, since this class will be used to create an object, to the object that is created.
-    this.imageUrl = image;
-    this.description = desc;
-    this.price = price;
-  }
-}
-```
-* So now we can pass in a value
-
-```js
-products: [
-    new Product(
-      'A Pillow',
-      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
-      'A soft pillow!',
-      19.99
-    ),
-    new Product(
-      'A Carpet',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
-      'A carpet which you might like - or not.',
-      89.99
-    )
-  ],
-```
-* So now we're using this class as a blueprint and the huge advantage here is that we now have an easy, reusable way of creating objects which are guaranteed to always look the same, it's impossible for us to omit properties or to mistype properties because it's all defined in here in this class definition.
-
-### Fields vs Properties
-
-* let me come back to that class field versus property thing because it is important to get that right.
-
-* Refer : class-properties-fields-methods.pdf
-
-* so title is a class property, category is a class field but it's important to know that in the end, this is just a theoretical separation, a field becomes a property, when we create an object based on the class, we just call it property in the constructor function right away because the constructor gets called during that object creation process so there we get a property right away.
-
-* You don't really have to memorize this difference though, in the end fields are like properties, we define them in a class so that we have a property when we create that object based on the class.
-
-* In constructor property we overwrite that default logic where every field would be translated to a property because you manually assign a value to that property and therefore add that property anyways in the constructor.
-
-### Using & "Connecting" Multiple Classes
-
-*  Let's add another class because we can not just create classes which predefine objects which are basically data containers, we can also create classes for objects which hold more logic so that in the end our entire application logic is split up across multiple classes which we then just connect in some clever way.
-
-```js
-class Product {
-  // title = 'DEFAULT';
-  // imageUrl;
-  // description;
-  // price;
-
-  constructor(title, image, desc, price) {
-    this.title = title;
-    this.imageUrl = image;
-    this.description = desc;
-    this.price = price;
-  }
-}
-
-// now I want to outsource the logic for a single product, so what we render for a single product into another class.
-
-// so if I refer to a class inside of product list, I don't have to define it in front of product list, I could define it thereafter, Javascript will be aware of all classes,
-class ProductItem {
-  constructor(product) {
-    this.product = product; // adds product poperty to the productItem's product
-  }
-
-  render() {
-    const prodEl = document.createElement('li');
-    prodEl.className = 'product-item';
-    prodEl.innerHTML = `
-        <div>
-          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
-          <div class="product-item__content">
-            <h2>${this.product.title}</h2>
-            <h3>\$${this.product.price}</h3>
-            <p>${this.product.description}</p>
-            <button>Add to Cart</button>
-          </div>
-        </div>
-      `;
-    return prodEl;
-  }
-}
-
-class ProductList {
-  products = [
-    new Product(
-      'A Pillow',
-      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
-      'A soft pillow!',
-      19.99
-    ),
-    new Product(
-      'A Carpet',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
-      'A carpet which you might like - or not.',
-      89.99
-    )
-  ];
-
-  constructor() {}
-
-  render() {
-    const renderHook = document.getElementById('app');
-    const prodList = document.createElement('ul');
-    prodList.className = 'product-list';
-    for (const prod of this.products) {
-      const productItem = new ProductItem(prod);
-      const prodEl = productItem.render();
-      prodList.append(prodEl);
-    }
-    renderHook.append(prodList);
-  }
-}
-
-const productList = new ProductList();
-productList.render();
-```
-###  Binding Class Methods & Working with "this"
-
-```js
-class Product {
-  // title = 'DEFAULT';
-  // imageUrl;
-  // description;
-  // price;
-
-  constructor(title, image, desc, price) {
-    this.title = title;
-    this.imageUrl = image;
-    this.description = desc;
-    this.price = price;
-  }
-}
-
-class ProductItem {
-  constructor(product) {
-    this.product = product; // bind method calling this class on click button
-  }
-
-  addToCart() {
-    console.log('Adding product to cart...');
-    console.log(this.product); 
-  }
-
-  render() {
-    const prodEl = document.createElement('li');
-    prodEl.className = 'product-item';
-    prodEl.innerHTML = `
-        <div>
-          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
-          <div class="product-item__content">
-            <h2>${this.product.title}</h2>
-            <h3>\$${this.product.price}</h3>
-            <p>${this.product.description}</p>
-            <button>Add to Cart</button>
-          </div>
-        </div>
-      `;
-    const addCartButton = prodEl.querySelector('button');
-
-    // Now as you learned in that object module, Javascript then binds this to the source of that event,
-    // so to that button and not to your your class or the object where this effectively runs on later.
-
-    // addCartButton.addEventListener('click', this.addToCart);
-
-    // The solution or one possible solution is to use bind here and bind this, so that means that we bind this inside of add to cart,
-    // so what this refers to instead of addToCart method to the same thing this refers to in this place here
-    addCartButton.addEventListener('click', this.addToCart.bind(this)); // bind method
-   
-    return prodEl;
-  }
-}
-
-class ProductList {
-  products = [
-    new Product(
-      'A Pillow',
-      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
-      'A soft pillow!',
-      19.99
-    ),
-    new Product(
-      'A Carpet',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
-      'A carpet which you might like - or not.',
-      89.99
-    )
-  ];
-
-  constructor() {}
-
-  render() {
-    const renderHook = document.getElementById('app');
-    const prodList = document.createElement('ul');
-    prodList.className = 'product-list';
-    for (const prod of this.products) {
-      const productItem = new ProductItem(prod);
-      const prodEl = productItem.render();
-      prodList.append(prodEl);
-    }
-    renderHook.append(prodList);
-  }
-}
-
-const productList = new ProductList();
-productList.render();
-```
-
-### Static Methods & Properties
-
-* Refer : static-fields-methods.pdf
-
-* thus far, we only work with instances, we always use all these classes by using new because we need different product items which have the same structure but hold different data, with static properties and static methods, we have a class which is not instantiated and which therefore always works on the same data for example but that's exactly what we can utilize here.
-
-```js
-class Product {
-  // title = 'DEFAULT';
-  // imageUrl;
-  // description;
-  // price;
-
-  constructor(title, image, desc, price) {
-    this.title = title;
-    this.imageUrl = image;
-    this.description = desc;
-    this.price = price;
-  }
-}
-
-class ShoppingCart {
-  items = [];
-
-  addProduct(product) {
-    this.items.push(product);
-    this.totalOutput.innerHTML = `<h2>Total: \$${1}</h2>`;
-  }
-
-  render() {
-    const cartEl = document.createElement('section');
-    cartEl.innerHTML = `
-      <h2>Total: \$${0}</h2>
-      <button>Order Now!</button>
-    `;
-    cartEl.className = 'cart';
-    this.totalOutput = cartEl.querySelector('h2');
-    return cartEl;
-  }
-}
-
-class ProductItem {
-  constructor(product) {
-    this.product = product;
-  }
-
-  addToCart() {
-    App.addProductToCart(this.product); // Now important here I'm calling add product to cart on app and I'm forwarding this product, referring to my product in product item. 
-  }
-
-  render() {
-    const prodEl = document.createElement('li');
-    prodEl.className = 'product-item';
-    prodEl.innerHTML = `
-        <div>
-          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
-          <div class="product-item__content">
-            <h2>${this.product.title}</h2>
-            <h3>\$${this.product.price}</h3>
-            <p>${this.product.description}</p>
-            <button>Add to Cart</button>
-          </div>
-        </div>
-      `;
-    const addCartButton = prodEl.querySelector('button');
-    addCartButton.addEventListener('click', this.addToCart.bind(this));
-    return prodEl;
-  }
-}
-
-class ProductList {
-  products = [
-    new Product(
-      'A Pillow',
-      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
-      'A soft pillow!',
-      19.99
-    ),
-    new Product(
-      'A Carpet',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
-      'A carpet which you might like - or not.',
-      89.99
-    )
-  ];
-
-  constructor() {}
-
-  render() {
-    const prodList = document.createElement('ul');
-    prodList.className = 'product-list';
-    for (const prod of this.products) {
-      const productItem = new ProductItem(prod);
-      const prodEl = productItem.render();
-      prodList.append(prodEl);
-    }
-    return prodList;
-  }
-}
-
-class Shop {
-  
-  render() {
-    const renderHook = document.getElementById('app');
-
-    this.cart = new ShoppingCart();   //  we can store this reference to the cart object in a property, so this cart is equal to shopping cart.
-    const cartEl = this.cart.render(); // here also we used  this.cart as ShoppingCart instance
-    const productList = new ProductList();
-    const prodListEl = productList.render();
-
-    renderHook.append(cartEl);
-    renderHook.append(prodListEl);
-  }
-}
-
-class App {
-  static cart; // it's optional but still I would say it's a good practice, you can also add a static field here to the app class which is named cart so that we make it clear that we have these static cart property.
-
-  static init() { 
-    const shop = new Shop();
-    shop.render(); // first render this shop and then use shop.cart below
-    this.cart = shop.cart; // just be aware that if you would use this in here, you would always refer to the class itself 
-  }
-
-  static addProductToCart(product) {
-    this.cart.addProduct(product);
-  }
-}
-
- // now you therefore also don't create a new app like that or at least you could do that
-// but to call init, you don't do it, instead you can just call app referring to the class itself like this, .init like this
-App.init(); // and this will execute this init method directly on the class itself.
-
-```
-* Now again, we therefore have no app object we work with, instead we directly operate on that class and hence this will work but it's a different approach.
-
-###  First Summary & Classes vs Object Literals
-
-* Refer : classes-vs-object-literals.pdf
-
-* So now we had a first look at classes, we're using some classes to split our logic and we're also using classes in different ways.
-
-* We have our class with the static properties and the static methods to glue together some of the other classes and that's just one possible use case, static methods and static properties are always a good idea if you want to share some functionality across different parts of your application
-
-* let me take a step back and go back to the relation between classes and the objects you work with in Javascript. Refer : classes-vs-object-literals.pdf
-
-* For one of course it's important to realize that if you're not using a class in a static way like this here but instead by instantiating with new, what new shop in this case here returns, so what's stored in the shop constants here is a regular Javascript object or a reference to that object to be precise.
-
-```js
- const shop = new Shop();
-```
-* So it's in the end the same as what you get with that object literal notation, I really want to emphasize this
-
-* As a result, you can of course use all the things on these objects as you can do on normal objects because these are just normal objects. You can for example use destructuring to get the cart out of shop if you wanted to do that, something like that is possible, it's really important to understand this relation.
-
-```js
- const shop = new Shop();
- const { cart } = shop;
-```
-
-* It's also important to understand when to use classes. You might think that with classes, the old way of creating objects with the object literal notation is obsolete (ie no longer useful because something better has been invented) and that would be wrong, It's not obsolete,
-
-* it's great to use that object literal notation if you have some data collection, a couple of variables which you in the end want to group together and where you only want to do this once or in one place of your app, of your code and you don't plan on reusing that. So not as we're doing it with the product where we need that in different places, where we want to ensure that they always have the same structure but where you quickly want to create such an object on the fly, that's a perfect use case for using object literals.
-
-* that's a perfect use case for using object literals. They're quick and easy to use, you have no extra overhead and you also have a small performance benefit versus this class based instantiation which is quickly made up for though if you would unnecessarily create multiple objects with object literals instead of using classes and therefore sharing code, just to also say that.
-
-* So classes in general are a good idea if you have some logic which you want to reuse, if you want to recreate the same type of object with the same structure and the same attached logic over and over again
-
-* You have a little bit more overhead initially because you need to write that class definition but thereafter, you have that easy object duplication, of course not really a duplication instead new objects are created with that same internal structure but with different data, depending on how your class works of course.
-
-* So both is important and both has its place in Javascript and it's simply also something that comes with experience and with you working with Javascript, that you get a better feeling for when to use which.
-
-### Getters & Setters
-
-```js
-class ShoppingCart {
-  items = [];
-
-  set cartItems(value) {
-    this.items = value;
-    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(2)}</h2>`; // getter name ad totalAmount
-  }
-
-  get totalAmount() {
-    const sum = this.items.reduce(
-      (prevValue, curItem) => prevValue + curItem.price,
-      0
-    );
-    return sum;
-  }
-
-  addProduct(product) {
-    const updatedItems = [...this.items];
-    updatedItems.push(product);
-    this.cartItems = updatedItems; // setter name  this.cartItems , updatedItems is the value to the  cartItems
-  }
-
-  render() {
-    const cartEl = document.createElement('section');
-    cartEl.innerHTML = `
-      <h2>Total: \$${0}</h2>
-      <button>Order Now!</button>
-    `;
-    cartEl.className = 'cart';
-    this.totalOutput = cartEl.querySelector('h2');
-    return cartEl;
-  }
-}
-```
-###  Introducing Inheritance
-
-* Refer : inheritance.pdf
-
-* In this application, we get a couple of classes - product item, product list and also shopping cart and what they all have in common is that they have a render method and in that render method, we do different things but we always create a new element, we then add stuff to that element, for example with innerHTML, we then return that element.
-
-* Now we duplicate that logic, of course the exact configuration, for example the class name and the tag, that differs but the general logic always is the same. So whilst we do have different logic for what we then add to this element, the creation and configuration basically as I just said multiple times is the same and in such cases, we can use a concept called inheritance,
-
-* The idea behind inheritance is that we have some base class, let's say a post if we're building a social network, which holds a couple of properties and/or methods, in this example three properties, which we also need in other classes. Let's say we have a specialized version of that post which is an image post which also has all these properties but also in addition has an imageUrl and an image description and then we also have another specialized version of a post you can make, a video post which also has title, text and creatorId but which then also needs a video URL and let's say a rating regarding the age you've got to have to watch the video.
-
-* So we can of course build multiple classes but that's suboptimal because we duplicate a lot of code, all that purple code - title, text, creatorId, these properties we duplicate them all the time. So instead it would be nice if you could extend that base class and of course you can do that in Javascript and therefore inherit all that purple stuff.
-
-* So you can extend that class and then you get this shared purple content automatically in the specialized classes and you can still add your old extra properties or logic in these subclasses here, you can also override things shared in the base class if you would want to do that.
-
-* Refer : inheritance.pdf
-
-###  Implementing Inheritance
-
-```js
-
-class ElementAttribute {
-  constructor(attrName, attrValue) {
-    this.name = attrName;
-    this.value = attrValue;
-  }
-}
-
-
-class Component {
-  constructor(renderHookId) {
-    this.hookId = renderHookId;
-  }
-
-  createRootElement(tag, cssClasses, attributes) { // createRootElement method 
-    const rootElement = document.createElement(tag);
-    if (cssClasses) {
-      rootElement.className = cssClasses;
-    }
-    if (attributes && attributes.length > 0) {
-      for (const attr of attributes) {
-        rootElement.setAttribute(attr.name, attr.value);
-      }
-    }
-    document.getElementById(this.hookId).append(rootElement);
-    return rootElement;
-  }
-}
-```
-* we need to extends this component class in our child class
-
-```js
-class ShoppingCart extends Component { // here we extends our base class - Component class
-
-  constructor(renderHookId) { 
-    super(renderHookId); // we need to pass renderHookId to the base component class 
-  }
-
-  items = [];
-
-  set cartItems(value) {
-    this.items = value;
-    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(2)}</h2>`;
-  }
-
-  get totalAmount() {
-    const sum = this.items.reduce(
-      (prevValue, curItem) => prevValue + curItem.price,
-      0
-    );
-    return sum;
-  }
-
-  
-  addProduct(product) {
-    const updatedItems = [...this.items];
-    updatedItems.push(product);
-    this.cartItems = updatedItems;
-  }
-
-  render() {
-    // since we extended  this will refer to this object and as I said, this object will hold everything or will have access to everything that's part of the parent class as well,
-    const cartEl = this.createRootElement('section', 'cart'); // here we called our base Component class method
-    cartEl.innerHTML = `
-      <h2>Total: \$${0}</h2>
-      <button>Order Now!</button>
-    `;
-    this.totalOutput = cartEl.querySelector('h2');
-  }
-}
-```
-* How we will get hookId ??
-
-```js
-class Shop {
-  render() {
-    const renderHook = document.getElementById('app');
-
-    this.cart = new ShoppingCart('app'); // 'app' --> renderHookId
-    this.cart.render();
-    const productList = new ProductList();
-    const prodListEl = productList.render();
-
-    renderHook.append(prodListEl);
-  }
-}
-```
-###  Using Inheritance Everywhere
-
-```js
-class Product {
-  // title = 'DEFAULT';
-  // imageUrl;
-  // description;
-  // price;
-
-  constructor(title, image, desc, price) {
-    this.title = title;
-    this.imageUrl = image;
-    this.description = desc;
-    this.price = price;
-  }
-}
-
-class ElementAttribute {
-  constructor(attrName, attrValue) {
-    this.name = attrName;
-    this.value = attrValue;
-  }
-}
-
-class Component {
-  constructor(renderHookId) {
-    this.hookId = renderHookId;
-  }
-
-  createRootElement(tag, cssClasses, attributes) {
-    const rootElement = document.createElement(tag);
-    if (cssClasses) {
-      rootElement.className = cssClasses;
-    }
-    if (attributes && attributes.length > 0) {
-      for (const attr of attributes) {
-        rootElement.setAttribute(attr.name, attr.value);
-      }
-    }
-    document.getElementById(this.hookId).append(rootElement);
-    return rootElement;
-  }
-}
-
-class ShoppingCart extends Component {
-  items = [];
-
-  set cartItems(value) {
-    this.items = value;
-    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(
-      2
-    )}</h2>`;
-  }
-
-  get totalAmount() {
-    const sum = this.items.reduce(
-      (prevValue, curItem) => prevValue + curItem.price,
-      0
-    );
-    return sum;
-  }
-
-  constructor(renderHookId) {
-    super(renderHookId);
-  }
-
-  addProduct(product) {
-    const updatedItems = [...this.items];
-    updatedItems.push(product);
-    this.cartItems = updatedItems;
-  }
-
-  render() {
-    const cartEl = this.createRootElement('section', 'cart');
-    cartEl.innerHTML = `
-      <h2>Total: \$${0}</h2>
-      <button>Order Now!</button>
-    `;
-    this.totalOutput = cartEl.querySelector('h2');
-  }
-}
-
-class ProductItem extends Component {
-  constructor(product, renderHookId) {
-    super(renderHookId); // we shold call this first so that the base class is fully initialaised
-    this.product = product;
-  }
-
-  addToCart() {
-    App.addProductToCart(this.product);
-  }
-
-  render() {
-    const prodEl = this.createRootElement('li', 'product-item');
-    prodEl.innerHTML = `
-        <div>
-          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
-          <div class="product-item__content">
-            <h2>${this.product.title}</h2>
-            <h3>\$${this.product.price}</h3>
-            <p>${this.product.description}</p>
-            <button>Add to Cart</button>
-          </div>
-        </div>
-      `;
-    const addCartButton = prodEl.querySelector('button');
-    addCartButton.addEventListener('click', this.addToCart.bind(this));
-  }
-}
-
-class ProductList extends Component {
-  products = [
-    new Product(
-      'A Pillow',
-      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
-      'A soft pillow!',
-      19.99
-    ),
-    new Product(
-      'A Carpet',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
-      'A carpet which you might like - or not.',
-      89.99
-    )
-  ];
-
-  constructor(renderHookId) {
-    super(renderHookId);
-  }
-
-  render() {
-    this.createRootElement('ul', 'product-list', [
-      new ElementAttribute('id', 'prod-list') // In UL element we are setting id='prod-list'
-    ]);
-    for (const prod of this.products) {
-      const productItem = new ProductItem(prod, 'prod-list'); // renderHookId --> 'prod-list'
-      productItem.render();
-    }
-  }
-}
-
-class Shop {
-  render() {
-    this.cart = new ShoppingCart('app'); // ShoppingCart render in 'app' renderHookId
-    this.cart.render();
-    const productList = new ProductList('app'); // ProductList render in 'app' renderHookId
-    productList.render();
-  }
-}
-
-class App {
-  static cart;
-
-  static init() {
-    const shop = new Shop();
-    shop.render();
-    this.cart = shop.cart;
-  }
-
-  static addProductToCart(product) {
-    this.cart.addProduct(product);
-  }
-}
-
-App.init();
-```
-### Overriding Methods and the super() Constructor
-
-* One thing I want to do here is these render calls here right are kind of redundant, we create a product list and then I manually call render, well that should be done as part of the creation process I think because I'm always doing it thereafter manually.
-
-```js
-class Shop {
-  render() {
-    const renderHook = document.getElementById('app');
-
-    this.cart = new ShoppingCart('app'); // 'app' --> renderHookId
-    this.cart.render();
-    const productList = new ProductList();
-    const prodListEl = productList.render();
-
-    renderHook.append(prodListEl);
-  }
-}
-```
-###  Using Inheritance Everywhere
-
-```js
-class Product {
-  constructor(title, image, desc, price) {
-    this.title = title;
-    this.imageUrl = image;
-    this.description = desc;
-    this.price = price;
-  }
-}
-
-class ElementAttribute {
-  constructor(attrName, attrValue) {
-    this.name = attrName;
-    this.value = attrValue;
-  }
-}
-
-class Component {
-  constructor(renderHookId) {
-    this.hookId = renderHookId;
-    this.render()// since we are calling the parent constructor anyway, since since we're sharing this parent, let's just do it in the parent base component itself. 
-    // this.render() in the parent class will refer to the render method in the to-be-created object which is based on the subclass.
-    // inside of a constructor,This will refer to the object that is being created,
-  }
-
-  render(){
-    // The only thing I will now also do there is I will add a render method here and this is an empty method, so it doesn't do anything useful here.
-    // sub-class render method will override (fully replace) this method
-  }
-
-  createRootElement(tag, cssClasses, attributes) {
-    const rootElement = document.createElement(tag);
-    if (cssClasses) {
-      rootElement.className = cssClasses;
-    }
-    if (attributes && attributes.length > 0) {
-      for (const attr of attributes) {
-        rootElement.setAttribute(attr.name, attr.value);
-      }
-    }
-    document.getElementById(this.hookId).append(rootElement);
-    return rootElement;
-  }
-}
-
-class ShoppingCart extends Component {
-  items = [];
-
-  set cartItems(value) {
-    this.items = value;
-    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(
-      2
-    )}</h2>`;
-  }
-
-  get totalAmount() {
-    const sum = this.items.reduce(
-      (prevValue, curItem) => prevValue + curItem.price,
-      0
-    );
-    return sum;
-  }
-
-  constructor(renderHookId) {
-    super(renderHookId);
-  }
-
-  addProduct(product) {
-    const updatedItems = [...this.items];
-    updatedItems.push(product);
-    this.cartItems = updatedItems;
-  }
-
-  render() {
-    const cartEl = this.createRootElement('section', 'cart');
-    cartEl.innerHTML = `
-      <h2>Total: \$${0}</h2>
-      <button>Order Now!</button>
-    `;
-    this.totalOutput = cartEl.querySelector('h2');
-  }
-}
-
-class ProductItem extends Component {
-  constructor(product, renderHookId) {
-    super(renderHookId); 
-    this.product = product;
-  }
-
-  addToCart() {
-    App.addProductToCart(this.product);
-  }
-
-  render() {
-    const prodEl = this.createRootElement('li', 'product-item');
-    prodEl.innerHTML = `
-        <div>
-          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
-          <div class="product-item__content">
-            <h2>${this.product.title}</h2>
-            <h3>\$${this.product.price}</h3>
-            <p>${this.product.description}</p>
-            <button>Add to Cart</button>
-          </div>
-        </div>
-      `;
-    const addCartButton = prodEl.querySelector('button');
-    addCartButton.addEventListener('click', this.addToCart.bind(this));
-  }
-}
-
-class ProductList extends Component {
-  products = [
-    new Product(
-      'A Pillow',
-      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
-      'A soft pillow!',
-      19.99
-    ),
-    new Product(
-      'A Carpet',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
-      'A carpet which you might like - or not.',
-      89.99
-    )
-  ];
-
-  constructor(renderHookId) {
-    super(renderHookId);
-  }
-
-  render() {
-    this.createRootElement('ul', 'product-list', [
-      new ElementAttribute('id', 'prod-list') 
-    ]);
-    for (const prod of this.products) {
-      new ProductItem(prod, 'prod-list'); 
-      // const productItem = new ProductItem(prod, 'prod-list'); 
-      // productItem.render();
-    }
-  }
-}
-
-
-
-class Shop extends Component {
+class Person extends AgedPerson {
+  name = 'Max';
 
   constructor() {
-    super(); // call parent constructor - render hook ID is not required for the shop
-    // we definitely need to call super to make sure that the render method is getting triggered.
+    super();
+    this.age = 30;
   }
 
-  render() {
-    this.cart = new ShoppingCart('app'); 
-    // this.cart.render();
-    // const productList = new ProductList('app'); 
-    // productList.render();
-    new ProductList('app'); 
-  }
-}
-
-
-// an alternative here of course would have been to also just call this render like this because we need
-
-// nothing else from the base class, so you might argue that extending it might not make that much sense,
-
-// class Shop {
-//   constructor() {
-//     this.render();  // here....
-//   }
-//   render() {
-//     this.cart = new ShoppingCart('app'); 
-//     new ProductList('app'); 
-//   }
-// }
-
-
-class App {
-  static cart;
-
-  static init() {
-    const shop = new Shop();
-    // shop.render();
-    this.cart = shop.cart;
-  }
-
-  static addProductToCart(product) {
-    this.cart.addProduct(product);
-  }
-}
-
-App.init();
-```
-
-### super() Constructor Execution, Order & "this"
-
-* Inside of the parent constructor or inside of methods triggered by the parent constructor, you can't access any of these fields but as I just explained, you also wouldn't be able to access any of the other properties of this subclass here because you can only add properties, you can only use the this keyword in your subclass constructor after the parent class constructor finished execution and that includes any methods that might have been invoked by that parent class constructor.
-
-```js
-class ProductList extends Component {
-  products = [
-    new Product(
-      'A Pillow',
-      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
-      'A soft pillow!',
-      19.99
-    ),
-    new Product(
-      'A Carpet',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
-      'A carpet which you might like - or not.',
-      89.99
-    )
-  ];
-
-  constructor(renderHookId) {
-    super(renderHookId); // here render called before the data.. created
-  }
-
-  render() {
-    this.createRootElement('ul', 'product-list', [
-      new ElementAttribute('id', 'prod-list') 
-    ]);
-    for (const prod of this.products) {
-      new ProductItem(prod, 'prod-list'); 
-    }
-  }
-}
-```
-* So that's the problem we're facing here with this render method being called by the parent class constructor. In a constructor, we already go ahead and we execute render and we rely on data which hasn't been created yet.
-
-* So how can we solve that issue then? Well this is a quite common use case, you might wanna do something with some data which might just not be there yet when you get started and indeed, the products data would probably not be hardcoded into our code here but we might be fetching it from a database, so indeed it might really not be loaded when we try to render everything here.
-
-```js
-
-class Component {
-  constructor(renderHookId, shouldRender = true) {
-    this.hookId = renderHookId;
-    //we check if should render is true and if it is, we call render but now we can override this when we call the parent class constructor
-    if (shouldRender) {
-      this.render();
-    }
-  }
-
-  render() {}
-
-  createRootElement(tag, cssClasses, attributes) {
-    const rootElement = document.createElement(tag);
-    if (cssClasses) {
-      rootElement.className = cssClasses;
-    }
-    if (attributes && attributes.length > 0) {
-      for (const attr of attributes) {
-        rootElement.setAttribute(attr.name, attr.value);
-      }
-    }
-    document.getElementById(this.hookId).append(rootElement);
-    return rootElement;
-  }
-}
-
-class ProductItem extends Component {
-  constructor(product, renderHookId) {
-    super(renderHookId, false); // so with this we are blocking parent class constructor to call render
-    this.product = product; //  we instead call render manually after we know that the product was set.
-    this.render(); // here we call render manually
-  }
-
-  addToCart() {
-    App.addProductToCart(this.product);
-  }
-
-  render() {
-    const prodEl = this.createRootElement('li', 'product-item');
-    prodEl.innerHTML = `
-        <div>
-          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
-          <div class="product-item__content">
-            <h2>${this.product.title}</h2>
-            <h3>\$${this.product.price}</h3>
-            <p>${this.product.description}</p>
-            <button>Add to Cart</button>
-          </div>
-        </div>
-      `;
-    const addCartButton = prodEl.querySelector('button');
-    addCartButton.addEventListener('click', this.addToCart.bind(this));
-  }
-}
-
-
-class ProductList extends Component {
-  products = [];
-
-  constructor(renderHookId) {
-    super(renderHookId);
-    this.fetchProducts();
-  }
-
-  fetchProducts() {
-    this.products = [
-      new Product(
-        'A Pillow',
-        'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
-        'A soft pillow!',
-        19.99
-      ),
-      new Product(
-        'A Carpet',
-        'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
-        'A carpet which you might like - or not.',
-        89.99
-      )
-    ];
-    this.renderProducts(); // but I also want to call render products here in fetch products, so also call it here once I got my products.
-  }
-
-  renderProducts() {
-    for (const prod of this.products) {
-      new ProductItem(prod, 'prod-list');
-    }
-  }
-
-  render() {
-    this.createRootElement('ul', 'product-list', [
-      new ElementAttribute('id', 'prod-list')
-    ]);
-    if (this.products && this.products.length > 0) {
-      this.renderProducts(); // call renderProducts only after data has been loaded
-    }
-  }
-}
-```
-### Different Ways of Adding Methods
-
-```js
-class ShoppingCart extends Component {
-  items = [];
-
-  set cartItems(value) {
-    this.items = value;
-    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(
-      2
-    )}</h2>`;
-  }
-
-  get totalAmount() {
-    const sum = this.items.reduce(
-      (prevValue, curItem) => prevValue + curItem.price,
-      0
+  greet() {
+    console.log(
+      'Hi, I am ' + this.name + ' and I am ' + this.age + ' years old.'
     );
-    return sum;
-  }
-
-  constructor(renderHookId) {
-    
-    super(renderHookId, false);
-    // That's what I explained earlier, the fields are translated to properties after the parent constructor called via super() ran. 
-    // set up this, not as a field but actually as a property with this order products equal which kind of replaces the field, 
-    // just so it just executes such that we can thereafter call render manually.
-    this.orderProducts = () => { // either you should use arrow function here or in our trigger event listener
-      console.log('Ordering...');
-      console.log(this.items); // we also ensure that "this" inside of this function will always refer to the object created by the class
-      // and not to what it would normally refer to and in this case, that would be the button of course.
-    };
-
-    this.render(); // call render manually.
-    // So again, this is just a workaround that's required for this exact use case.
-  }
-
-  // Now actually technically there is a difference between storing a function in a property like this.orderProducts and adding a method addProduct that we will see in detail
-  addProduct(product) {
-    const updatedItems = [...this.items];
-    updatedItems.push(product);
-    this.cartItems = updatedItems;
-  }
-
-  render() {
-    const cartEl = this.createRootElement('section', 'cart');
-    cartEl.innerHTML = `
-      <h2>Total: \$${0}</h2>
-      <button>Order Now!</button>
-    `;
-    const orderButton = cartEl.querySelector('button');
-    // orderButton.addEventListener('click', () => this.orderProducts());
-    orderButton.addEventListener('click', this.orderProducts);
-    this.totalOutput = cartEl.querySelector('h2');
   }
 }
+
+const person = new Person();
+person.greet();
 ```
-### Private Properties
+* This is nothing new, this is how you use classes and this is what we learned about in the last course module. Now behind the scenes, classes utilize a concept that has been around in Javascript forever basically, for a very long time and that's the concept of constructor functions
 
-* Refer : private-fields-properties.pdf
+* Refer : constructor-functions-classes.pdf
 
-* There is one additional, very new feature which I don't want to hide from you though. It's extremely new, browser support is pretty slim right now but will get better and since this is a future oriented course, you'll learn it right now already so that we can use it in the future and in Chrome thankfully, already today
+*  Now constructor functions are a special type of function that acts as a blueprint for objects, same as class does, that can hold and set up properties and methods just like a class and that can then be created with the new keyword.
 
-* and that would be private fields, properties and methods, so that private term might not tell you much. Until now though I can tell you we only worked with public methods and public properties and fields but we can actually also work with private properties and fields and methods.
-
-* Now the idea behind public properties and methods is that we can access them from outside of the class and object and that's what we did in some cases already.
-
-* You typically want to make everything public which needs to be accessed from outside, so the things you worked with in your other code. An example would be if you have a product and there you have a buy method, which we don't have in our example but if you have another app and that should probably be triggered from outside the product object because the place where you work with your product object is probably the place where a user can buy it.
-
-* You also on the other hand have some logic, some methods or some properties which you need inside of an object but not outside of it, so the things which you need to make your object work and which you don't really need to trigger or work with from outside, some hardcoded fallback values or some class specific logic.
-
-* product should only be available from inside product list and we can achieve this in Javascript by adding a hash symbol in front of that.
+* So of course in modern browsers and modern scripts, we typically work with a class but behind the scenes, this class here would essentially be written as a function with the function keyword, with any name of your choice in this case person where still the convention is to use a capital character to make it clear that this function should not be called as a normal function but together with the new keyword to be used as a constructor function because indeed with the new keyword, Javascript will call this function differently than it normally would and then other than that, you write this as a regular function and to replicate this class,
 
 ```js
-class Product {
-  // title = 'DEFAULT';
-  // imageUrl;
-  // description;
-  // price;
-
-  constructor(title, image, desc, price) {
-    this.title = title;
-    this.imageUrl = image;
-    this.description = desc;
-    this.price = price;
-  }
-}
-
-class ElementAttribute {
-  constructor(attrName, attrValue) {
-    this.name = attrName;
-    this.value = attrValue;
-  }
-}
-
-class Component {
-  constructor(renderHookId, shouldRender = true) {
-    this.hookId = renderHookId;
-    if (shouldRender) {
-      this.render();
-    }
-  }
-
-  render() {}
-
-  createRootElement(tag, cssClasses, attributes) {
-    const rootElement = document.createElement(tag);
-    if (cssClasses) {
-      rootElement.className = cssClasses;
-    }
-    if (attributes && attributes.length > 0) {
-      for (const attr of attributes) {
-        rootElement.setAttribute(attr.name, attr.value);
-      }
-    }
-    document.getElementById(this.hookId).append(rootElement);
-    return rootElement;
-  }
-}
-
-class ShoppingCart extends Component {
-  items = [];
-
-  set cartItems(value) {
-    this.items = value;
-    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(
-      2
-    )}</h2>`;
-  }
-
-  get totalAmount() {
-    const sum = this.items.reduce(
-      (prevValue, curItem) => prevValue + curItem.price,
-      0
+function Person() {
+  this.age = 30;
+  this.name = 'Max';
+  this.greet = function() {
+    console.log(
+      'Hi, I am ' + this.name + ' and I am ' + this.age + ' years old.'
     );
-    return sum;
-  }
+  };
+}
 
-  constructor(renderHookId) {
-    super(renderHookId, false);
-    this.orderProducts = () => {
-      console.log('Ordering...');
-      console.log(this.items);
-    };
-    this.render();
-  }
+const person = new Person();
+person.greet();
+```
 
-  addProduct(product) {
-    const updatedItems = [...this.items];
-    updatedItems.push(product);
-    this.cartItems = updatedItems;
-  }
+### Constructor Functions vs Classes & Understanding "new"
 
-  render() {
-    const cartEl = this.createRootElement('section', 'cart');
-    cartEl.innerHTML = `
-      <h2>Total: \$${0}</h2>
-      <button>Order Now!</button>
-    `;
-    const orderButton = cartEl.querySelector('button');
-    // orderButton.addEventListener('click', () => this.orderProducts());
-    orderButton.addEventListener('click', this.orderProducts);
-    this.totalOutput = cartEl.querySelector('h2');
+* Now let's understand what happens here. Of course we can't expect that this function returns an object right because we don't have any return keyword in there.
+
+* It only returns an object because of that new keyword. If we wouldn't have new here, if we just call a person like this (const person = Person();), you will see that now if I repeat this, I get an error,
+
+* I get an error, cannot read property greet of undefined because we would be calling greet on person and person on the other hand indeed is undefined because we just execute the person function, this function returns nothing so it returns no value so no value is stored in this constant and on no value, on undefined we can't call greet. So calling person like this won't work because we effectively call it like a regular function,
+the fact that it starts with a capital character is just a convention, not something that changes something magically in Javascript.
+
+* So the naming here really is just a convention which you should follow but which has no technical impact, it's the new keyword that matters.
+
+* What the new keyword does behind the scenes and that's effectively also what it does for classes is it executes such a function, in there it sets this equal to the object that's going to be created, so equal to an empty object initially if you will, then it adds all these properties to this empty object and then it returns this and this is this object. This is effectively what's happening here you could say,
+
+```js
+function Person() {
+  this = {} // The new keyword does here behind the scenes when you call a function with it, with new
+  this.age = 30;
+  this.name = 'Max';
+  this.greet = function() {
+    console.log(
+      'Hi, I am ' + this.name + ' and I am ' + this.age + ' years old.'
+    );
+  };
+  return this; // The new keyword does here behind the scenes when you call a function with it, with new
+}
+
+const person = new Person();  
+person.greet();
+```
+
+* So now that we understand a bit how constructor functions work and that the new keyword matters, 
+
+* let's understand how this function relates to this class then. In the end, this class here is just something we call syntactical sugar for this constructor function because defining blueprints like this can be a bit cumbersome, it can be confusing and suddenly it doesn't behave like a normal function because you use new
+
+* if you're coming from a different programming language, you might be used to having classes, this is why classes were introduced to give us an easier way of writing these blueprint definitions.
+
+* Now behind the scenes, classes also do more than just set up such constructor functions, they also help us with a concept called prototypes.. that we will see soon
+
+* Now, the constructor function we have inside of a class effectively allows us to define this class body ie (function Person), so all the instructions that should run when an object is created based on the blueprint inside of a class
+
+* because in a constructor function like this, it's obvious that whenever we create a new object based on it, all the code in that function executes, so this is great for initializing it, for setting it up, for reaching out to some server or doing whatever you want.
+
+* well almost, you have that constructor function, this special method in there to be precise where everything you place in it also executes when this object gets created, so whatever goes into that constructor method here in your class is the same that would go into this person constructor function.
+
+### Introducing Prototypes
+
+* Refer : prototypes.pdf
+
+* There is this term, this concept called prototypes in Javascript and it's super important to Javascript, it's been around forever and Javascript indeed is a prototype-based language which uses prototypical inheritance.
+
+* Well in the end the class syntax, that's important to understand, just is syntactic sugar for constructor functions and also for working with the prototypes because working with them can be confusing, classes make that easier but it's still important to understand what they do.
+
+* So constructor functions and these prototypes power Javascript objects, but what are prototypes then?
+
+* Consider this constructor function as I just explained it, a function which we can call with new, the equivalent roughly would be such a class where we then build a person, a concrete object by calling that constructor function with the new keyword.
+
+* Now this object which we build based on that blueprint, based on that class or this constructor function has all the properties and all the methods defined in that constructor function.
+
+* So coming back to this example, when we create a person based on this constructor function, this p object here has an age property, a name property and a greet property which holds a function and therefore effectively that's a method because all of that is defined in here.
+
+* Now you learned about that idea of being able to inherit from other classes and therefore this has to be possible for other constructor functions as well.
+
+* In order to share functionality, to provide some methods or some properties which are available in all objects based on this class or constructor function or some subclass or subconstructor function in quotation marks because that's not an actual term. In non-class based Javascript and also in class based Javascript but there it happens behind the scenes, this is implemented with the concept of prototypes.
+
+* Every constructor function you build has a special prototype property which is not added to the objects you create based on it because it's not part of the function body but a property of that function object, keep in mind that functions are objects and that prototype is there by default you can also edit it, something we will do and it is then automatically assigned as a prototype to the object which is created when you instantiate that constructor function.
+
+* Now a prototype is an object itself, there are objects and every object has such a prototype OK but what exactly is the idea behind a prototype, why does every object have a prototype?
+
+* It's how Javascript shares code in the end and you can think of prototype objects as fallback objects, objects Javascript has a look at if it searches for a certain property or method it can't find on the object it started looking at.
+
+* Let's say we have a person object which has a name property and a greet method and then you have some code which calls person.sayHello. Now clearly there is no sayHello method in this person object, right? So normally we would expect this to fail and it might fail if our prototype or the prototype of the prototype also does not have a sayHello method because that's what Javascript will do, it will not fail immediately, instead as I said, every object in Javascript has a prototype and a prototype is basically a connected object which is used as a fallback object.
+
+* So here we have a prototype and as I said, a prototype is just another object and by the way in case you're wondering, yes this prototype object also will have its own prototype and I'll come back to this chain of prototypes a little bit later but back to this prototype here, so this is the connected prototype to the person object and this prototype object might have a sayHello method and if Javascript tries to access a certain method or property and doesn't find it on an object, it automatically looks at the prototype object and looks for the property there and if it doesn't find it there, it looks at the prototype of the prototype, all the way until it reaches the end of that chain and didn't find that property or method anywhere and in that case for a property it would return undefined, for a method it would throw an error.
+
+* So prototypes are in the end just connected objects which serve as fallback objects. Now that might sound confusing,
+
+* let me give you an example. If I console log p.toString, you will actually see that this does not yield an error but that this works, if I reload here, you see this strange output. The exact output doesn't matter, the important thing is that we don't get an error. Just to prove that we should expect one, if I call toStr which I know won't exist and I then reload, I actually get an error, toString is not a function or toStr is not a function.So why does toString work?
+
+* Because actually, there is some kind of invisible base object you could say on which our object is based, of course it's based on this constructor function but this doesn't add a toString method. So our constructor function somehow seems to point at some other base class, some other base constructor function which also kind of is called or which kind of does something, which basically adds the toString method to our object, kind of. Well indeed toString is not added to the object though, if we log the entire object with everything that's in there, we see there are exactly three things in there but there is this thing, the underscore __proto__property.
+
+* Now that's a special property, hence the strange name, it's not really a property you should use to assign a value to though it would work but not really recommended but it shows you what this so-called prototype of this object is and you can think of the prototype kind of as the base class, so a related, a connected object to which we can also reach out to ask it for properties or methods which you're trying to access which don't exist on this object itself,
+
+* The idea is that when you build a blueprint with a constructor function or with a class which in the end just uses constructor functions and prototypes behind the scenes and you then build an object based on that constructor function, you can call a method on that object. Now let's say we're calling the brief method here on person and let's say our constructor function or class does not have a brief method. What Javascript then does is it first of all when we call brief, it checks is that part of the object itself, so was it defined in the blueprint because as you learned, when you then instantiate an object based on the blueprint, the object has everything defined in the blueprint. So is the brief method part of the person itself, of that object which we created based on the constructor function? If yes, then we can execute the method, if no, well then we look to the prototype and that's just something you can memorize, it's called prototype, it's basically a base class of this person object here in the end you could say. There is a connection which is automatically set up and every object you create by default has such a prototype even if you haven't set up any inheritance here. and we do that until we reached the end and the last prototype we check is the prototype of this special object thing which I also showed you earlier.ie global object
+
+* Refer : deep1
+
+```js
+function Person() {
+  this.age = 30;
+  this.name = 'Max';
+  this.greet = function() {
+    console.log(
+      'Hi, I am ' + this.name + ' and I am ' + this.age + ' years old.'
+    );
+  };
+}
+
+Person.prototype = { // every object we build based on this constructor function should have a prototype which is exactly this object.
+  printAge() { // printAge added as fallback object of Person function
+    console.log(this.age);
+  }
+};
+
+console.dir(Person);
+
+const p = new Person();
+
+console.log(p.__proto__ === Person.prototype); // true;
+p.greet();
+p.printAge();
+console.log(p.__proto__); // This will not have any constructor methodn
+
+Person.prototype.printAge = function() { // printAge added as fallback object of Person function
+    console.log(this.age);
+};
+```
+### Prototypes - Summary
+
+* Prototypes can be a confusing and tricky topic - that's why it's important to really understand them.
+
+* A prototype is an object (let's call it "P") that is linked to another object (let's call it "O") - it (the prototype object) kind of acts as a "fallback object" to which the other object ("O") can reach out if you try to work with a property or method that's not defined on the object ("O") itself.
+
+* EVERY object in JavaScript by default has such a fallback object (i.e. a prototype object) 
+
+* It can be especially confusing when we look at how you configure the prototype objects for "to be created" objects based on constructor functions (that is done via the .prototype property of the constructor function object).
+
+```js
+function User() {
+    ... // some logic, doesn't matter => configures which properties etc. user objects will have
+}
+User.prototype = { age: 30 }; // sets prototype object for "to be created" user objects, NOT for User function object
+```
+
+* The User function here also has a prototype object of course (i.e. a connected fallback object) - but that is NOT the object the prototype property points at. Instead, you access the connected fallback/ prototype object via the special __proto__ property which EVERY object (remember, functions are objects) has.
+
+* The prototype property does something different: It sets the prototype object, which new objects created with this User constructor function will have.
+
+```js
+const userA = new User();
+userA.__proto__ === User.prototype; // true
+userA.__proto__ === User.__proto__ // false
+```
+### Working with Prototypes
+
+```js
+class AgedPerson {
+  printAge() {
+    console.log(this.age);
   }
 }
 
-class ProductItem extends Component {
-  constructor(product, renderHookId) {
-    super(renderHookId, false);
-    this.product = product;
-    this.render();
-  }
+class Person extends AgedPerson {
+  name = 'Max'; // these are directly part of person object
 
-  addToCart() {
-    App.addProductToCart(this.product);
-  }
-
-  render() {
-    const prodEl = this.createRootElement('li', 'product-item');
-    prodEl.innerHTML = `
-        <div>
-          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
-          <div class="product-item__content">
-            <h2>${this.product.title}</h2>
-            <h3>\$${this.product.price}</h3>
-            <p>${this.product.description}</p>
-            <button>Add to Cart</button>
-          </div>
-        </div>
-      `;
-    const addCartButton = prodEl.querySelector('button');
-    addCartButton.addEventListener('click', this.addToCart.bind(this));
-  }
-}
-
-class ProductList extends Component {
-  #products = []; // # means private product
-
-  constructor(renderHookId) {
-    super(renderHookId, false); // disable default 
-    this.render(); // manual render
-    this.fetchProducts(); //this.#fetchProducts(); even you can create private methods
-  }
-
-  fetchProducts() { // #fetchProducts() {
-    this.#products = [ // # means private product
-      new Product(
-        'A Pillow',
-        'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
-        'A soft pillow!',
-        19.99
-      ),
-      new Product(
-        'A Carpet',
-        'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
-        'A carpet which you might like - or not.',
-        89.99
-      )
-    ];
-    this.renderProducts();
-  }
-
-  renderProducts() {
-    for (const prod of this.#products) { // # means private product
-      new ProductItem(prod, 'prod-list');
-    }
-  }
-
-  render() {
-    this.createRootElement('ul', 'product-list', [
-      new ElementAttribute('id', 'prod-list')
-    ]);
-    if (this.#products && this.#products.length > 0) { // # means private product
-      this.renderProducts();
-    }
-  }
-}
-
-class Shop {
   constructor() {
-    this.render();
+    super();
+    this.age = 30; // these are directly part of person object
   }
 
-  render() {
-    this.cart = new ShoppingCart('app');
-    new ProductList('app');
-    // const list = new ProductList('app');
-    // console.log(list.#products); // if we try to access like this we will get an error "Private field must be declared in enclosing class"
+  greet() { // this is part of the prototype object, because this is shared across all the instances of this class
+    console.log(
+      'Hi, I am ' + this.name + ' and I am ' + this.age + ' years old.'
+    );
   }
-}
-
-class App {
-  static cart;
-
-  static init() {
-    const shop = new Shop();
-    this.cart = shop.cart;
-  }
-
-  static addProductToCart(product) {
-    this.cart.addProduct(product);
-  }
-}
-
-App.init();
-
-```
-
-### "Pseudo-Private" Properties
-
-* The addition of private fields and properties is relatively new - in the past, such a feature was not part of JavaScript. Hence you might find many scripts that use a concept which you could describe as "pseudo-private" properties.
-
-```js
-class User {
-    constructor() {
-        this._role = 'admin';
-    }
-}
- 
-// or directly in an object
- 
-const product = {
-    _internalId: 'abc1'
-};
-
-```
-* It's a quite common convention to prefix private properties with an underscore (_) to signal that they should not be accessed from outside of the object.
-
-* Important: It's just a convention that should signal something! It does NOT technically prevent access. You CAN run this code without errors for example:
-
-```js
-const product = {
-    _internalId: 'abc1'
-};
-console.log(product._internalId); // works!
-```
-* It's really just a hint that developers should respect. It's not as strict as the "real" private properties introduced recently (#propertyName).
-
-### The "instanceof" Operator
-
-```js
-class Person{
-  name : "max";
 }
 
 const p = new Person();
-p --->  // it's this type Person which is interesting.
-
-type p // "object"
+p.greet();
+p.printAge();
+console.log(p.__proto__); // this will have constructor function
 ```
+### The Prototype Chain and the Global "Object"
 
-* I haven't talked about this before because you need to understand classes, to understand the idea of types here. It's not an official type, if we do type of p, we'll see this is type object, this is not type person but still somehow Javascript keeps in mind that this was created based on that person class, it's not of that type but somewhere this has to be stored otherwise the developer tools couldn't show this to us and indeed, that is stored somewhere.
-
-* There is a special operator, instanceof and you can use it to check if an object is created based on a certain class or a certain blueprint.
+* Now it is important to understand that the prototype chain does not end after reaching out to that prototype of that person object. If we try to call a method like printAge which is not part of the person object itself because we don't set it up in the constructor function and we didn't add it to the person thereafter either, well then we go back to the fallback object which is the prototype, right? So it's this prototype here which indeed has the printAge method. If we called something else, for example if I tried to console log p.toString, the question is will this now still work. It worked earlier because we could fall back to an object, a base object which had the toString method, the question is, is that still the case now that we kind of edited the prototype here?
 
 ```js
-p instanceof Person // true
-```
-* this will return true if p was created based on person or if the value stored in p was created based on person and it will return false otherwise and actually in Javascript there are a bunch of built-in classes if you want to call them like this,
 
-### Built-in Classes
+function Person() {
+  this.age = 30;
+  this.name = 'Max';
+  this.greet = function() {
+    console.log(
+      'Hi, I am ' + this.name + ' and I am ' + this.age + ' years old.'
+    );
+  };
+}
+
+Person.describe = function() {
+  console.log('Creating persons...');
+}
+
+Person.prototype.printAge = function() {
+  console.log(this.age);
+};
+
+console.dir(Person);
+
+const p = new Person();
+p.greet();
+p.printAge();
+console.log(p.length);
+console.log(p.toString());
+const p2 = new p.__proto__.constructor();
+console.dir(Object.prototype.__proto__);
+
+```
+* yes it still works, we get no error. Now it still works because the prototype chain doesn't end at this default prototype. If we have a look at our prototype, it's this this object which has the printAge method and the constructor method but which itself also has a prototype. As I mentioned, every object has a prototype, not just the object we build based on a constructor function but also the fallback object of our object, so the prototype of our object
+
+* That prototype, that fallback object has its own fallback object, its own prototype and we can reach out to it with the special __proto__ property here. If we expand it here, we see an object which has that toString method, the question just is where is this object coming from? 
+
+* This in the end is the base object you always have access to. The default prototype every object gets, thanks to it being assigned as a default
+to be assigned prototype on every constructor function can be found on the global object class or to be precise, object constructor function.
+
+###  Classes & Prototypes
+
+* it's really important to understand the difference between the prototype property on constructor functions where you configure what will be added to objects that are created based on that constructor function
+
+* and the __proto property which is available on every object, not just on constructor functions or function objects which in the end points to the prototype that has been assigned to this object, so to the fallback object that has been assigned to that object, that is really important to understand and that's the idea behind prototypes.
+
+* Now arguably, using classes and extending makes that a lot easier which is why we have that and why we use that but it is super important to understand this behind the scenes stuff because Javascript is based on it and not only will you find this in many interviews or will you be forced to use this in code because you can't use classes for whatever reason, it also helps you understand the code you write and it's such a core concept of Javascript has been around forever you got to know. 
+
+* Refer : different-kinds-of-method-declarations.pdf
 
 ```js
-const obj = new object(); // same as const obj2 = {};
-const Array = new Array(); // []
+class Person extends AgedPerson {
+  name = 'Max'; // these are directly part of person object
+
+  constructor() {
+    super();
+    this.age = 30; // these are directly part of person object
+  }
+
+  greet() { // this is part of the prototype object, because this is shared across all the instances of this class
+    console.log(
+      'Hi, I am ' + this.name + ' and I am ' + this.age + ' years old.'
+    );
+  }
+}
 ```
-### Understanding Object Descriptors
+* 
 
 ```js
-const person = {name : 'Max', greet(){
-  console.log(this.name)
-}};
+class AgedPerson {
+  printAge() {
+    console.log(this.age);
+  }
+}
 
-person.greet()// Max
+class Person {
+  name = 'Max';
+
+  constructor() {
+    // super();
+    this.age = 30;
+    // this.greet = function() { ... }
+  }
+
+  // greet = () => {
+  //   console.log(
+  //     'Hi, I am ' + this.name + ' and I am ' + this.age + ' years old.'
+  //   );
+  // };
+
+  greet() {
+    console.log(
+      'Hi, I am ' + this.name + ' and I am ' + this.age + ' years old.'
+    );
+  }
+}
+
+// function Person() {
+//   this.age = 30;
+//   this.name = 'Max';
+//   // this.greet = function() { ... };
+// }
+
+// Person.prototype.greet = function() {
+//   console.log(
+//     'Hi, I am ' + this.name + ' and I am ' + this.age + ' years old.'
+//   );
+// };
+
+// Person.describe = function() {
+//   console.log('Creating persons...');
+// }
+
+// Person.prototype = {
+//   printAge() {
+//     console.log(this.age);
+//   }
+// };
+
+// Person.prototype.printAge = function() {
+//   console.log(this.age);
+// };
+
+// console.dir(Person);
+
+// const p = new Person();
+// p.greet();
+// p.printAge();
+// console.log(p.length);
+// console.log(p.toString());
+// const p2 = new p.__proto__.constructor();
+// console.dir(Object.prototype.__proto__);
+
+const p = new Person();
+const p2 = new Person();
+p.greet();
+console.log(p);
+
+const button = document.getElementById('btn');
+button.addEventListener('click', p.greet.bind(p));
 ```
-* Now actually every property you add and every method you add as well, it's basically a property which holds a function has a so-called descriptor.
+### Built-in Prototypes in JavaScript
+
+* Now one important additional word about prototypes in Javascript. They're essentially everywhere and we have also taken advantage of them in the course already without knowing that we did so, for example with all the array methods I explained to you. If you dive into the MDN docs, you see that the array methods - concat or filter are actually part of array.prototype, so they're defined on the fallback object, on the prototype every array is connected to.
+
+* And it's not just arrays, it's also the case for strings for example.Now strings are kind of a special type because they're primitive values but as I explained, they still kind of behave like objects when you do call a method on them, some Javascript internal and therefore here, we also got a string prototype which is then utilized in the end which holds methods that help us with strings, something like slice for example which we also know from arrays but also string exclusive methods like replace or split which we saw in the array course section and that's in general a pattern you'll see throughout Javascript. There are a bunch of built-in objects which are used as prototypes, so as fallback objects for other built-in objects.
+
+### Setting & Getting Prototypes
+
+* One thing we hadn't had a look at yet is how you can actually change the prototype of an object which already was created or which you are not creating with your own constructor function.
+
+* but what if you already have an object and you somehow want to change the prototype after it has been created or you want to create a new object without your own constructor function for whichever reason and you still want to set a different prototype. Now let me make it clear that both cases are definitely niche use cases, very advanced use cases, you might not encounter them every day but you will certainly find some scenarios where it can be useful if you are able to change the prototype of an existing object or of an object which is not created with one of your own constructors.
+
+* This __proto thing in the end is just an unofficial feature which was implemented by all browsers actually but it's not really the way you're meant to work with prototypes in Javascript, it's just due to the evolution of Javascript and that certain methods of interacting with prototypes weren't always available, that we have this special __proto__property which can be useful for looking into a prototype.
+
+* If you just want to look into the prototype during development, definitely use __proto. So that's get prototype of, more interesting for us here is clearly set prototype of. This takes two parameters and the first one is the object where you want to set the prototype, so my course object here, the second then is a prototype you want to use and that's the interesting thing now.
 
 ```js
-Object.getOwnPropertyDescriptor(person) // what you get back is a new object with the so-called property descriptors.
-```
+const course = {
+  // new Object()
+  title: 'JavaScript - The Complete Guide',
+  rating: 5
+};
 
-* Now that's some metadata stored behind the scenes by Javascript, it influences how the properties can be used, so that some configuration Javascript sets up for you and stores for you which you can change though.
+// console.log(Object.getPrototypeOf(course));
+Object.setPrototypeOf(course, {
+  // Here you can override the prototype that has been assigned to an object after the object was created
+  // ...Object.getPrototypeOf(course), // here we will get current prototype - So this would be a way of making this work whilst keeping the old prototype object functionality,
+  printRating: function() {
+    console.log(`${this.rating}/5`);
+  }
+});
 
-* So let's have a look at the name property, here it is, we see it has a value of Max, that's what we assigned but we see three other configuration items as well - configurable, enumerable and writable.
+const student = Object.create({
+  printProgress: function() {
+    console.log(this.progress);
+  }
+}, {
+  name: {
+    configurable: true,
+    enumerable: true,
+    value: 'Max',
+    writable: true
+  }
+});
 
-* Now this simply means that this property, the name property on the person object holds a value of Max that we can assign a new value so that it's writable, that it's configurable which means we can for example delete it and it's enumerable which means it appears in a for/in loop 
+// student.name = 'Max';
 
-```js
-Object.defineProperty(person, "name", {
-  value:'Max', // value: person.name
+Object.defineProperty(student, 'progress', {
   configurable: true,
   enumerable: true,
-  writable: false // here writable false
-})
+  value: 0.8,
+  writable: false
+});
+
+student.printProgress();
+
+console.log(student);
+
+course.printRating();
 ```
-* what you'll notice is that if I try to access person.name and set this to Maximilian, person still has Max in there, it didn't throw an error but it didn't accept the change.
+
+* it's also important to keep in mind that since we set the prototype to a new object, that new object which we set as a prototype will have its own prototype which is also object.prototype. So actually through that entire prototype chain, we would have access to toString and so on even without that line here because this object which we set as a new prototype will have that default object prototype itself and we would be able to access anything on that prototype from our course object as well thanks to that prototype chain where we always go to the next prototype in line if we can't find a certain property or method on the given object.
