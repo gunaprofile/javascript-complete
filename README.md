@@ -1,736 +1,1508 @@
 # Javascript Complete
 
-##  More Object
+## Classes & Object-oriented Programming (OOP)
 
-### Objects
+### What is "Object-oriented Programming" (OOP)?
 
-* Refer : what-are-objects.pdf
+* It's an approach, it's a way of writing and of structuring your code in the end, it's a way of thinking or reasoning about your code and planning your code and the idea behind object oriented programming is that you work with kind of real life entities in your code.
 
-### Objects & Primitive Values
+* Refer : whats-oop.pdf
 
-* Objects are reference values - you learned that.
+### Defining & Using a First Class
 
-* It might not have been obvious yet but it's also important to recognize that, in the end, objects are of course made up of primitive values.
+* Classes allow us to build objects in an easier way or to build objects based on some blueprint to be precise.So we have objects and we have classes.
 
-```js
-const complexPerson = {
-    name: 'Max',
-    hobbies: ['Sports', 'Cooking'],
-    address: {
-        street: 'Some Street 5',
-        stateId: 5,
-        country: 'Germany',
-        phone: {
-            number: 12 345 678 9,
-            isMobile: true
-        }
-    },
-};
-```
-* Event though complexPerson has multiple nested reference values (nested arrays and objects), you end up with primitive values if you drill into the object.
+* Now classes are something we can create in Javascript too, which do not replace objects but instead which allow us to define blueprints for objects so that we can easily recreate objects based on these classes because indeed objects then are also called instances of classes.
 
-* name holds a string ('Max') => Primitive value
+* So we can create an object based on some class thereafter and therefore a class is just a definition of how the object looks like, which properties and methods it has, the place where we store our logic and then the object is the concrete thing we build based on that class with which we work in our code. So this class based creation which I'll show you in this module is an alternative to using object literals.
 
-* hobbies holds an array (i.e. a reference value) which is full of strings ('Sports', 'Cooking') => Primitive values
-
-* address holds an object which in turn holds a mixture of primitive values like 'Some Street 5' and nested objects (phone), but if you dive into phone, you find only numbers and booleans in there => Primitive values
-
-* So you could say: Primitive values are the core building blocks that hold your data, objects (and arrays) are helpful for organizing and working with that data.
-
-### Adding, Modifying & Deleting Properties
+* Refer : classes-and-instances.pdf
 
 ```js
-let person = {
-  name: 'Max',
-  age: 30,
-  hobbies: ['Sports', 'Cooking'],
-  greet: function() {
-    alert('Hi there!');
-  }
-};
-
-// ...
-
-// person.age = 31;
-delete person.age; // deleting a property basically set to undefined
-// person.age = undefined;
-// person.age = null;
-person.isAdmin = true;
-
-console.log(person);
-```
-
-* deleting a property basically set to undefined, but it is a good rule to keep in mind that you should actually never assign undefined to any value.
-
-* NULL which really just means the person has this property. We just don't have a value in there right now.
-
-### Special Key Names & Square Bracket Property Access
-
-```js
-const movieList = document.getElementById('movie-list');
-
-movieList.style['background-color'] = 'red';
-movieList.style.display = 'block';
-```
-###  Property Types & Property Order
-
-```js
-let person = {
-  'first name': 'Max',
-  age: 30,
-  hobbies: ['Sports', 'Cooking'],
-  greet: function() {
-    alert('Hi there!');
-  },
-  1.5: 'hello'
-};
-
-console.log(person[1.5]);
-```
-### Dynamic Property Access & Setting Properties Dynamically
-
-```js
-const userChosenKeyName = 'level';
-
-let person = {
-  'first name': 'Max',
-  age: 30,
-  hobbies: ['Sports', 'Cooking'],
-  [userChosenKeyName]: 'anything', // [userChosenKeyName] ==> 'level'
-  greet: function() {
-    alert('Hi there!');
-  },
-  1.5: 'hello'
-};
-
-const keyName = 'first name';
-
-console.log(person[keyName]);
-
-```
-
-#### Rendering Elements based on Objects
-
-```js
-const addMovieBtn = document.getElementById('add-movie-btn');
-const searchBtn = document.getElementById('search-btn');
-
-const movies = [];
-
-const renderMovies = () => {
-  const movieList = document.getElementById('movie-list');
-
-  if (movies.length === 0) {
-    movieList.classList.remove('visible');
-    return;
-  } else {
-    movieList.classList.add('visible');
-  }
-  movieList.innerHTML = '';
-
-  movies.forEach((movie) => {
-    const movieEl = document.createElement('li');
-    movieEl.textContent = movie.info.title;
-    movieList.append(movieEl);
-  });
-};
-
-const addMovieHandler = () => {
-  const title = document.getElementById('title').value;
-  const extraName = document.getElementById('extra-name').value;
-  const extraValue = document.getElementById('extra-value').value;
-
-  if (
-    title.trim() === '' ||
-    extraName.trim() === '' ||
-    extraValue.trim() === ''
-  ) {
-    return;
-  }
-
-  const newMovie = {
-    info: {
-      title,
-      [extraName]: extraValue
-    },
-    id: Math.random()
-  };
-
-  movies.push(newMovie);
-  renderMovies();
-};
-
-addMovieBtn.addEventListener('click', addMovieHandler);
-
-```
-### for-in Loops & Outputting Dynamic Properties
-
-```js
-movies.forEach((movie) => {
-  const movieEl = document.createElement('li');
-  let text = movie.info.title + ' - ';
-  for (const key in movie.info) {
-    if (key !== 'title') {
-      text = text + `${key}: ${movie.info[key]}`;
-    }
-  }
-  movieEl.textContent = text;
-  movieList.append(movieEl);
-});
-```
-### Adding the Filter Functionality
-
-```js
-const searchMovieHandler = () => {
-  const filterTerm = document.getElementById('filter-title').value;
-  renderMovies(filterTerm);
-};
-
-const renderMovies = (filter = '') => {
-  const movieList = document.getElementById('movie-list');
-
-  if (movies.length === 0) {
-    movieList.classList.remove('visible');
-    return;
-  } else {
-    movieList.classList.add('visible');
-  }
-  movieList.innerHTML = '';
-
-  const filteredMovies = !filter
-    ? movies
-    : movies.filter(movie => movie.info.title.includes(filter)); // movie -> includes -> filter title
-
-  filteredMovies.forEach(movie => {
-    const movieEl = document.createElement('li');
-    let text = movie.info.title + ' - ';
-    for (const key in movie.info) {
-      if (key !== 'title') {
-        text = text + `${key}: ${movie.info[key]}`;
-      }
-    }
-    movieEl.textContent = text;
-    movieList.append(movieEl);
-  });
-};
-```
-
-### The Object Spread Operator (...)
-
-```js
-var person = {name: "Max", hobbies: ["h1","h2","h3","h4","h5","h6"]};
-var anotherPerson = person;
-person.age = 31; // this will affect both person and anotherPerson
-
-var person2 = {...person} // this will create a entire new person2 object
-person.age = 41; // this will change only person not person2
-
-person.hobbies.push("h7"); // this will affect person and person2 also why ??
-
-```
-
-* that's just something which I explained in the arrays section already. This is normal, this is how reference values behave and the spread operator does not do a deep copy where it goes through all level of nested reference values you might have in this object or array and then copies it from scratch, instead it just copies the top level key-value pairs into a brand new object and any nested reference values are kept, the addresses there are kept, there are no hobbies created. If you would want to copy those as well, you would have to do it manually by assigning a new hobbies array where you copy over the old array and that's actually quite interesting
-
-```js
-var person = {name: "Max", hobbies: ["h1","h2","h3","h4","h5","h6"], age : 30, lastName : "Karthick"};
-var person3 = {...person, hobbies: [...person.hobbies], age : 50 } // this will copy/ create / overwrite person3 hobbies and age(if need to update age not must)
-```
-* Now it's not a must do that you always do that if you have nested reference values, you don't always need to copy everything, it's just an option that you can do that if you then plan on changing hobbies for example on person and you don't want that reflected on your copy persons, then you would have to use that approach, if you don't plan on changing hobbies ever, then you of course don't need to create that deep copy because ultimately, every operation costs a little bit of performance.
-
-### Understanding Object.assign()
-
-```js
-var person = {name: "Max"};
-// var person2 = {...person}  we can do like this but there is alternative approach is object.assign()
- var person2 = object.assign({}, person); // this will create a new reference object
-```
-
-### Object Destructuring
-
-* Just like array destructuring 
-
-```js
- const { info, ...otherProps } = movie;
-```
-
-### Checking for Property Existance
-
-```js
-if('info' in movie) { // info is a property of movie object
-  // your logic
-}
-```
-* Oppisite to check if not property exists
-
-```js
-if(!('info' in movie)){ 
-  // your logic
-}
-```
-### Introducing "this"
-
-*  what's the this keyword?
-
-* sometimes you want to bake certain logic into your objects,
-
-```js
-const newMovie = {
-    info: {
-      title,
-      [extraName]: extraValue
-    },
-    id: Math.random().toString(),
-    getFormattedTitle: function() {
-      return this.info.title.toUpperCase(); // this refers to newMovie object 
-    }
-  };
-```
-* the this keyword will refer to whatever called that function, whatever was responsible for executing that function.
-
-* So this is the keyword to tell Javascript look into the object where this function is part of, though to be precise as you learned, look at the thing which is responsible for executing the function which typically is this newMovie object since this function is part of that object and then dive into some info property, into some title property and try to call toUppercase on this.
-
-* Then wherever need formatted title we can call like below
-
-```js
-const { getFormattedTitle } = movie;
-
-or
-
-let text = movie.getFormattedTitle() + ' - ';
-```
-
-### Method shorthand syntax
-
-
-```js
-const newMovie = {
-    info: {
-      title,
-      [extraName]: extraValue
-    },
-    id: Math.random().toString(),
-    getFormattedTitle() { // . So you no longer have a traditional key-value pair here with a colon but instead you have this syntax.
-      return this.info.title.toUpperCase(); 
-    }
-  };
-```
-* So this is now a method shorthand syntax and it behaves just as before,
-
-### The "this" Keyword And Its Strange Behavior
-
-* So now what's the problem with this?
-
-* Let's go back to the place where we use get formatted title and let's go back to destructuring. So I pull out get formatted title from movie, we can still do that even with the shorter function or method to be precise syntax, it still can be pulled out with object destructuring but of course now we just use it like that.
-
-```js
-const { getFormattedTitle } = movie;
-let text = getFormattedTitle() + ' - '; // since we destructured we can directly use like this
-```
-* Now with this change this will throw an error "cannot read the property of title" because info is undefined in below code
-
-```js
-getFormattedTitle: function() {
-      return this.info.title.toUpperCase(); // this.info is undefined why ???
-    }
-```
-* we do have this info property which holds an object in movie so what's wrong? Remember, this does not automatically refer to the object that kind of surrounds it, it instead refers to who or what was responsible for calling this function
-
-* and I mentioned that the best way to memorize this is to look in front of that function. Previously, we had movie. and therefore movie, that object, was in the end responsible for triggering this function.
-
-* Now we have nothing there and then the thing responsible for triggering the function is our global execution context. In non-strict mode which I'm using here, this will then actually refer to the window object
-
-* that's just the default in non-strict mode and then this, if it refers to nothing else, refers to the global object.
-
-* If we were in strict mode which we can quickly enter of course by just adding use strict at the top, so if we were in strict mode, if we tried it again, you will see that this will actually be undefined, either way it will never refer to my movie.
-
-* So how can we work around that then, how can we make sure that this refers to the right thing? We can do that with something we already learned about earlier in this course, the good old bind method.
-
-* In the past we used bind() to preconfigure argument. Now we can also use bind to not only preconfigure arguments a function will get but also to preconfigure what this will refer to.
-
-* So in this case here, of course one fix would be to simply go back to movie.right, this worked and there is nothing wrong with it
-
-```js
-let text = movie.getFormattedTitle() + ' - ';
-```
-* but if that isn't an option or for whatever reason we don't want to do it, we can use bind here as well,
-
-```js
-let { getFormattedTitle } = movie;
-
-getFormattedTitle = getFormattedTitle.bind(movie); 
-
-```
-* now we're saying when this function executes which it does here, then this inside of the function, so here this keyword should not refer to what it normally would refer to, which is the thing that is responsible for executing the function but instead in this example here, it should refer to this movie
-
-```js
-"use strict";
-const addMovieBtn = document.getElementById('add-movie-btn');
-const searchBtn = document.getElementById('search-btn');
-
-const movies = [];
-
-const renderMovies = (filter = '') => {
-  const movieList = document.getElementById('movie-list');
-
-  if (movies.length === 0) {
-    movieList.classList.remove('visible');
-    return;
-  } else {
-    movieList.classList.add('visible');
-  }
-  movieList.innerHTML = '';
-
-  const filteredMovies = !filter
-    ? movies
-    : movies.filter(movie => movie.info.title.includes(filter));
-
-  filteredMovies.forEach(movie => {
-    const movieEl = document.createElement('li');
-    const { info, ...otherProps } = movie;
-    console.log(otherProps);
-    // const { title: movieTitle } = info;
-    let { getFormattedTitle } = movie;
-    getFormattedTitle = getFormattedTitle.bind(movie);
-    let text = getFormattedTitle() + ' - ';
-    for (const key in info) {
-      if (key !== 'title') {
-        text = text + `${key}: ${info[key]}`;
-      }
-    }
-    movieEl.textContent = text;
-    movieList.append(movieEl);
-  });
-};
-
-const addMovieHandler = () => {
-  const title = document.getElementById('title').value;
-  const extraName = document.getElementById('extra-name').value;
-  const extraValue = document.getElementById('extra-value').value;
-
-  if (
-    title.trim() === '' ||
-    extraName.trim() === '' ||
-    extraValue.trim() === ''
-  ) {
-    return;
-  }
-
-  const newMovie = {
-    info: {
-      title,
-      [extraName]: extraValue
-    },
-    id: Math.random().toString(),
-    getFormattedTitle() {
-      console.log(this);
-      return this.info.title.toUpperCase();
-    }
-  };
-
-  movies.push(newMovie);
-  renderMovies();
-};
-
-const searchMovieHandler = () => {
-  const filterTerm = document.getElementById('filter-title').value;
-  renderMovies(filterTerm);
-};
-
-addMovieBtn.addEventListener('click', addMovieHandler);
-searchBtn.addEventListener('click', searchMovieHandler);
-
-```
-### call() and apply()
-
-* Now you might argue though that this syntax is a bit redundant or this code here is a bit redundant, if we pull out get formatted title just to then reassign it to itself with the right this configuration and you'd be right.
-
-* Bind is useful whenever you want to preconfigure a function for the future execution but here we actually plan on executing the function right away, so instead of doing that we can also use a different method which we can call on a function.
-
-* Besides bind, you also have call. Call also takes multiple arguments, the first argument just as for bind is what this, the this keyword should refer to inside of the function that is about to be executed, second and more arguments, you can add as many as you want, are then the arguments that are passed into the function if it needs any.
-
-* Now here we don't need to pass in any arguments so I'm only interested in the first parameter which we pass to call and that again would be movie here.
-
-```js
- let { getFormattedTitle } = movie;
-    getFormattedTitle = getFormattedTitle.call(movie);
-```
-* So how is call different from bind then? Well bind prepares a function for future execution, bind returns a new function object in the end which we then store here in get formatted title, call does not do that, call instead goes ahead and executes the function right away.
-
-* so it executes a function for you when you want to change what this refers to, that's where call is important.
-
-* we also got apply, apply is pretty similar to call, it also will execute the function right away, the difference is that there, first argument still is what this should refer to but then you don't have an infinite amount of additional arguments but instead it only takes one additional argument and that however has to be an array and that can now be your values for the different arguments this function might be taking
-
-```js
- let { getFormattedTitle } = movie;
-    getFormattedTitle = getFormattedTitle.apply(movie,[]);
-```
-
-* So in the end, the difference is call allows you to pass additional arguments as a comma separated list, apply allows you to pass additional arguments as an array,
-
-* always keep in mind, this inside of a function always refers to what called that function or to be precise, always refers to the thing in front of your function execution here you could say.
-
-### What the Browser (Sometimes) Does to "this"
-
-* Now one use case where this thing in front of your function execution will not really work is for example when you bind or set your function on an event listener. So the key thing really is that this refers to what called a function, the thing with what's in front of the function only works if you're executing the function on your own in your code.
-
-* If you're setting it to an event listener like we're doing here with add movie handler, then we'll see something interesting,
-
-```js
-const searchMovieHandler = function (){
-  console.log(this)
-  const filterTerm = document.getElementById('filter-title').value;
-  renderMovies(filterTerm);
-};
-
-searchBtn.addEventListener('click', searchMovieHandler);
-```
-* would you expect that this refers to here? Well since there is nothing in front of it, it would be the global context right but that's wrong,
-
-* what's in front of it thing only makes sense if you're executing a function on your own, so if you added parentheses or if you're using apply or call, here we're not doing that.
-
-* We're indirectly executing this if you will by binding it to an event listener. So therefore we have to focus on the first definition I named, which is that this refers to who's responsible for calling this and here, that will actually be the event if you will, so the browser will trigger that event where we click on a button the browser then triggers the function,
-
-* so the browser is kind of responsible for executing this but in the end it's this event which is responsible, right? It's this click event which in the end is responsible for triggering this function and if we break it down even more it's the button that is responsible for executing this,and that's actually how the browser configures this. 
-
-* When a function executes based on an event, then this inside of the function will actually refer to the object, to the element that's triggered that event which in the end triggered that function.
-
-* To Make this really clear: The browser binds "this" for you (on event listener) to the DOM element that trigger that.
-
-* However that's now also important, only if you're not using an arrow function because there is something special about arrow functions to which I'll come back in a second.
-
-* click on search, we indeed see the button is output there, so this inside of a function that's triggered based on an event listener refers to the element or to the thing that is responsible for triggering this event.
-
-* Now I said for arrow functions that would be different though, so let's have a look at that now.
-
-### "this" and Arrow Functions
-
-```js
-const searchMovieHandler = () => {
-  console.log(this); // this refers to window object
-  const filterTerm = document.getElementById('filter-title').value;
-  renderMovies(filterTerm);
-};
-
-addMovieBtn.addEventListener('click', addMovieHandler);
-searchBtn.addEventListener('click', searchMovieHandler)
-```
-*  arrow functions have a lot of advantages, for example shorter syntax and so on and one other advantage which they have which really only makes sense now that we know about this is that they don't know "this". 
-
-* Every function has its own this, every function created with the function keyword or with this method shortcut here has its own this binding,
-
-* so in the end it ensures that this inside of that function is bound to something, it's bound to whatever is responsible for executing the function.
-
-* This outside of the arrow function and this inside of arrow function refers to the same thing.
-
-* Now if you paid close attention, this might be strange, shouldn't use strict lead to undefined being logged here? Why do we log the window? Use strict indeed leads to undefined being logged instead of the global window object
-
-* if you're using this in a normal function with the function keyword and this is not bound to anything else, that's the use case we had earlier,
-
-* Now arrow functions don't know this, they don't know the this keyword, therefore they don't trigger this strict mode fix or however you want to call it, where this inside of functions doesn't lead to the global object being referenced because this inside of an arrow function behaves exactly like this outside of that arrow function because again, arrow functions simply don't know this, they don't assign any special meaning to it, this inside just behaves as outside of the arrow function and there, strict mode does not lead to this, not referring to the global object, that's just a fix that is applied to this inside of normal functions that's not bound to anything else.
-
-* but then this might be undesired but actually in a lot of use cases, arrow functions can fix strange this behavior.
-
-* this refers to the same thing it would refer to outside of the function.
-
-* Just keep it in mind that arrow functions don't bind this to anything, instead they keep the context or the binding this has to the binding it would have outside of the function
-
-* For now, just be aware of that special behavior of arrow functions, they work differently with this than normal functions, with the function keyword and that can or cannot be desired.
-
-```js
-const memebers = { 
-  teamName : "Bonjour",
-  people : ["Guna", "maneesh"],
-  getTeamMembers(){
-    this.people.forEach(p => {
-      console.log(p+ " - " + this.teamName);
-    });
+// we could create a function that builds us such an object, well a class in the end is such a function,
+
+class Product { // Make sure to use capital character for every sub words 
+
+// what's inside of that class is basically your blueprint of how an object created based on that class should look like.
+
+  // title = 'DEFAULT';
+  // imageUrl;
+  // description;
+  // price;
+
+  constructor(title, image, desc, price) {
+    //  When we create a product based on such a class, it would be nice if we could create it with some initial values
+    this.title = title;
+    this.imageUrl = image;
+    this.description = desc;
+    this.price = price;
   }
 }
-// Output -> memebers.getTeamMembers();
-// Guna - Bonjour
-// Maneesh - Bonjour
-```
-* This should refer to our members object inside of get team members because I'm calling get team members on members like this with a dot, so this should refer to members
 
-* let me show you how this would work without an arrow function there.
+const productList = {
+  products: [
+    new Product( // New in the end is a keyword Javascript understands that together with such a function execution which is based on a class,
+      'A Pillow',
+      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
+      'A soft pillow!',
+      19.99
+    ),
+    new Product(
+      'A Carpet',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
+      'A carpet which you might like - or not.',
+      89.99
+    )
+  ],
+  render() {
+    const renderHook = document.getElementById('app');
+    const prodList = document.createElement('ul');
+    prodList.className = 'product-list';
+    for (const prod of this.products) {
+      const prodEl = document.createElement('li');
+      prodEl.className = 'product-item';
+      prodEl.innerHTML = `
+        <div>
+          <img src="${prod.imageUrl}" alt="${prod.title}" >
+          <div class="product-item__content">
+            <h2>${prod.title}</h2>
+            <h3>\$${prod.price}</h3>
+            <p>${prod.description}</p>
+            <button>Add to Cart</button>
+          </div>
+        </div>
+      `;
+      prodList.append(prodEl);
+    }
+    renderHook.append(prodList);
+  }
+};
+
+productList.render();
+
+```
+* what's inside of that class is basically your blueprint of how an object created based on that class should look like.
+
+* So you define which properties such an object should have and which methods it should have.
+
+* New in the end is a keyword Javascript understands that together with such a function execution which is based on a class,
+
+*  When we create a product based on such a class, it would be nice if we could create it with some initial values.
+
+* I want to make sure that when we call new product, we can kind of pass our initial values here to new product so that we can create a new object with some initial values. Of course by the way, we could of course create a new product like this and then just assign values with the dot notation but that's not what we want to do, we want to create it in one go,
+
+### Working with Constructor Methods
+
+
+* It would be nice if we could call new product and just pass information to that product function because we call it like a function, wouldn't it be nice if you could pass some arguments like a title, a price and so on here?
+
+* Note!!!! while adding method shorthand syntax don't add semi-colan at the end even if you add multiple methods add at the new line don't add semi-colan.
+
+* special method which Javascript executes for us is called the constructor method or the constructor function. We add constructor here as a method name and that's a reserved name
+
+* The idea behind a constructor is that it can accept arguments like any normal method.
+
+* in the curly braces and that's the interesting thing now, you can assign the values you're getting here for these parameters, so you can assign the arguments you're getting, to your class field, so to the properties of the object when it is instantiated then and you do this with the good old this keyword.
 
 ```js
-const memebers = { 
-  teamName : "Bonjour",
-  people : ["Guna", "maneesh"],
-  getTeamMembers(){
-    this.people.forEach(function(p){
-      console.log(p+ " - " + this.teamName); 
-    });
+class Product { 
+  constructor(title, image, desc, price) {
+    this.title = title; // This in here refers to your class or to be precise, since this class will be used to create an object, to the object that is created.
+    this.imageUrl = image;
+    this.description = desc;
+    this.price = price;
   }
 }
-// Output -> memebers.getTeamMembers();
-// Guna - undefined
-// Maneesh - undefined
 ```
-* why undefined ?? Previously it worked, now it doesn't anymore, now why is that?
-
-* The reason is the way we create this function which we pass to ForEach. Now when I create this function like this with the function keyword.
-
-* This function gets executed on our behalf by ForEach and that in the end happens when we call get team members here.
-
-* So we don't know how exactly the browser executes function here for us. For event listeners, we saw that there, it would actually bind this to the object that triggered the event, that was something the browser did, now for ForEach, it doesn't seem to do any binding and therefore it just lets this be bound to the global object.
-
-* It certainly does not bind it to the surrounding object because this function gets executed because of ForEach, which is inside of that object but that's the only connection, it's not our object itself that would trigger this function somehow, instead it's ForEach and therefore the browser which triggers this function.
-
-* So this has the wrong value when we use it like that and the correct value if we use an arrow function instead here inside of ForEach because the arrow function doesn't change the binding of this and therefore this has the binding it would have if we write it outside of this function and what is outside of this function? Right, it's the get team members function and what is the binding of this in get team members? It's our object. That's why it works if we have an arrow function here.
-
-* and why doesn't work when we have this function. This function tries to bind this and it binds it to what this refers to when the function executes which is the global object,
-
-### "this" - Summary
-
-* The this keyword can lead to some headaches in JavaScript - this summary hopefully acts as a remedy.
-
-* this refers to different things, depending on where it's used and how (if used in a function) a function is called.
-
-* Generally, this refers to the "thing" which called a function (if used inside of a function). That can be the global context, an object or some bound data/ object (e.g. when the browser binds this to the button that triggered a click event).
-
-* 1. this in Global Context (i.e. outside of any function)
+* So now we can pass in a value
 
 ```js
-function something() { ... }
- 
-console.log(this); // logs global object (window in browser) - ALWAYS (also in strict mode)!
-
+products: [
+    new Product(
+      'A Pillow',
+      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
+      'A soft pillow!',
+      19.99
+    ),
+    new Product(
+      'A Carpet',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
+      'A carpet which you might like - or not.',
+      89.99
+    )
+  ],
 ```
-* 2. this in a Function (non-Arrow) - Called in the global context
+* So now we're using this class as a blueprint and the huge advantage here is that we now have an easy, reusable way of creating objects which are guaranteed to always look the same, it's impossible for us to omit properties or to mistype properties because it's all defined in here in this class definition.
+
+### Fields vs Properties
+
+* let me come back to that class field versus property thing because it is important to get that right.
+
+* Refer : class-properties-fields-methods.pdf
+
+* so title is a class property, category is a class field but it's important to know that in the end, this is just a theoretical separation, a field becomes a property, when we create an object based on the class, we just call it property in the constructor function right away because the constructor gets called during that object creation process so there we get a property right away.
+
+* You don't really have to memorize this difference though, in the end fields are like properties, we define them in a class so that we have a property when we create that object based on the class.
+
+* In constructor property we overwrite that default logic where every field would be translated to a property because you manually assign a value to that property and therefore add that property anyways in the constructor.
+
+### Using & "Connecting" Multiple Classes
+
+*  Let's add another class because we can not just create classes which predefine objects which are basically data containers, we can also create classes for objects which hold more logic so that in the end our entire application logic is split up across multiple classes which we then just connect in some clever way.
 
 ```js
-function something() { 
-    console.log(this);
+class Product {
+  // title = 'DEFAULT';
+  // imageUrl;
+  // description;
+  // price;
+
+  constructor(title, image, desc, price) {
+    this.title = title;
+    this.imageUrl = image;
+    this.description = desc;
+    this.price = price;
+  }
 }
- 
-something(); // logs global object (window in browser) in non-strict mode, undefined in strict mode
-```
-* 3. this in an Arrow-Function - Called in the global context
 
-```js
-const something = () => { 
-    console.log(this);
+// now I want to outsource the logic for a single product, so what we render for a single product into another class.
+
+// so if I refer to a class inside of product list, I don't have to define it in front of product list, I could define it thereafter, Javascript will be aware of all classes,
+class ProductItem {
+  constructor(product) {
+    this.product = product; // adds product poperty to the productItem's product
+  }
+
+  render() {
+    const prodEl = document.createElement('li');
+    prodEl.className = 'product-item';
+    prodEl.innerHTML = `
+        <div>
+          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
+          <div class="product-item__content">
+            <h2>${this.product.title}</h2>
+            <h3>\$${this.product.price}</h3>
+            <p>${this.product.description}</p>
+            <button>Add to Cart</button>
+          </div>
+        </div>
+      `;
+    return prodEl;
+  }
 }
- 
-something(); // logs global object (window in browser) - ALWAYS (also in strict mode)!
+
+class ProductList {
+  products = [
+    new Product(
+      'A Pillow',
+      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
+      'A soft pillow!',
+      19.99
+    ),
+    new Product(
+      'A Carpet',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
+      'A carpet which you might like - or not.',
+      89.99
+    )
+  ];
+
+  constructor() {}
+
+  render() {
+    const renderHook = document.getElementById('app');
+    const prodList = document.createElement('ul');
+    prodList.className = 'product-list';
+    for (const prod of this.products) {
+      const productItem = new ProductItem(prod);
+      const prodEl = productItem.render();
+      prodList.append(prodEl);
+    }
+    renderHook.append(prodList);
+  }
+}
+
+const productList = new ProductList();
+productList.render();
 ```
-* 4. this in a Method (non-Arrow) - Called on an object
+###  Binding Class Methods & Working with "this"
 
 ```js
-const person = { 
-    name: 'Max',
-    greet: function() { // or use method shorthand: greet() { ... }
-        console.log(this.name);
+class Product {
+  // title = 'DEFAULT';
+  // imageUrl;
+  // description;
+  // price;
+
+  constructor(title, image, desc, price) {
+    this.title = title;
+    this.imageUrl = image;
+    this.description = desc;
+    this.price = price;
+  }
+}
+
+class ProductItem {
+  constructor(product) {
+    this.product = product; // bind method calling this class on click button
+  }
+
+  addToCart() {
+    console.log('Adding product to cart...');
+    console.log(this.product); 
+  }
+
+  render() {
+    const prodEl = document.createElement('li');
+    prodEl.className = 'product-item';
+    prodEl.innerHTML = `
+        <div>
+          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
+          <div class="product-item__content">
+            <h2>${this.product.title}</h2>
+            <h3>\$${this.product.price}</h3>
+            <p>${this.product.description}</p>
+            <button>Add to Cart</button>
+          </div>
+        </div>
+      `;
+    const addCartButton = prodEl.querySelector('button');
+
+    // Now as you learned in that object module, Javascript then binds this to the source of that event,
+    // so to that button and not to your your class or the object where this effectively runs on later.
+
+    // addCartButton.addEventListener('click', this.addToCart);
+
+    // The solution or one possible solution is to use bind here and bind this, so that means that we bind this inside of add to cart,
+    // so what this refers to instead of addToCart method to the same thing this refers to in this place here
+    addCartButton.addEventListener('click', this.addToCart.bind(this)); // bind method
+   
+    return prodEl;
+  }
+}
+
+class ProductList {
+  products = [
+    new Product(
+      'A Pillow',
+      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
+      'A soft pillow!',
+      19.99
+    ),
+    new Product(
+      'A Carpet',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
+      'A carpet which you might like - or not.',
+      89.99
+    )
+  ];
+
+  constructor() {}
+
+  render() {
+    const renderHook = document.getElementById('app');
+    const prodList = document.createElement('ul');
+    prodList.className = 'product-list';
+    for (const prod of this.products) {
+      const productItem = new ProductItem(prod);
+      const prodEl = productItem.render();
+      prodList.append(prodEl);
     }
-};
- 
-person.greet(); // logs 'Max', "this" refers to the person object
+    renderHook.append(prodList);
+  }
+}
+
+const productList = new ProductList();
+productList.render();
 ```
-* 5. this in a Method (Arrow Function) - Called on an object
+
+### Static Methods & Properties
+
+* Refer : static-fields-methods.pdf
+
+* thus far, we only work with instances, we always use all these classes by using new because we need different product items which have the same structure but hold different data, with static properties and static methods, we have a class which is not instantiated and which therefore always works on the same data for example but that's exactly what we can utilize here.
 
 ```js
-const person = { 
-    name: 'Max',
-    greet: () => {
-        console.log(this.name);
-    }
-};
- 
-person.greet(); // logs nothing (or some global name on window object), "this" refers to global (window) object, even in strict mode
-```
+class Product {
+  // title = 'DEFAULT';
+  // imageUrl;
+  // description;
+  // price;
 
-* this can refer to unexpected things if you call it on some other object, e.g.:
+  constructor(title, image, desc, price) {
+    this.title = title;
+    this.imageUrl = image;
+    this.description = desc;
+    this.price = price;
+  }
+}
+
+class ShoppingCart {
+  items = [];
+
+  addProduct(product) {
+    this.items.push(product);
+    this.totalOutput.innerHTML = `<h2>Total: \$${1}</h2>`;
+  }
+
+  render() {
+    const cartEl = document.createElement('section');
+    cartEl.innerHTML = `
+      <h2>Total: \$${0}</h2>
+      <button>Order Now!</button>
+    `;
+    cartEl.className = 'cart';
+    this.totalOutput = cartEl.querySelector('h2');
+    return cartEl;
+  }
+}
+
+class ProductItem {
+  constructor(product) {
+    this.product = product;
+  }
+
+  addToCart() {
+    App.addProductToCart(this.product); // Now important here I'm calling add product to cart on app and I'm forwarding this product, referring to my product in product item. 
+  }
+
+  render() {
+    const prodEl = document.createElement('li');
+    prodEl.className = 'product-item';
+    prodEl.innerHTML = `
+        <div>
+          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
+          <div class="product-item__content">
+            <h2>${this.product.title}</h2>
+            <h3>\$${this.product.price}</h3>
+            <p>${this.product.description}</p>
+            <button>Add to Cart</button>
+          </div>
+        </div>
+      `;
+    const addCartButton = prodEl.querySelector('button');
+    addCartButton.addEventListener('click', this.addToCart.bind(this));
+    return prodEl;
+  }
+}
+
+class ProductList {
+  products = [
+    new Product(
+      'A Pillow',
+      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
+      'A soft pillow!',
+      19.99
+    ),
+    new Product(
+      'A Carpet',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
+      'A carpet which you might like - or not.',
+      89.99
+    )
+  ];
+
+  constructor() {}
+
+  render() {
+    const prodList = document.createElement('ul');
+    prodList.className = 'product-list';
+    for (const prod of this.products) {
+      const productItem = new ProductItem(prod);
+      const prodEl = productItem.render();
+      prodList.append(prodEl);
+    }
+    return prodList;
+  }
+}
+
+class Shop {
+  
+  render() {
+    const renderHook = document.getElementById('app');
+
+    this.cart = new ShoppingCart();   //  we can store this reference to the cart object in a property, so this cart is equal to shopping cart.
+    const cartEl = this.cart.render(); // here also we used  this.cart as ShoppingCart instance
+    const productList = new ProductList();
+    const prodListEl = productList.render();
+
+    renderHook.append(cartEl);
+    renderHook.append(prodListEl);
+  }
+}
+
+class App {
+  static cart; // it's optional but still I would say it's a good practice, you can also add a static field here to the app class which is named cart so that we make it clear that we have these static cart property.
+
+  static init() { 
+    const shop = new Shop();
+    shop.render(); // first render this shop and then use shop.cart below
+    this.cart = shop.cart; // just be aware that if you would use this in here, you would always refer to the class itself 
+  }
+
+  static addProductToCart(product) {
+    this.cart.addProduct(product);
+  }
+}
+
+ // now you therefore also don't create a new app like that or at least you could do that
+// but to call init, you don't do it, instead you can just call app referring to the class itself like this, .init like this
+App.init(); // and this will execute this init method directly on the class itself.
+
+```
+* Now again, we therefore have no app object we work with, instead we directly operate on that class and hence this will work but it's a different approach.
+
+###  First Summary & Classes vs Object Literals
+
+* Refer : classes-vs-object-literals.pdf
+
+* So now we had a first look at classes, we're using some classes to split our logic and we're also using classes in different ways.
+
+* We have our class with the static properties and the static methods to glue together some of the other classes and that's just one possible use case, static methods and static properties are always a good idea if you want to share some functionality across different parts of your application
+
+* let me take a step back and go back to the relation between classes and the objects you work with in Javascript. Refer : classes-vs-object-literals.pdf
+
+* For one of course it's important to realize that if you're not using a class in a static way like this here but instead by instantiating with new, what new shop in this case here returns, so what's stored in the shop constants here is a regular Javascript object or a reference to that object to be precise.
 
 ```js
-const person = { 
-    name: 'Max',
-    greet() {
-        console.log(this.name);
-    }
-};
- 
-const anotherPerson = { name: 'Manuel' }; // does NOT have a built-in greet method!
- 
-anotherPerson.sayHi = person.greet; // greet is NOT called here, it's just assigned to a new property/ method on the "anotherPerson" object
- 
-anotherPerson.sayHi(); // logs 'Manuel' because method is called on "anotherPerson" object => "this" refers to the "thing" which called it
+ const shop = new Shop();
 ```
-* If in doubt, a console.log(this); can always help you find out what this is referring to at the moment!
+* So it's in the end the same as what you get with that object literal notation, I really want to emphasize this
+
+* As a result, you can of course use all the things on these objects as you can do on normal objects because these are just normal objects. You can for example use destructuring to get the cart out of shop if you wanted to do that, something like that is possible, it's really important to understand this relation.
 
 ```js
-const person = {
-    name: 'Max',
-    greet() {
-        console.log(this); // ???
-        console.log(this.name);
-    }
-};
- 
-const { greet } = person;
-greet();
-
-// The Global object (or undefined) That's correct! Due to the way greet is called (not "on" any object), "this" will refer to the global object or undefined (in strict mode).
+ const shop = new Shop();
+ const { cart } = shop;
 ```
+
+* It's also important to understand when to use classes. You might think that with classes, the old way of creating objects with the object literal notation is obsolete (ie no longer useful because something better has been invented) and that would be wrong, It's not obsolete,
+
+* it's great to use that object literal notation if you have some data collection, a couple of variables which you in the end want to group together and where you only want to do this once or in one place of your app, of your code and you don't plan on reusing that. So not as we're doing it with the product where we need that in different places, where we want to ensure that they always have the same structure but where you quickly want to create such an object on the fly, that's a perfect use case for using object literals.
+
+* that's a perfect use case for using object literals. They're quick and easy to use, you have no extra overhead and you also have a small performance benefit versus this class based instantiation which is quickly made up for though if you would unnecessarily create multiple objects with object literals instead of using classes and therefore sharing code, just to also say that.
+
+* So classes in general are a good idea if you have some logic which you want to reuse, if you want to recreate the same type of object with the same structure and the same attached logic over and over again
+
+* You have a little bit more overhead initially because you need to write that class definition but thereafter, you have that easy object duplication, of course not really a duplication instead new objects are created with that same internal structure but with different data, depending on how your class works of course.
+
+* So both is important and both has its place in Javascript and it's simply also something that comes with experience and with you working with Javascript, that you get a better feeling for when to use which.
 
 ### Getters & Setters
 
-* there's one last nice feature which I want to introduce here and that are getters and setters, now what's that?
-
-* Now we have normal properties here, info for example and sometimes we want to control how a property can be set, so how a value can be assigned or how you can get it, so how you can retrieve it. Let's say here on our title, here I'm checking the validity of the inputs and then I'm assigning these properties all in one go when I create the new movie object. Well let's say for the title, so for properties where we know in advance that they will be part, I want to do that differently.
-
 ```js
-  const title = document.getElementById('title').value;
-  const extraName = document.getElementById('extra-name').value;
-  const extraValue = document.getElementById('extra-value').value;
+class ShoppingCart {
+  items = [];
 
-  if (
-    extraName.trim() === '' ||
-    extraValue.trim() === ''
-  ) {
-    return;
+  set cartItems(value) {
+    this.items = value;
+    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(2)}</h2>`; // getter name ad totalAmount
   }
 
-const newMovie = {
-  info: {
-    set title(val) { // and for the outside world, you have title with your getter and setter
-      if (val.trim() === '') {
-        this._title = 'DEFAULT'; // _title  to make it clear that this is like the internal value
-        return; 
+  get totalAmount() {
+    const sum = this.items.reduce(
+      (prevValue, curItem) => prevValue + curItem.price,
+      0
+    );
+    return sum;
+  }
+
+  addProduct(product) {
+    const updatedItems = [...this.items];
+    updatedItems.push(product);
+    this.cartItems = updatedItems; // setter name  this.cartItems , updatedItems is the value to the  cartItems
+  }
+
+  render() {
+    const cartEl = document.createElement('section');
+    cartEl.innerHTML = `
+      <h2>Total: \$${0}</h2>
+      <button>Order Now!</button>
+    `;
+    cartEl.className = 'cart';
+    this.totalOutput = cartEl.querySelector('h2');
+    return cartEl;
+  }
+}
+```
+###  Introducing Inheritance
+
+* Refer : inheritance.pdf
+
+* In this application, we get a couple of classes - product item, product list and also shopping cart and what they all have in common is that they have a render method and in that render method, we do different things but we always create a new element, we then add stuff to that element, for example with innerHTML, we then return that element.
+
+* Now we duplicate that logic, of course the exact configuration, for example the class name and the tag, that differs but the general logic always is the same. So whilst we do have different logic for what we then add to this element, the creation and configuration basically as I just said multiple times is the same and in such cases, we can use a concept called inheritance,
+
+* The idea behind inheritance is that we have some base class, let's say a post if we're building a social network, which holds a couple of properties and/or methods, in this example three properties, which we also need in other classes. Let's say we have a specialized version of that post which is an image post which also has all these properties but also in addition has an imageUrl and an image description and then we also have another specialized version of a post you can make, a video post which also has title, text and creatorId but which then also needs a video URL and let's say a rating regarding the age you've got to have to watch the video.
+
+* So we can of course build multiple classes but that's suboptimal because we duplicate a lot of code, all that purple code - title, text, creatorId, these properties we duplicate them all the time. So instead it would be nice if you could extend that base class and of course you can do that in Javascript and therefore inherit all that purple stuff.
+
+* So you can extend that class and then you get this shared purple content automatically in the specialized classes and you can still add your old extra properties or logic in these subclasses here, you can also override things shared in the base class if you would want to do that.
+
+* Refer : inheritance.pdf
+
+###  Implementing Inheritance
+
+```js
+
+class ElementAttribute {
+  constructor(attrName, attrValue) {
+    this.name = attrName;
+    this.value = attrValue;
+  }
+}
+
+
+class Component {
+  constructor(renderHookId) {
+    this.hookId = renderHookId;
+  }
+
+  createRootElement(tag, cssClasses, attributes) { // createRootElement method 
+    const rootElement = document.createElement(tag);
+    if (cssClasses) {
+      rootElement.className = cssClasses;
+    }
+    if (attributes && attributes.length > 0) {
+      for (const attr of attributes) {
+        rootElement.setAttribute(attr.name, attr.value);
       }
-      this._title = val;
-    },
-    get title() { // title- name can be anything not necessarily title, and for the outside world, you have title with your getter and setter
-      return this._title;
-    },
-    [extraName]: extraValue
-  },
-  id: Math.random().toString(),
-  getFormattedTitle() {
-    console.log(this);
-    return this.info.title.toUpperCase();
+    }
+    document.getElementById(this.hookId).append(rootElement);
+    return rootElement;
   }
-};
+}
 ```
+* we need to extends this component class in our child class
 
-* Now So how do we now use that?
-
-* You use it like a property, so you don't add parentheses here, instead you can assign a value like you assign it to a property because setters and getters are a special kind of property, a special syntax
-
-understood by Javascript 
 ```js
-// setter which will be triggered whenever we assign a value to this title property 
-newMovie.info.title = title; // title -> we already called at top as document.getElementById('title').value;
-console.log(newMovie.info.title); // the getter is triggered whenever we access the property, for example like this.
+class ShoppingCart extends Component { // here we extends our base class - Component class
+
+  constructor(renderHookId) { 
+    super(renderHookId); // we need to pass renderHookId to the base component class 
+  }
+
+  items = [];
+
+  set cartItems(value) {
+    this.items = value;
+    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(2)}</h2>`;
+  }
+
+  get totalAmount() {
+    const sum = this.items.reduce(
+      (prevValue, curItem) => prevValue + curItem.price,
+      0
+    );
+    return sum;
+  }
+
+  
+  addProduct(product) {
+    const updatedItems = [...this.items];
+    updatedItems.push(product);
+    this.cartItems = updatedItems;
+  }
+
+  render() {
+    // since we extended  this will refer to this object and as I said, this object will hold everything or will have access to everything that's part of the parent class as well,
+    const cartEl = this.createRootElement('section', 'cart'); // here we called our base Component class method
+    cartEl.innerHTML = `
+      <h2>Total: \$${0}</h2>
+      <button>Order Now!</button>
+    `;
+    this.totalOutput = cartEl.querySelector('h2');
+  }
+}
 ```
-*  When I access it and want to read from it, then the getter runs, so then Javascript looks for this title property and again even though this looks like a method, we don't execute it as one because combined with the get keyword, Javascript allows us to access it like a normal property and it will execute this function for us and here we could also do additional transformations, additional checks
+* How we will get hookId ??
 
-* So getters and setters can be nice if you want to add some extra validation, maybe a fallback or add some extra transformation when getting a value and as I mentioned, what also is nice is of course that it allows you to also work with kind of read only values.
+```js
+class Shop {
+  render() {
+    const renderHook = document.getElementById('app');
 
-* If we wouldn't have a setter here, if we tried to assign it, we'll actually get an error if I reload here and we try to enter Javascript here and then any values here, you'll see I get an error because I can't set a property which only has a getter.
+    this.cart = new ShoppingCart('app'); // 'app' --> renderHookId
+    this.cart.render();
+    const productList = new ProductList();
+    const prodListEl = productList.render();
 
-* So this allows us to add read-only properties and make sure you can only assign it here initially maybe but never thereafter by adding a getter but no setter.
+    renderHook.append(prodListEl);
+  }
+}
+```
+###  Using Inheritance Everywhere
 
-*  You can also add both or none of that, you'll not need getters and setters for every single property you use in your projects, actually you will only use them sometimes but it's nice to know about them and to be able to create read-only properties, to add extra validation with fallback values and to also set up some default transformations for when you're reaching out to some data.
+```js
+class Product {
+  // title = 'DEFAULT';
+  // imageUrl;
+  // description;
+  // price;
 
+  constructor(title, image, desc, price) {
+    this.title = title;
+    this.imageUrl = image;
+    this.description = desc;
+    this.price = price;
+  }
+}
+
+class ElementAttribute {
+  constructor(attrName, attrValue) {
+    this.name = attrName;
+    this.value = attrValue;
+  }
+}
+
+class Component {
+  constructor(renderHookId) {
+    this.hookId = renderHookId;
+  }
+
+  createRootElement(tag, cssClasses, attributes) {
+    const rootElement = document.createElement(tag);
+    if (cssClasses) {
+      rootElement.className = cssClasses;
+    }
+    if (attributes && attributes.length > 0) {
+      for (const attr of attributes) {
+        rootElement.setAttribute(attr.name, attr.value);
+      }
+    }
+    document.getElementById(this.hookId).append(rootElement);
+    return rootElement;
+  }
+}
+
+class ShoppingCart extends Component {
+  items = [];
+
+  set cartItems(value) {
+    this.items = value;
+    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(
+      2
+    )}</h2>`;
+  }
+
+  get totalAmount() {
+    const sum = this.items.reduce(
+      (prevValue, curItem) => prevValue + curItem.price,
+      0
+    );
+    return sum;
+  }
+
+  constructor(renderHookId) {
+    super(renderHookId);
+  }
+
+  addProduct(product) {
+    const updatedItems = [...this.items];
+    updatedItems.push(product);
+    this.cartItems = updatedItems;
+  }
+
+  render() {
+    const cartEl = this.createRootElement('section', 'cart');
+    cartEl.innerHTML = `
+      <h2>Total: \$${0}</h2>
+      <button>Order Now!</button>
+    `;
+    this.totalOutput = cartEl.querySelector('h2');
+  }
+}
+
+class ProductItem extends Component {
+  constructor(product, renderHookId) {
+    super(renderHookId); // we shold call this first so that the base class is fully initialaised
+    this.product = product;
+  }
+
+  addToCart() {
+    App.addProductToCart(this.product);
+  }
+
+  render() {
+    const prodEl = this.createRootElement('li', 'product-item');
+    prodEl.innerHTML = `
+        <div>
+          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
+          <div class="product-item__content">
+            <h2>${this.product.title}</h2>
+            <h3>\$${this.product.price}</h3>
+            <p>${this.product.description}</p>
+            <button>Add to Cart</button>
+          </div>
+        </div>
+      `;
+    const addCartButton = prodEl.querySelector('button');
+    addCartButton.addEventListener('click', this.addToCart.bind(this));
+  }
+}
+
+class ProductList extends Component {
+  products = [
+    new Product(
+      'A Pillow',
+      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
+      'A soft pillow!',
+      19.99
+    ),
+    new Product(
+      'A Carpet',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
+      'A carpet which you might like - or not.',
+      89.99
+    )
+  ];
+
+  constructor(renderHookId) {
+    super(renderHookId);
+  }
+
+  render() {
+    this.createRootElement('ul', 'product-list', [
+      new ElementAttribute('id', 'prod-list') // In UL element we are setting id='prod-list'
+    ]);
+    for (const prod of this.products) {
+      const productItem = new ProductItem(prod, 'prod-list'); // renderHookId --> 'prod-list'
+      productItem.render();
+    }
+  }
+}
+
+class Shop {
+  render() {
+    this.cart = new ShoppingCart('app'); // ShoppingCart render in 'app' renderHookId
+    this.cart.render();
+    const productList = new ProductList('app'); // ProductList render in 'app' renderHookId
+    productList.render();
+  }
+}
+
+class App {
+  static cart;
+
+  static init() {
+    const shop = new Shop();
+    shop.render();
+    this.cart = shop.cart;
+  }
+
+  static addProductToCart(product) {
+    this.cart.addProduct(product);
+  }
+}
+
+App.init();
+```
+### Overriding Methods and the super() Constructor
+
+* One thing I want to do here is these render calls here right are kind of redundant, we create a product list and then I manually call render, well that should be done as part of the creation process I think because I'm always doing it thereafter manually.
+
+```js
+class Shop {
+  render() {
+    const renderHook = document.getElementById('app');
+
+    this.cart = new ShoppingCart('app'); // 'app' --> renderHookId
+    this.cart.render();
+    const productList = new ProductList();
+    const prodListEl = productList.render();
+
+    renderHook.append(prodListEl);
+  }
+}
+```
+###  Using Inheritance Everywhere
+
+```js
+class Product {
+  constructor(title, image, desc, price) {
+    this.title = title;
+    this.imageUrl = image;
+    this.description = desc;
+    this.price = price;
+  }
+}
+
+class ElementAttribute {
+  constructor(attrName, attrValue) {
+    this.name = attrName;
+    this.value = attrValue;
+  }
+}
+
+class Component {
+  constructor(renderHookId) {
+    this.hookId = renderHookId;
+    this.render()// since we are calling the parent constructor anyway, since since we're sharing this parent, let's just do it in the parent base component itself. 
+    // this.render() in the parent class will refer to the render method in the to-be-created object which is based on the subclass.
+    // inside of a constructor,This will refer to the object that is being created,
+  }
+
+  render(){
+    // The only thing I will now also do there is I will add a render method here and this is an empty method, so it doesn't do anything useful here.
+    // sub-class render method will override (fully replace) this method
+  }
+
+  createRootElement(tag, cssClasses, attributes) {
+    const rootElement = document.createElement(tag);
+    if (cssClasses) {
+      rootElement.className = cssClasses;
+    }
+    if (attributes && attributes.length > 0) {
+      for (const attr of attributes) {
+        rootElement.setAttribute(attr.name, attr.value);
+      }
+    }
+    document.getElementById(this.hookId).append(rootElement);
+    return rootElement;
+  }
+}
+
+class ShoppingCart extends Component {
+  items = [];
+
+  set cartItems(value) {
+    this.items = value;
+    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(
+      2
+    )}</h2>`;
+  }
+
+  get totalAmount() {
+    const sum = this.items.reduce(
+      (prevValue, curItem) => prevValue + curItem.price,
+      0
+    );
+    return sum;
+  }
+
+  constructor(renderHookId) {
+    super(renderHookId);
+  }
+
+  addProduct(product) {
+    const updatedItems = [...this.items];
+    updatedItems.push(product);
+    this.cartItems = updatedItems;
+  }
+
+  render() {
+    const cartEl = this.createRootElement('section', 'cart');
+    cartEl.innerHTML = `
+      <h2>Total: \$${0}</h2>
+      <button>Order Now!</button>
+    `;
+    this.totalOutput = cartEl.querySelector('h2');
+  }
+}
+
+class ProductItem extends Component {
+  constructor(product, renderHookId) {
+    super(renderHookId); 
+    this.product = product;
+  }
+
+  addToCart() {
+    App.addProductToCart(this.product);
+  }
+
+  render() {
+    const prodEl = this.createRootElement('li', 'product-item');
+    prodEl.innerHTML = `
+        <div>
+          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
+          <div class="product-item__content">
+            <h2>${this.product.title}</h2>
+            <h3>\$${this.product.price}</h3>
+            <p>${this.product.description}</p>
+            <button>Add to Cart</button>
+          </div>
+        </div>
+      `;
+    const addCartButton = prodEl.querySelector('button');
+    addCartButton.addEventListener('click', this.addToCart.bind(this));
+  }
+}
+
+class ProductList extends Component {
+  products = [
+    new Product(
+      'A Pillow',
+      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
+      'A soft pillow!',
+      19.99
+    ),
+    new Product(
+      'A Carpet',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
+      'A carpet which you might like - or not.',
+      89.99
+    )
+  ];
+
+  constructor(renderHookId) {
+    super(renderHookId);
+  }
+
+  render() {
+    this.createRootElement('ul', 'product-list', [
+      new ElementAttribute('id', 'prod-list') 
+    ]);
+    for (const prod of this.products) {
+      new ProductItem(prod, 'prod-list'); 
+      // const productItem = new ProductItem(prod, 'prod-list'); 
+      // productItem.render();
+    }
+  }
+}
+
+
+
+class Shop extends Component {
+
+  constructor() {
+    super(); // call parent constructor - render hook ID is not required for the shop
+    // we definitely need to call super to make sure that the render method is getting triggered.
+  }
+
+  render() {
+    this.cart = new ShoppingCart('app'); 
+    // this.cart.render();
+    // const productList = new ProductList('app'); 
+    // productList.render();
+    new ProductList('app'); 
+  }
+}
+
+
+// an alternative here of course would have been to also just call this render like this because we need
+
+// nothing else from the base class, so you might argue that extending it might not make that much sense,
+
+// class Shop {
+//   constructor() {
+//     this.render();  // here....
+//   }
+//   render() {
+//     this.cart = new ShoppingCart('app'); 
+//     new ProductList('app'); 
+//   }
+// }
+
+
+class App {
+  static cart;
+
+  static init() {
+    const shop = new Shop();
+    // shop.render();
+    this.cart = shop.cart;
+  }
+
+  static addProductToCart(product) {
+    this.cart.addProduct(product);
+  }
+}
+
+App.init();
+```
+
+### super() Constructor Execution, Order & "this"
+
+* Inside of the parent constructor or inside of methods triggered by the parent constructor, you can't access any of these fields but as I just explained, you also wouldn't be able to access any of the other properties of this subclass here because you can only add properties, you can only use the this keyword in your subclass constructor after the parent class constructor finished execution and that includes any methods that might have been invoked by that parent class constructor.
+
+```js
+class ProductList extends Component {
+  products = [
+    new Product(
+      'A Pillow',
+      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
+      'A soft pillow!',
+      19.99
+    ),
+    new Product(
+      'A Carpet',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
+      'A carpet which you might like - or not.',
+      89.99
+    )
+  ];
+
+  constructor(renderHookId) {
+    super(renderHookId); // here render called before the data.. created
+  }
+
+  render() {
+    this.createRootElement('ul', 'product-list', [
+      new ElementAttribute('id', 'prod-list') 
+    ]);
+    for (const prod of this.products) {
+      new ProductItem(prod, 'prod-list'); 
+    }
+  }
+}
+```
+* So that's the problem we're facing here with this render method being called by the parent class constructor. In a constructor, we already go ahead and we execute render and we rely on data which hasn't been created yet.
+
+* So how can we solve that issue then? Well this is a quite common use case, you might wanna do something with some data which might just not be there yet when you get started and indeed, the products data would probably not be hardcoded into our code here but we might be fetching it from a database, so indeed it might really not be loaded when we try to render everything here.
+
+```js
+
+class Component {
+  constructor(renderHookId, shouldRender = true) {
+    this.hookId = renderHookId;
+    //we check if should render is true and if it is, we call render but now we can override this when we call the parent class constructor
+    if (shouldRender) {
+      this.render();
+    }
+  }
+
+  render() {}
+
+  createRootElement(tag, cssClasses, attributes) {
+    const rootElement = document.createElement(tag);
+    if (cssClasses) {
+      rootElement.className = cssClasses;
+    }
+    if (attributes && attributes.length > 0) {
+      for (const attr of attributes) {
+        rootElement.setAttribute(attr.name, attr.value);
+      }
+    }
+    document.getElementById(this.hookId).append(rootElement);
+    return rootElement;
+  }
+}
+
+class ProductItem extends Component {
+  constructor(product, renderHookId) {
+    super(renderHookId, false); // so with this we are blocking parent class constructor to call render
+    this.product = product; //  we instead call render manually after we know that the product was set.
+    this.render(); // here we call render manually
+  }
+
+  addToCart() {
+    App.addProductToCart(this.product);
+  }
+
+  render() {
+    const prodEl = this.createRootElement('li', 'product-item');
+    prodEl.innerHTML = `
+        <div>
+          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
+          <div class="product-item__content">
+            <h2>${this.product.title}</h2>
+            <h3>\$${this.product.price}</h3>
+            <p>${this.product.description}</p>
+            <button>Add to Cart</button>
+          </div>
+        </div>
+      `;
+    const addCartButton = prodEl.querySelector('button');
+    addCartButton.addEventListener('click', this.addToCart.bind(this));
+  }
+}
+
+
+class ProductList extends Component {
+  products = [];
+
+  constructor(renderHookId) {
+    super(renderHookId);
+    this.fetchProducts();
+  }
+
+  fetchProducts() {
+    this.products = [
+      new Product(
+        'A Pillow',
+        'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
+        'A soft pillow!',
+        19.99
+      ),
+      new Product(
+        'A Carpet',
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
+        'A carpet which you might like - or not.',
+        89.99
+      )
+    ];
+    this.renderProducts(); // but I also want to call render products here in fetch products, so also call it here once I got my products.
+  }
+
+  renderProducts() {
+    for (const prod of this.products) {
+      new ProductItem(prod, 'prod-list');
+    }
+  }
+
+  render() {
+    this.createRootElement('ul', 'product-list', [
+      new ElementAttribute('id', 'prod-list')
+    ]);
+    if (this.products && this.products.length > 0) {
+      this.renderProducts(); // call renderProducts only after data has been loaded
+    }
+  }
+}
+```
+### Different Ways of Adding Methods
+
+```js
+class ShoppingCart extends Component {
+  items = [];
+
+  set cartItems(value) {
+    this.items = value;
+    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(
+      2
+    )}</h2>`;
+  }
+
+  get totalAmount() {
+    const sum = this.items.reduce(
+      (prevValue, curItem) => prevValue + curItem.price,
+      0
+    );
+    return sum;
+  }
+
+  constructor(renderHookId) {
+    
+    super(renderHookId, false);
+    // That's what I explained earlier, the fields are translated to properties after the parent constructor called via super() ran. 
+    // set up this, not as a field but actually as a property with this order products equal which kind of replaces the field, 
+    // just so it just executes such that we can thereafter call render manually.
+    this.orderProducts = () => { // either you should use arrow function here or in our trigger event listener
+      console.log('Ordering...');
+      console.log(this.items); // we also ensure that "this" inside of this function will always refer to the object created by the class
+      // and not to what it would normally refer to and in this case, that would be the button of course.
+    };
+
+    this.render(); // call render manually.
+    // So again, this is just a workaround that's required for this exact use case.
+  }
+
+  // Now actually technically there is a difference between storing a function in a property like this.orderProducts and adding a method addProduct that we will see in detail
+  addProduct(product) {
+    const updatedItems = [...this.items];
+    updatedItems.push(product);
+    this.cartItems = updatedItems;
+  }
+
+  render() {
+    const cartEl = this.createRootElement('section', 'cart');
+    cartEl.innerHTML = `
+      <h2>Total: \$${0}</h2>
+      <button>Order Now!</button>
+    `;
+    const orderButton = cartEl.querySelector('button');
+    // orderButton.addEventListener('click', () => this.orderProducts());
+    orderButton.addEventListener('click', this.orderProducts);
+    this.totalOutput = cartEl.querySelector('h2');
+  }
+}
+```
+### Private Properties
+
+* Refer : private-fields-properties.pdf
+
+* There is one additional, very new feature which I don't want to hide from you though. It's extremely new, browser support is pretty slim right now but will get better and since this is a future oriented course, you'll learn it right now already so that we can use it in the future and in Chrome thankfully, already today
+
+* and that would be private fields, properties and methods, so that private term might not tell you much. Until now though I can tell you we only worked with public methods and public properties and fields but we can actually also work with private properties and fields and methods.
+
+* Now the idea behind public properties and methods is that we can access them from outside of the class and object and that's what we did in some cases already.
+
+* You typically want to make everything public which needs to be accessed from outside, so the things you worked with in your other code. An example would be if you have a product and there you have a buy method, which we don't have in our example but if you have another app and that should probably be triggered from outside the product object because the place where you work with your product object is probably the place where a user can buy it.
+
+* You also on the other hand have some logic, some methods or some properties which you need inside of an object but not outside of it, so the things which you need to make your object work and which you don't really need to trigger or work with from outside, some hardcoded fallback values or some class specific logic.
+
+* product should only be available from inside product list and we can achieve this in Javascript by adding a hash symbol in front of that.
+
+```js
+class Product {
+  // title = 'DEFAULT';
+  // imageUrl;
+  // description;
+  // price;
+
+  constructor(title, image, desc, price) {
+    this.title = title;
+    this.imageUrl = image;
+    this.description = desc;
+    this.price = price;
+  }
+}
+
+class ElementAttribute {
+  constructor(attrName, attrValue) {
+    this.name = attrName;
+    this.value = attrValue;
+  }
+}
+
+class Component {
+  constructor(renderHookId, shouldRender = true) {
+    this.hookId = renderHookId;
+    if (shouldRender) {
+      this.render();
+    }
+  }
+
+  render() {}
+
+  createRootElement(tag, cssClasses, attributes) {
+    const rootElement = document.createElement(tag);
+    if (cssClasses) {
+      rootElement.className = cssClasses;
+    }
+    if (attributes && attributes.length > 0) {
+      for (const attr of attributes) {
+        rootElement.setAttribute(attr.name, attr.value);
+      }
+    }
+    document.getElementById(this.hookId).append(rootElement);
+    return rootElement;
+  }
+}
+
+class ShoppingCart extends Component {
+  items = [];
+
+  set cartItems(value) {
+    this.items = value;
+    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(
+      2
+    )}</h2>`;
+  }
+
+  get totalAmount() {
+    const sum = this.items.reduce(
+      (prevValue, curItem) => prevValue + curItem.price,
+      0
+    );
+    return sum;
+  }
+
+  constructor(renderHookId) {
+    super(renderHookId, false);
+    this.orderProducts = () => {
+      console.log('Ordering...');
+      console.log(this.items);
+    };
+    this.render();
+  }
+
+  addProduct(product) {
+    const updatedItems = [...this.items];
+    updatedItems.push(product);
+    this.cartItems = updatedItems;
+  }
+
+  render() {
+    const cartEl = this.createRootElement('section', 'cart');
+    cartEl.innerHTML = `
+      <h2>Total: \$${0}</h2>
+      <button>Order Now!</button>
+    `;
+    const orderButton = cartEl.querySelector('button');
+    // orderButton.addEventListener('click', () => this.orderProducts());
+    orderButton.addEventListener('click', this.orderProducts);
+    this.totalOutput = cartEl.querySelector('h2');
+  }
+}
+
+class ProductItem extends Component {
+  constructor(product, renderHookId) {
+    super(renderHookId, false);
+    this.product = product;
+    this.render();
+  }
+
+  addToCart() {
+    App.addProductToCart(this.product);
+  }
+
+  render() {
+    const prodEl = this.createRootElement('li', 'product-item');
+    prodEl.innerHTML = `
+        <div>
+          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
+          <div class="product-item__content">
+            <h2>${this.product.title}</h2>
+            <h3>\$${this.product.price}</h3>
+            <p>${this.product.description}</p>
+            <button>Add to Cart</button>
+          </div>
+        </div>
+      `;
+    const addCartButton = prodEl.querySelector('button');
+    addCartButton.addEventListener('click', this.addToCart.bind(this));
+  }
+}
+
+class ProductList extends Component {
+  #products = []; // # means private product
+
+  constructor(renderHookId) {
+    super(renderHookId, false); // disable default 
+    this.render(); // manual render
+    this.fetchProducts(); //this.#fetchProducts(); even you can create private methods
+  }
+
+  fetchProducts() { // #fetchProducts() {
+    this.#products = [ // # means private product
+      new Product(
+        'A Pillow',
+        'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
+        'A soft pillow!',
+        19.99
+      ),
+      new Product(
+        'A Carpet',
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
+        'A carpet which you might like - or not.',
+        89.99
+      )
+    ];
+    this.renderProducts();
+  }
+
+  renderProducts() {
+    for (const prod of this.#products) { // # means private product
+      new ProductItem(prod, 'prod-list');
+    }
+  }
+
+  render() {
+    this.createRootElement('ul', 'product-list', [
+      new ElementAttribute('id', 'prod-list')
+    ]);
+    if (this.#products && this.#products.length > 0) { // # means private product
+      this.renderProducts();
+    }
+  }
+}
+
+class Shop {
+  constructor() {
+    this.render();
+  }
+
+  render() {
+    this.cart = new ShoppingCart('app');
+    new ProductList('app');
+    // const list = new ProductList('app');
+    // console.log(list.#products); // if we try to access like this we will get an error "Private field must be declared in enclosing class"
+  }
+}
+
+class App {
+  static cart;
+
+  static init() {
+    const shop = new Shop();
+    this.cart = shop.cart;
+  }
+
+  static addProductToCart(product) {
+    this.cart.addProduct(product);
+  }
+}
+
+App.init();
+
+```
+
+### "Pseudo-Private" Properties
+
+* The addition of private fields and properties is relatively new - in the past, such a feature was not part of JavaScript. Hence you might find many scripts that use a concept which you could describe as "pseudo-private" properties.
+
+```js
+class User {
+    constructor() {
+        this._role = 'admin';
+    }
+}
+ 
+// or directly in an object
+ 
+const product = {
+    _internalId: 'abc1'
+};
+
+```
+* It's a quite common convention to prefix private properties with an underscore (_) to signal that they should not be accessed from outside of the object.
+
+* Important: It's just a convention that should signal something! It does NOT technically prevent access. You CAN run this code without errors for example:
+
+```js
+const product = {
+    _internalId: 'abc1'
+};
+console.log(product._internalId); // works!
+```
+* It's really just a hint that developers should respect. It's not as strict as the "real" private properties introduced recently (#propertyName).
+
+### The "instanceof" Operator
+
+```js
+class Person{
+  name : "max";
+}
+
+const p = new Person();
+p --->  // it's this type Person which is interesting.
+
+type p // "object"
+```
+
+* I haven't talked about this before because you need to understand classes, to understand the idea of types here. It's not an official type, if we do type of p, we'll see this is type object, this is not type person but still somehow Javascript keeps in mind that this was created based on that person class, it's not of that type but somewhere this has to be stored otherwise the developer tools couldn't show this to us and indeed, that is stored somewhere.
+
+* There is a special operator, instanceof and you can use it to check if an object is created based on a certain class or a certain blueprint.
+
+```js
+p instanceof Person // true
+```
+* this will return true if p was created based on person or if the value stored in p was created based on person and it will return false otherwise and actually in Javascript there are a bunch of built-in classes if you want to call them like this,
+
+### Built-in Classes
+
+```js
+const obj = new object(); // same as const obj2 = {};
+const Array = new Array(); // []
+```
+### Understanding Object Descriptors
+
+```js
+const person = {name : 'Max', greet(){
+  console.log(this.name)
+}};
+
+person.greet()// Max
+```
+* Now actually every property you add and every method you add as well, it's basically a property which holds a function has a so-called descriptor.
+
+```js
+Object.getOwnPropertyDescriptor(person) // what you get back is a new object with the so-called property descriptors.
+```
+
+* Now that's some metadata stored behind the scenes by Javascript, it influences how the properties can be used, so that some configuration Javascript sets up for you and stores for you which you can change though.
+
+* So let's have a look at the name property, here it is, we see it has a value of Max, that's what we assigned but we see three other configuration items as well - configurable, enumerable and writable.
+
+* Now this simply means that this property, the name property on the person object holds a value of Max that we can assign a new value so that it's writable, that it's configurable which means we can for example delete it and it's enumerable which means it appears in a for/in loop 
+
+```js
+Object.defineProperty(person, "name", {
+  value:'Max', // value: person.name
+  configurable: true,
+  enumerable: true,
+  writable: false // here writable false
+})
+```
+* what you'll notice is that if I try to access person.name and set this to Maximilian, person still has Max in there, it didn't throw an error but it didn't accept the change.
