@@ -1,194 +1,928 @@
 # Javascript Complete
 
-##  Back to the DOM & More Browser APIs
+##  Working with Events
 
-###  Using "dataset" (data-* Attributes)
+### Introduction to Events in JavaScript
 
-* data- attribute in general is a special attribute you can add to your own elements to attach any kind of data to them, so you could add data-id, data- whatever, data- whatever attribute or value you want to append or you want to store on one of your DOM nodes and the ID behind appending data or attaching data to DOM nodes simply is that you don't have to manage it in Javascript
+* Refer : events-in-js.pdf
+
+* Refer : https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events
+
+### Different Ways of Listening to Events
+
+
+```js
+const button = document.querySelector('button');
+
+// button.onclick = function() {
+
+// };
+
+const buttonClickHandler = () => {
+  alert('Button was clicked!');
+};
+
+const anotherButtonClickHandler = () => {
+  console.log('This was clicked!');
+};
+
+// button.onclick = buttonClickHandler;
+// button.onclick = anotherButtonClickHandler;
+
+button.addEventListener();
+
+button.removeEventListener();
+```
+### Removing Event Listeners
+
+```js
+const button = document.querySelector('button');
+
+// button.onclick = function() {
+
+// };
+
+const buttonClickHandler = () => {
+  alert('Button was clicked!');
+};
+
+const anotherButtonClickHandler = () => {
+  console.log('This was clicked!');
+};
+
+// button.onclick = buttonClickHandler;
+// button.onclick = anotherButtonClickHandler;
+
+const boundFn = buttonClickHandler.bind(this);
+
+button.addEventListener('click', boundFn);
+
+setTimeout(() => {
+  button.removeEventListener('click', boundFn);
+}, 2000);
+
+```
+###  The "event" Object
+
+```js
+const buttons = document.querySelectorAll('button');
+
+const buttonClickHandler = event => {
+  event.target.disabled = true;
+  console.log(event);
+};
+
+buttons.forEach(btn => {
+  btn.addEventListener('click', buttonClickHandler);
+});
+```
+
+### Supported Event Types
+
+```js
+const buttons = document.querySelectorAll('button');
+
+const buttonClickHandler = event => {
+  event.target.disabled = true;
+  console.log(event);
+};
+
+buttons.forEach(btn => {
+  btn.addEventListener('mouseenter', buttonClickHandler); // mouseenter event
+});
+
+window.addEventListener('scroll', event => { // scroll event
+  console.log(event);
+});
+```
+
+### Example: Basic Infinite Scrolling
+
+* Let's have fun with the scroll event and create a list which you can scroll infinitely (explanations below)!
+
+* You can run this code snippet on any page - just make sure that you can scroll vertically (either by adding enough dummy content, by adding some styles that add a lot of height to some elements or by shrinking the browser window vertically).
+
+```js
+let curElementNumber = 0;
+ 
+function scrollHandler() {
+    const distanceToBottom = document.body.getBoundingClientRect().bottom;
+ 
+    if (distanceToBottom < document.documentElement.clientHeight + 150) {
+        const newDataElement = document.createElement('div');
+        curElementNumber++;
+        newDataElement.innerHTML = `<p>Element ${curElementNumber}</p>`;
+        document.body.append(newDataElement);
+    }
+}
+ 
+window.addEventListener('scroll', scrollHandler);
+```
+* At the very bottom, we register the scrollHandler function as a handler for the 'scroll' event on our window object.
+
+* Inside that function, we first of all measure the total distance between our viewport (top left corner of what we currently see) and the end of the page (not just the end of our currently visible area) => Stored in distanceToBottom.
+
+* For example, if our browser window has a height of 500px, then distanceToBottom could be 684px, assuming that we got some content we can scroll to.
+
+* Next, we compare the distance to the bottom of our overall content (distanceToBottom) to the window height + a certain threshold (in this example 150px). document.documentElement.clientHeight is preferable to window.innerHeight because it respects potential scroll bars.
+
+* If we have less than 150px to the end of our page content, we make it into the if-block (where we append new data).
+
+* Inside of the if-statement, we then create a new <div> element and populate it with a <p> element which in turn outputs an incrementing counter value.
+
+### Working with "preventDefault()"
+
+*  Now as a default, you will see that if I try to execute this and I reload this page, if I click submit here,
+
+* This exists on any event object in Javascript, not just for the submit event and it does what the name implies, it prevents the default behavior the browser would apply for this event otherwise. Now the default behavior of course depends on the kind of event
+
+* For the submit event on a form, the default behavior is to submit that form to a server. For a link for example, the default behavior would be to go to that link and you can always block the browser from doing that and from following its default behavior and then instead implement your own logic.
+
+```js
+const form = document.querySelector('form'); // default behaviour of submit button to reload form
+
+form.addEventListener('submit', event => {
+  event.preventDefault();  
+  console.log(event);  
+});
+```
+* So now with this added, you will see that if we now reload again and I click submit, now we don't lose this because now the page doesn't reload because now, this default of taking the form data and sending it to a server and hence reloading the page, that is now prevented.
+
+### Understanding "Capturing" & "Bubbling" Phases
+
+* So prevent default is a very important method on the event object which you can use to control what the browser does with that event.
+
+* We also got another important method for which we first of all need to understand how exactly the event behaves. Our events in Javascript, in browser side Javascript have two phases through which they run essentially and where they then trigger your event listeners, a bubbling and a capturing phase.
+
+* Refer : event1
+
+* we have section -> div -> button 
+
+* Now we click that button here, now what actually happens is that the browser runs through two phases where it checks for listeners to that event.
+
+* First, it runs through a phase which is called the capturing phase,
+
+* second it runs through a phase which is called the bubbling phase.
+
+* Now the capturing phase goes from outside to inside, now what does this mean?
+
+* It's important to understand that a click event on such a nested button here cannot just be listened to with event listeners on the button but for example also with an event listener on that section and the browser during the capturing phase checks if you got a capturing event listener on let's say the section registered which would then actually run its function before any event listeners registered on the button because it's from outside to inside in the capturing phase and the section is outside of the button.
+
+* The bubbling phase on the other hand does the opposite, it goes from inside to outside. Now all event listeners you add with add event listener are by default registered in that bubbling phase which means if we have an event listener on the button and on the section, the button event listener will run first, the section event listener will run second. We can change this and we can also do interesting things with that bubbling and capturing behavior.
+
+### Event Propagation & "stopPropagation()"
+
+```js
+const button = document.querySelector('button');
+
+const div = document.querySelector('div');
+
+div.addEventListener('click', event => {
+  console.log('CLICKED DIV');
+  console.log(event);
+});
+
+button.addEventListener('click', event => {
+  console.log('CLICKED BUTTON');
+  console.log(event);
+});
+```
+
+* So it executes from inside to outside because as I mentioned, by default all event listeners are registered in the bubbling phase which means that capturing phase which runs first is totally ignored
+
+* when the browser checks from inside to outside for that element on which the event occurred, it first finds that on the element itself, we had a listener, therefore this runs first but then it checks if there was a listener on the surrounding element, which in this case is the div and there we also had a listener so it executes that as well, then the browser by the way also goes onto the body and checks if there we had a click listener but we don't so therefore it doesn't execute any code for that because there is no code to execute but it goes from the element from which the element occurs to all its ancestors and checks for event listeners on them and if they are there, it executes them, this is what the browser does.
+
+* Now we could switch to the capturing phase by adding an extra third argument on the event listeners.
+
+```js
+div.addEventListener('click', event => {
+  console.log('CLICKED DIV');
+  console.log(event);
+}, true);
+```
+* but if we set this to true, we're telling the browser this event listener should be part of the capturing phase.
+
+* Now we don't have to switch all event listeners to the capturing phase, we can just add this one here and now you will see that it will actually run before this button event Listener here runs.
+
+* So if I reload now and click this button, you'll see the div was clicked first or the event listener ran first and then the button, because this listener here triggered in the capturing phase which comes before the bubbling phase and since we registered this listener for the capturing phase, it executed its code. 
+
+* So this can be useful if you want to switch the order and you have event listeners on the element itself but also on some ancestor and for whatever reason, you want to execute the ancestor listener first, that can be done by passing that extra third argument.
+
+* Now this entire process of having multiple listeners for the same event because the event does not just trigger on the element itself but also on ancestors, that's called propagation, it means that the event propagates up, it bubbles up 
+
+* in the capture phase, it kind of goes from outside to inside but it basically means the event does not just occur on the element itself but also on all ancestors or at least we can listen on all ancestors, it occurred on this button but it's listenable on all ancestors because it propagates up, it bubbles up, it can be used anywhere above.
+
+* Now you can prevent this however. Let's say we do have an event listener on the div here but we really only want to react to clicks on the div here, not to clicks on a button in the div, that could be a requirement you have in an app where you really want to make sure that button clicks don't trigger the div click listener. To make sure that the click event for the button for example doesn't propagate anymore, you can call event.stopPropagation.
+
+```js
+button.addEventListener('click', event => {
+  event.stopPropagation();
+  console.log('CLICKED BUTTON');
+  console.log(event);
+});
+```
+* That's not the same as prevent default, prevent default stops the default behavior the browser might perform upon such an event, for a click event on a button, we have no default behavior for a click event on a link for example, we would have one, there the browser would leave the page and go to that links destination. Stop propagation does nothing with the default behavior, the default behavior still executes, so for a form for example, the form would still be submitted but it stops the propagation which means any other listeners for the same type of event on some ancestor elements will not trigger their event listeners for this event.
+
+* So now you will see that clicked div will not be printed to the console when we click on a button. So if I reload and I click on a button, we only see the clicked button event listener, I have to click somewhere else on the div to trigger that div click listener.So that's what stop propagation does,
+
+* you also have stop immediate propagation, that is useful if you have multiple event listeners on the same element, so if we had more event listeners on the button, then after the first event listener, the other button listeners, so the other listeners on the same element also wouldn't run anymore. With just stop propagation, all button event listeners would execute and only ancestor element clicked listeners would not execute.
+
+```js
+button.addEventListener('click', event => {
+  event.stopPropagation();
+  event.stopImmediatePropagation();
+  console.log('CLICKED BUTTON');
+  console.log(event);
+});
+```
+* That's the difference here and just as prevent default, this can be a very useful tool to make sure that you can handle the events in exactly the way you want. So you learned about stop propagation, it's important to understand that not all events propagate.
+
+* Again, common sense is a good starting point to find out whether an event propagates or not, for a click, it makes more sense, when we click something we could also want to listen to a click on a parent element
+
+```js
+const button = document.querySelector('button');
+
+const div = document.querySelector('div');
+
+div.addEventListener('mouseenter', event => {
+  console.log('CLICKED DIV');
+  console.log(event);
+});
+
+button.addEventListener('mouseenter', event => {
+  event.stopPropagation();
+  console.log('CLICKED BUTTON');
+  console.log(event);
+});
+```
+* For a hovering over something, it makes less sense. If I add mouse enter here to my button and also to my div and I reload, you see now I entered the div, so yes I'm still printing clicked div but it happens because of me hovering over it, now I hover over the button and therefore you see indeed, I only trigger clicked button and not the div as well,
+
+* So mouse, mouse enter, mouse move events typically don't propagate, if you're not sure whether they propagate or not, whether they bubble up, you can always just print the event object and have a look at it because you will find a bubbles property in there and as you see, it says false here which means this does not bubble up and hence you don't have to call stop propagation because it won't propagate anyways and there are a couple of events, drag events for example for drag and drop which don't propagate up because that typically would lead to an undesired behavior.
+
+### Using Event Delegation
+
+* With event propagation, you can do quite interesting things, specifically you can implement a pattern which is also called event delegation,
+
+* we've got two possible approaches. One is that we select all list items and we add multiple listeners
+
+
+```js
+const listItems = document.querySelectorAll('li');
+
+listItems.forEach(listItem => {
+  listItem.addEventListener('click', event => {
+    event.target.classList.toggle('highlight');
+  });
+});
+```
+* So let's have a look at the alternative which uses this delegate pattern, this delegate approach.
+
+* There instead of adding multiple listeners on each list item, we take advantage of event propagation, of the event bubbling up and therefore we get access to the entire list with document query selector ul, so with the list that holds the list items.
+
+* Now we can register an event listener on that list, so I listen to a click event on the entire list because since events bubble up, we can also listen to a click on the list when we actually clicked on a list item because that's how Javascript events behave, most events at least.
+
+```js
+const list = document.querySelector('ul');
+
+list.addEventListener('click', event => {
+  event.target.classList.toggle('highlight');
+});
+
+```
+* So now if I save that and I reload, I got the same behavior as before but now with only one event listener instead of multiple event listeners
+
+* because we're taking advantage of event propagation and then we're adding a listener on the next higher element which in this case is the list instead of every child element itself, this is the event delegation pattern.
+
+* Now this event delegation pattern can become problematic if we have a more complex structure.
+
+* In case if we have some complex structure like below
 
 ```js
 <ul>
-    <li
-      id="p1"
-      data-extra-info="Got lifetime access, but would be nice to finish it soon!"
-      class="card"
-    >
-      <h2>Finish the Course</h2>
-      <p>Finish the course within the next two weeks.</p>
-      <button class="alt">More Info</button>
-      <button>Finish</button>
-    </li>
-    <li
-      id="p2"
-      data-extra-info="Not really a business topic but still important."
-      class="card"
-    >
-      <h2>Buy Groceries</h2>
-      <p>Don't forget to pick up groceries today.</p>
-      <button class="alt">More Info</button>
-      <button>Finish</button>
-    </li>
+  <li>
+    <h2>Item 1</h2>
+    <p>Some text</p>
+  </li>
+  <li>
+    <h2>Item 2</h2>
+    <p>Some text</p>
+  </li>
+  <li>
+    <h2>Item 3</h2>
+    <p>Some text</p>
+  </li>
+  <li>
+    <h2>Item 4</h2>
+    <p>Some text</p>
+  </li>
+  <li>
+    <h2>Item 5</h2>
+    <p>Some text</p>
+  </li>
 </ul>
 ```
-* you can add as many data attributes here as you wish. Now the only question is, how can we read from that attribute? And for that, you've got a special property you can read from. So here in app.js
+* and now if we reload, we have a problem, if I click on the title, yes now you see this gets the red background, not the entire element.
+
+* So now because we were referring to event target, we have a problem, we have a problem because event target is the actual DOM element on which we clicked and that's the lowest possible element, so that's either our h2 tag or if we clicked outside of h2 and outside of paragraph, it's the entire list item or it's just a paragraph or whatever else we might have in there, so just coloring or using event target is not helping us here.
+
+* Now we also do have another property available and that is event.currentTarget. This is different from event target, let's see if that helps us.
+
+* If we reload and I click somewhere on the h2 tag, well event current target is the entire unordered list here because current target, unlike target is not the actual element on which you clicked but the element on which you added the listener.
+
+* So current target here always refers to the list element because that's where we register our listener. it's still not the element on which we clicked, it's still not the list item, it's just a list which also is not what you need.
+
+* Well we can use a combination of event target and DOM traversal which I covered earlier in the course, in the DOM module to get access to the list item.
+
+* What do we know about event target? Well we know it's inside of our list and if we have a look at our list, we see it's definitely somewhere inside of the list item, because we have just the list and the list items.
+
+* So we know it's inside of our list item, hence it's either the h2 tag, the paragraph or the list item itself. Now you learned about a specific method that can help us here and that would be on event target which is some DOM object inside of our list, the closest method. Closest exists on all DOM objects and it traverses up in the ancestor tree and there you can select the closest element with a certain CSS selector, you could select by ID, by class or just by tag and in this case I'm looking for the closest li.
 
 ```js
-const projectElement = document.getElementById(this.id);
-const tooltipText = projectElement.dataset.extraInfo; // get dataset ...
-projectElement.dataset.someInfo = 'SOme info message' // set dataset ...
-```
-### Getting Element Box Dimensions
+const list = document.querySelector('ul');
 
-```js
-// in developer tool select an element and then in console...
-
-$0.getBoundingClientRect();
-
-```
-* you get back an object which gives you some useful information about this box, and you can run this for any element on the page.
-
-* Now what this gives you is a couple of coordinates and sizes, to understand these values, you need to understand that the browser basically renders the page in a two-dimensional coordinate system with an x-axis from left to right and a y-axis from top to bottom
-
-* and that's important. It's not like a traditional coordinate system where the y-axis would go from bottom to top and x from left to right at the bottom but instead it's all starting in the top left corner and that makes sense if you consider how a web page is rendered, it's rendered from top to bottom, not built up from bottom to top.
-
-* This coordinate system also thinks in pixels and therefore in the top left corner, we would have the coordinate 0 0, x has a value of 0 and y has a value of 0. All the way on the right here, we would have y still equal to zero but x would be basically the width of your screen or the width of this document.All the way on the bottom left here, x would be 0, y would be just as high as your document and in the bottom right corner, x would be as big as your width and y would be as big as the height of this document.
-
-* We also got the top and the left value and that's the same as x and y here as you can see and most of the time that will be the case, if you have a negative width or height, that can differ depending on the exact positioning and your CSS code but left and top simply gives you the coordinates of the leftmost and the topmost point of this box in the coordinate system and typically that's the same as x and y.
-
-* More interesting is bottom and right, well that in the end is just the combination of left and top or x and y with width and height. So bottom and right basically tells you where the bottommost and the rightmost point is indeed coordinate system that starts on the top left and therefore width and height are also important of course, should be pretty self-explanatory, width gives you the total width of the box, height gives you the height of the box. So this is some rough general information you can get about this box.
-
-### Working with Element Sizes & Positions
-
-* Refer: browser/sizes.pdf
-
-* now you can also get more specialized data by diving into your DOM element with special properties, for example there is offsetTop. offsetTop gives you the distance of the topmost point here to the top of this coordinate or to the start of this coordinate system and of course you don't just have offsetTop, you also have offsetLeft, makes sense I guess.
-
-* offsetTop always is relative to your document start, NOT the viewpoint (ie it does not change upon scrolling). 
-
-* You also however have clientTop and clientLeft and now that's a different thing as you can tell, where offset gives you the outer positioning, so the position of the box in the coordinate system, the client properties give you the inner positioning and specifically clientTop and clientLeft tell you how far it is from your left and topmost point to your left and topmost point of the content of this box and the content of the box is basically the entire box without any borders and potential scroll bars that might be rendered in there.
-
-```js
-$0.clientTop; // outer box top to the content box
-$0.clientLeft; // outer box left to the content box
-```
-* You can also get some of the sizes for that, you can get the offsetWidth and you can get the offsetHeight and that's the entire width and height of this box, including all borders and scroll bars.
-
-```js
-$0.offsetWidth; //for eg 300
-$0.offsetHeight;
-```
-* Now unsurprisingly, you also have clientWidth and clientHeight and that's again the inner width and height without borders and scroll bars, 
-
-```js
-$0.offsetWidth; //  ie 300-15(border)*2 = 270
-$0.offsetHeight;
-```
-* therefore for the width, it's basically the width of 300 which we saw just a second ago minus the border times 2 because we got a border on the left and on the right and if we had a scroll bar, that would be deducted as well, the same for the height.
-
-* Since we have scolling bars here can get some interesting data, we can for example get scrollHeight. Now what scrollHeight gives you is the entire height of the content including the part which is currently not visible in the box, so which is outside of the box at the bottom here for example or now at the top.
-
-```js
-$0.scrollHeight
+list.addEventListener('click', event => {
+  event.target.closest('li').classList.toggle('highlight');
+});
 ```
 
-* So scrollHeight is the entire height including the non-visible parts because they're currently scrolled out of view.
+###  Triggering DOM Elements Programmatically
 
-* You also have another interesting value, scrollTop, scrollTop gives you information by how much you scroll that content in the box.So if I scroll the content all the way to the bottom for example, you see now I have a value of 240 there
+* Now sometimes, you don't want to listen to an event or at least not just listen to an event, you also might want to trigger an event programmatically.
+
+* Let's say when I click any list item for whatever reason, I also want to trigger a click event on my button.
 
 ```js
-$0.scrollTop// if scrolled to top then value is 0, if scrolled to bottom then value is total scroll height,eg 240
+const form = document.querySelector('form');
+
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  console.log(event);
+});
 ```
-* Refer: browser/sizes.pdf
-
-* One note about the entire document width, if you want to get that, you got two options, you can use window.innerWidth and window.innerHeight and that should give you the width and height you have here inside of your window, so without the dev tools, without that URL bar at the top and so on but the problem with that is that if you had a visible scroll bar on Internet Explorer for example or on Windows in general, you might have that, then this will actually include the scroll bar and not subtract it from the width and height and therefore actually give you more width and height than you actually have available for your content.
-
-* Hence a better way of getting the real available width and height is
+* Now of course, we could store this function in a named function and then just call this function from inside here but let's say for whatever reason, that's not really an option, we really want to click that,
 
 ```js
-document.documentElement.clientWidth;
-document.documentElement.clientHeight;
+list.addEventListener('click', event => {
+  event.target.closest('li').classList.toggle('highlight');
+  form.submit();
+});
 ```
-### Positioning the Tooltip
+* when the list is clicked or any item in the list, I want to call form and now you can call click there for example to simulate a mouse click on it or also submit, as a method just like that and this does not just exist for the form but basically for any DOM element, a lot of the events you can listen to can also be triggered programmatically, especially something like clicks or form submissions.
+
+* So now with that if you save this and you reload, you will see that if I click any list item here, the page reloaded because the form was submitted.
+
+* Now you might be wondering why our event listener here for the form submission is not doing its work and preventing the default.Now if you trigger a submit event programmatically, then indeed the submit event listener is skipped,typically event listeners execute.
 
 ```js
-create() {
+button.addEventListener('click', event => {
+  event.stopPropagation();
+  console.log('CLICKED BUTTON');
+  console.log(event);
+});
+
+list.addEventListener('click', event => {
+  event.target.closest('li').classList.toggle('highlight');
+  // form.submit();
+  button.click();
+});
+```
+* If I for example instead of submitting the form simulate a click on my button and please note that I do have a click listener on the button, you will see that if I do that and I reload, this click listener does execute, though with a dummy mouse event where all coordinates are zero by the way. For form submission, the event listener is not triggered. So triggering such an event programmatically is not exactly the same as when a user clicks on it, it can bypass certain listeners like a form submission listener. Still from time to time it can be useful and it is good to be aware of it.
+
+* Now if you still wanted to work around that by the way, you could of course select the submit button here in the form and instead of calling submit on the entire form, you call click on the submit button, then it will basically do the same as if a user click the submit button which will trigger the submit the event listener and allow you to prevent the default, so that would be possible.
+
+### Event Handler Functions & "this"
+
+* We already saw earlier in the course that inside of the event listener functions, this is actually bound to something else, to the event's source as I mentioned and therefore in the past, we had to use bind or arrow functions to make sure that this actually points at the right thing.
+
+* Now let's quickly see this in action again, on this button here where I added an event listener, let's not just console log event but also console log this here and see what we get. Now please note that here I'm using an arrow function though.
+
+```js
+button.addEventListener('click', event => {
+  event.stopPropagation();
+  console.log('CLICKED BUTTON');
+  console.log(event);
+  console.log(this); // window object
+});
+```
+* So now if I reload and I click this click me button, you see I get the window object there because as I said, I'm using an arrow function and that ignores any bindings you might have assigned to this when this function gets called and here, the thing calling the function is the browser.
+
+* The browser does bind this to something else though and to see this, let's convert this here into a regular function so to say, without the arrow but with the function keyword and still with the event object of course and let's see what this points at right now with a normal function being used here.
+
+```js
+list.addEventListener('click', function(event) {
+  event.target.closest('li').classList.toggle('highlight');
+  button.click();
+  console.log(this); // <ul> .... </ul> 
+});
+
+
+```
+* so to be precise as you see if you click down there, it points at the current target,so not at the concrete target you clicked on but at the current target,
+
+### Drag & Drop - Theory
+
+* let's have a look at drag and drop and how we can implement such a behavior in a web page.
+
+* So to make elements draggable, you have to mark them as such and you do that by adding the draggable attribute or setting the draggable property on the DOM elements to true, so both needs to be set to true, either the attribute or directly through the property.
+
+* Once you did that, this element is draggable. The next step then is to listen to a drag start event on the element which is draggable,this will be triggered whenever a user starts dragging the event. 
+
+* In the event listener there, you can also interact with the event object to describe the drag operation if you are copying or if you're moving which will for example also affect how this is displayed to the user, how the cursor changes and so on and you can also append data to the event
+
+* because a drag and drop operation is actually a combination of different events, on different elements on your page and in order to make sure that they can work together and that you know in the place where you dropped something what you started to drag in another place, you can add data to that drag event which is then invisibly kind of passed around to the other events related to dragging and dropping.
+
+* So once we started our drag operation and we configured the drag event, we have to tell Javascript where the item can be dropped.Of course, the user can drop the item anywhere but we typically don't support it everywhere on our page, instead we kind of mark the areas where an item can be dropped by adding an event listener to the element on which the other element can be dropped.
+
+* We add a listener to the drag enter and the drag over events. You can omit the drag enter event, you definitely need the drag over event. Both will be triggered whenever an item is dragged onto that element, the difference between the two elements is that drag over basically also triggers for child elements of the element where you added it, drag enter won't trigger there and then here, the trick is that in the event listeners you set to these events here, you have to call prevent default because the default is always that a drop operation is cancelled, so that drag and drop isn't allowed onto an element because as I said for most parts of your page, you don't want allow it and therefore that's the browser default, you have to prevent that default to allow a drop operation, 
+
+* so it's an important step to listen to these events and prevent the default to allow a drop.
+
+* Now before we react to a drop, you can also optionally listen to a drag leave event if you want to update the UI for example, updates some styles when the item is dragged away from the element on which it was dragged over. That is optional, not optional at least if you want to do something upon a drop is that you listen to the drop event on the same element where you listened to drag enter and drag over
+
+* The drop event will only be triggered if you prevented the default in drag enter and drag over and the item is then dropped onto that same element.
+
+* Now in that drop event, you can then do whatever you want to do upon a drop, update some data, update the UI, move the element on the UI, anything like that because that's also important.
+
+* When you make an element draggable, you'll get some visual feedback that looks like the user is really dragging the element but it's actually not getting moved in the DOM technically, you have to do that programmatically through Javascript if you want to update the DOM after performing such a drag and drop operation.
+
+* You also optionally can then listen to a drag end event, not on the place where it was dropped but on the dragged element itself and there you could also then update the UI or some data, whatever you want to do.
+
+* The drag end event is always fired even if the drop is cancelled, so if the element was dropped in an invalid area but as I will show you, you will get some property on the event object which tells you whether the drop was successful or not.
+
+* Refer: event2
+
+### Configuring Draggable Elements
+
+```js
+<ul>
+        <li
+          id="p1"
+          data-extra-info="Got lifetime access, but would be nice to finish it soon!"
+          class="card"
+          draggable="true" //draggable
+        >
+          <h2>Finish the Course</h2>
+          <p>Finish the course within the next two weeks.</p>
+          <button class="alt">More Info</button>
+          <button>Finish</button>
+        </li>
+        <li
+          id="p2"
+          data-extra-info="Not really a business topic but still important."
+          class="card"
+          draggable="true" //draggable
+        >
+          <h2>Buy Groceries</h2>
+          <p>Don't forget to pick up groceries today.</p>
+          <button class="alt">More Info</button>
+          <button>Finish</button>
+        </li>
+      </ul>
+```
+* So now this is draggable, how do we proceed? Well the next step was to listen to the drag start event,
+
+* I will also set up a listener to the drag start event and for this, I'll add a new method here and I'll name it connect drag, you can name it however you want, of course I'll just name it like this to be in line with connect more info button and connect switch button and then here in the constructor, I will call this connect drag like that.
+
+```js
+class ProjectItem {
+  hasActiveTooltip = false;
+
+  constructor(id, updateProjectListsFunction, type) {
+    this.id = id;
+    this.updateProjectListsHandler = updateProjectListsFunction;
+    this.connectMoreInfoButton();
+    this.connectSwitchButton(type);
+    this.connectDrag(); //  connectDrag
+  }
+
+  showMoreInfoHandler() {
+    if (this.hasActiveTooltip) {
+      return;
+    }
+    const projectElement = document.getElementById(this.id);
+    const tooltipText = projectElement.dataset.extraInfo;
+    const tooltip = new Tooltip(
+      () => {
+        this.hasActiveTooltip = false;
+      },
+      tooltipText,
+      this.id
+    );
+    tooltip.attach();
+    this.hasActiveTooltip = true;
+  }
+ 
+  connectDrag() { //  connectDrag
+    document.getElementById(this.id).addEventListener('dragstart', event => { // dragstart event
+    // in here, we can configure that drag event as I mentioned
+
+    // you can configure which kind of operation it is so that the browser can display the correct cursor and you can also, if you wanted to, change this preview image which is generated here, so the thing attached to our mouse. By default it's a preview of the DOM element, now you could also point at any other image here
+
+    // I don't want to change that preview image,I want to append some data though, I want to append the ID of the element we're dragging, so that later
+
+    // when we drop it somewhere, we can extract that ID from the event object and do something with that because otherwise, we'll not know which kind of element was dragged in the place where it is dropped.
+
+      event.dataTransfer.setData('text/plain', this.id);
+      event.dataTransfer.effectAllowed = 'move';
+    });
+  }
+
+  connectMoreInfoButton() {
+    const projectItemElement = document.getElementById(this.id);
+    const moreInfoBtn = projectItemElement.querySelector(
+      'button:first-of-type'
+    );
+    moreInfoBtn.addEventListener('click', this.showMoreInfoHandler.bind(this));
+  }
+
+  connectSwitchButton(type) {
+    const projectItemElement = document.getElementById(this.id);
+    let switchBtn = projectItemElement.querySelector('button:last-of-type');
+    switchBtn = DOMHelper.clearEventListeners(switchBtn);
+    switchBtn.textContent = type === 'active' ? 'Finish' : 'Activate';
+    switchBtn.addEventListener(
+      'click',
+      this.updateProjectListsHandler.bind(null, this.id)
+    );
+  }
+
+  update(updateProjectListsFn, type) {
+    this.updateProjectListsHandler = updateProjectListsFn;
+    this.connectSwitchButton(type);
+  }
+}
+
+class ProjectList {
+  projects = [];
+
+  constructor(type) {
+    this.type = type;
+    const prjItems = document.querySelectorAll(`#${type}-projects li`);
+    for (const prjItem of prjItems) {
+      this.projects.push(
+        new ProjectItem(prjItem.id, this.switchProject.bind(this), this.type)
+      );
+    }
+    console.log(this.projects);
+  }
+
+  setSwitchHandlerFunction(switchHandlerFunction) {
+    this.switchHandler = switchHandlerFunction;
+  }
+
+  addProject(project) {
+    this.projects.push(project);
+    DOMHelper.moveElement(project.id, `#${this.type}-projects ul`);
+    project.update(this.switchProject.bind(this), this.type);
+  }
+
+  switchProject(projectId) {
+    // const projectIndex = this.projects.findIndex(p => p.id === projectId);
+    // this.projects.splice(projectIndex, 1);
+    this.switchHandler(this.projects.find(p => p.id === projectId));
+    this.projects = this.projects.filter(p => p.id !== projectId);
+  }
+}
+```
+* Refer for setData : https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/Recommended_drag_types
+
+* so you can attach a broad variety of things, of data and the type which we use here will be important for when we then plan on making or adding a droppable place in our application because there, we could check what is getting dragged over it so that we don't accept any droppable data but only of a specific type.
+
+* Refer for effectAllowed : https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer/effectAllowed
+
+*  find this link attached where you can have a move operation, a copy operation and so on. Now the browser cursor should be updated accordingly
+
+### Marking the "Drop Area"
+
+* To mark something as a drop zone or as a place where you can finish a drag event so to say, you need to add an event listener and prevent the default
+
+* So we need to go to that list and listen to these events and prevent the default. For that here in the project list class which is in the end responsible for managing our lists, I'll add a connect droppable method and trigger that from inside the constructor, so that when we create a new project list, we in the end set up this droppable event listening here.
+
+```js
+class ProjectList {
+  projects = [];
+
+  constructor(type) {
+    this.type = type;
+    const prjItems = document.querySelectorAll(`#${type}-projects li`);
+    for (const prjItem of prjItems) {
+      this.projects.push(
+        new ProjectItem(prjItem.id, this.switchProject.bind(this), this.type)
+      );
+    }
+    console.log(this.projects);
+    this.connectDroppable();
+  }
+
+  connectDroppable() {
+    const list = document.querySelector(`#${this.type}-projects ul`);
+
+    list.addEventListener('dragenter', event => {
+      if (event.dataTransfer.types[0] === 'text/plain') {
+        list.parentElement.classList.add('droppable');
+        event.preventDefault();
+      }
+    });
+
+    list.addEventListener('dragover', event => {
+      if (event.dataTransfer.types[0] === 'text/plain') {
+        event.preventDefault();
+      }
+    });
+
+    list.addEventListener('dragleave', event => {
+      if (event.relatedTarget.closest(`#${this.type}-projects ul`) !== list) { // event.relatedTarget
+        list.parentElement.classList.remove('droppable');
+      }
+    });
+
+    list.addEventListener('drop', event => {
+      // Now to react to a drop, we can add another event listener, still on the list because that's the area where we drop and that's the drop event
+      const prjId = event.dataTransfer.getData('text/plain'); // event.dataTransfer
+      if (this.projects.find(p => p.id === prjId)) {
+        return;
+      }
+      document
+        .getElementById(prjId)
+        .querySelector('button:last-of-type')
+        .click();
+      list.parentElement.classList.remove('droppable');
+      // event.preventDefault(); // not required
+    });
+  }
+
+  setSwitchHandlerFunction(switchHandlerFunction) {
+    this.switchHandler = switchHandlerFunction;
+  }
+
+  addProject(project) {
+    this.projects.push(project);
+    DOMHelper.moveElement(project.id, `#${this.type}-projects ul`);
+    project.update(this.switchProject.bind(this), this.type);
+  }
+
+  switchProject(projectId) {
+    // const projectIndex = this.projects.findIndex(p => p.id === projectId);
+    // this.projects.splice(projectIndex, 1);
+    this.switchHandler(this.projects.find(p => p.id === projectId));
+    this.projects = this.projects.filter(p => p.id !== projectId);
+  }
+}
+```
+### Firefox Adjustments
+
+* I do recommend to follow along in Chrome but in case you're using Firefox, you might be seeing some strange behaviors / errors. Here are some code adjustments you can make to make it work in Firefox as well:
+
+* In
+
+```js
+list.addEventListener('drop', event => {
+```
+* add the following line at the beginning:
+
+```js
+event.preventDefault
+```
+* I.e. it should look like this:
+```js
+list.addEventListener('drop', event => {
+    event.preventDefault();
+    // other code...
+
+```
+* In
+
+```js
+list.addEventListener('dragleave', event => {
+```
+
+* adjust the if statement to look like this:
+
+```js
+if (event.relatedTarget.closest && event.relatedTarget.closest(...) {...}
+```
+* I.e. it should look like this:
+
+```js
+list.addEventListener('dragleave', event => {
+    if (event.relatedTarget.closest && event.relatedTarget.closest(...) {...}
+```
+* Here's the complete adjusted app.js file:
+
+```js
+class DOMHelper {
+  static clearEventListeners(element) {
+    const clonedElement = element.cloneNode(true);
+    element.replaceWith(clonedElement);
+    return clonedElement;
+  }
+ 
+  static moveElement(elementId, newDestinationSelector) {
+    const element = document.getElementById(elementId);
+    const destinationElement = document.querySelector(newDestinationSelector);
+    destinationElement.append(element);
+    element.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+ 
+class Component {
+  constructor(hostElementId, insertBefore = false) {
+    if (hostElementId) {
+      this.hostElement = document.getElementById(hostElementId);
+    } else {
+      this.hostElement = document.body;
+    }
+    this.insertBefore = insertBefore;
+  }
+ 
+  detach() {
+    if (this.element) {
+      this.element.remove();
+      // this.element.parentElement.removeChild(this.element);
+    }
+  }
+ 
+  attach() {
+    this.hostElement.insertAdjacentElement(
+      this.insertBefore ? 'afterbegin' : 'beforeend',
+      this.element
+    );
+  }
+}
+ 
+class Tooltip extends Component {
+  constructor(closeNotifierFunction, text, hostElementId) {
+    super(hostElementId);
+    this.closeNotifier = closeNotifierFunction;
+    this.text = text;
+    this.create();
+  }
+ 
+  closeTooltip = () => {
+    this.detach();
+    this.closeNotifier();
+  };
+ 
+  create() {
     const tooltipElement = document.createElement('div');
     tooltipElement.className = 'card';
-    tooltipElement.textContent = this.text;
-    
+    const tooltipTemplate = document.getElementById('tooltip');
+    const tooltipBody = document.importNode(tooltipTemplate.content, true);
+    tooltipBody.querySelector('p').textContent = this.text;
+    tooltipElement.append(tooltipBody);
+ 
     const hostElPosLeft = this.hostElement.offsetLeft;
     const hostElPosTop = this.hostElement.offsetTop;
     const hostElHeight = this.hostElement.clientHeight;
     const parentElementScrolling = this.hostElement.parentElement.scrollTop;
-
+ 
     const x = hostElPosLeft + 20;
     const y = hostElPosTop + hostElHeight - parentElementScrolling - 10;
-
+ 
     tooltipElement.style.position = 'absolute';
     tooltipElement.style.left = x + 'px'; // 500px
     tooltipElement.style.top = y + 'px';
-
+ 
     tooltipElement.addEventListener('click', this.closeTooltip);
     this.element = tooltipElement;
   }
-```
-### Handling Scrolling
-
-* scrollTo takes two coordinates - x and y, where you can define how much you want to scroll to the left or right and how much you want to scroll to the top or bottom.
-
-```js
-$0.scrollTo(0, 50); // now I tell Javascript that I want to scroll down to 50 pixels
-```
-* Now you can also not just scroll to absolute values, you can also scroll relatively with scrollBy.With scrollBy I tell Javascript by how many pixels I want to scroll down.
-
-
-```js
-$0.scrollBy(0, 50); // 50px down 
-$0.scrollBy(0, 50); // 50px down more..
-```
-* I'll have the same effect as before actually but you'll see a difference now if I am at 50 and I repeat this command, now I scroll down 50 pixels more.
-
-* If you want to make a specific element visible with scrolling though, there is an even easier way.
-
-```js
-static moveElement(elementId, newDestinationSelector) {
-  const element = document.getElementById(elementId);
-  const destinationElement = document.querySelector(newDestinationSelector);
-  destinationElement.append(element);
-  element.scrollIntoView({behavior: 'smooth'}); // scrollIntoView
 }
-```
-* Now of course what you might notice is that scrolling here always means jumping, it immediately is there, we have no animation. 
-
-* We could apply the same smooth animation to scrollTop too
-
-```js
-$0.scrollTo({top: 50, behavior: 'smooth'});
-```
-### Working with <template> Tags
-
-* We can use a special HTML tag in our HTML code to kind of setup such to be used HTML code which we don't want to render right from the start but which we want to eventually use from inside our Javascript code and for this we can use a special tag, the template tag
-
-```js
-<template id="tooltip">
-  <h2>More Info</h2>
-  <p></p>
-</template>
-```
-* the special thing about the template tag is that its content by default is not rendered but it's part of the DOM, so you can query it and use it and then use it in your Javascript code but it's not getting rendered by default at the beginning.
-
-```js
-const tooltipTemplate = document.getElementById('tooltip');
-const tooltipBody = document.importNode(tooltipTemplate.content, true); // true here 
-tooltipElement.append(tooltipBody);
-```
-### Loading Scripts Dynamically
-
-* You can also create and run a script with Javascript, now let me show you how that would work. 
-
-* It's more interesting if you have some other script file which you only want to download at a certain point of time, so where you want to control when the browser loads this script from inside your Javascript code.
-
-```js
+ 
+class ProjectItem {
+  hasActiveTooltip = false;
+ 
+  constructor(id, updateProjectListsFunction, type) {
+    this.id = id;
+    this.updateProjectListsHandler = updateProjectListsFunction;
+    this.connectMoreInfoButton();
+    this.connectSwitchButton(type);
+    this.connectDrag();
+  }
+ 
+  showMoreInfoHandler() {
+    if (this.hasActiveTooltip) {
+      return;
+    }
+    const projectElement = document.getElementById(this.id);
+    const tooltipText = projectElement.dataset.extraInfo;
+    const tooltip = new Tooltip(
+      () => {
+        this.hasActiveTooltip = false;
+      },
+      tooltipText,
+      this.id
+    );
+    tooltip.attach();
+    this.hasActiveTooltip = true;
+  }
+ 
+  connectDrag() {
+    const item = document.getElementById(this.id);
+    item.addEventListener('dragstart', event => {
+      event.dataTransfer.setData('text/plain', this.id);
+      event.dataTransfer.effectAllowed = 'move';
+    });
+ 
+    item.addEventListener('dragend', event => {
+      console.log(event);
+    });
+  }
+ 
+  connectMoreInfoButton() {
+    const projectItemElement = document.getElementById(this.id);
+    const moreInfoBtn = projectItemElement.querySelector(
+      'button:first-of-type'
+    );
+    moreInfoBtn.addEventListener('click', this.showMoreInfoHandler.bind(this));
+  }
+ 
+  connectSwitchButton(type) {
+    const projectItemElement = document.getElementById(this.id);
+    let switchBtn = projectItemElement.querySelector('button:last-of-type');
+    switchBtn = DOMHelper.clearEventListeners(switchBtn);
+    switchBtn.textContent = type === 'active' ? 'Finish' : 'Activate';
+    switchBtn.addEventListener(
+      'click',
+      this.updateProjectListsHandler.bind(null, this.id)
+    );
+  }
+ 
+  update(updateProjectListsFn, type) {
+    this.updateProjectListsHandler = updateProjectListsFn;
+    this.connectSwitchButton(type);
+  }
+}
+ 
+class ProjectList {
+  projects = [];
+ 
+  constructor(type) {
+    this.type = type;
+    const prjItems = document.querySelectorAll(`#${type}-projects li`);
+    for (const prjItem of prjItems) {
+      this.projects.push(
+        new ProjectItem(prjItem.id, this.switchProject.bind(this), this.type)
+      );
+    }
+    console.log(this.projects);
+    this.connectDroppable();
+  }
+ 
+  connectDroppable() {
+    const list = document.querySelector(`#${this.type}-projects ul`);
+ 
+    list.addEventListener('dragenter', event => {
+      if (event.dataTransfer.types[0] === 'text/plain') {
+        list.parentElement.classList.add('droppable');
+        event.preventDefault();
+      }
+    });
+ 
+    list.addEventListener('dragover', event => {
+      if (event.dataTransfer.types[0] === 'text/plain') {
+        event.preventDefault();
+      }
+    });
+ 
+    list.addEventListener('dragleave', event => {
+      if (event.relatedTarget.closest && event.relatedTarget.closest(`#${this.type}-projects ul`) !== list) {
+        list.parentElement.classList.remove('droppable');
+      }
+    });
+ 
+    list.addEventListener('drop', event => {
+      event.preventDefault();
+      const prjId = event.dataTransfer.getData('text/plain');
+      if (this.projects.find(p => p.id === prjId)) {
+        return;
+      }
+      document
+        .getElementById(prjId)
+        .querySelector('button:last-of-type')
+        .click();
+      list.parentElement.classList.remove('droppable');
+      // event.preventDefault(); // not required
+    });
+  }
+ 
+  setSwitchHandlerFunction(switchHandlerFunction) {
+    this.switchHandler = switchHandlerFunction;
+  }
+ 
+  addProject(project) {
+    this.projects.push(project);
+    DOMHelper.moveElement(project.id, `#${this.type}-projects ul`);
+    project.update(this.switchProject.bind(this), this.type);
+  }
+ 
+  switchProject(projectId) {
+    // const projectIndex = this.projects.findIndex(p => p.id === projectId);
+    // this.projects.splice(projectIndex, 1);
+    this.switchHandler(this.projects.find(p => p.id === projectId));
+    this.projects = this.projects.filter(p => p.id !== projectId);
+  }
+}
+ 
 class App {
   static init() {
     const activeProjectsList = new ProjectList('active');
@@ -199,120 +933,21 @@ class App {
     finishedProjectsList.setSwitchHandlerFunction(
       activeProjectsList.addProject.bind(activeProjectsList)
     );
-
-    document
-      .getElementById('start-analytics-btn')
-      .addEventListener('click', this.startAnalytics); // executes that script only button is added
+ 
+    // const timerId = setTimeout(this.startAnalytics, 3000);
+ 
+    // document.getElementById('stop-analytics-btn').addEventListener('click', () => {
+    //   clearTimeout(timerId);
+    // });
   }
-
+ 
   static startAnalytics() {
-    const analyticsScript = document.createElement('script'); // <script></script>
+    const analyticsScript = document.createElement('script');
     analyticsScript.src = 'assets/scripts/analytics.js';
-    analyticsScript.defer = true; // once parsing is complete this script executes
-    document.head.append(analyticsScript); // add this to  head
+    analyticsScript.defer = true;
+    document.head.append(analyticsScript);
   }
 }
+ 
+App.init();
 ```
-
-### Setting Timers & Intervals
-
-*  there are some other nice features the browser exposes to you in Javascript that also allow you to influence the user experience and one of these cool features is a timer which you can set or actually two different kinds of timer as you can set in your Javascript code.
-
-* Let's say instead of starting our analytics here, when the user clicks a button, we want to do this three seconds after the page was loaded and for that indeed you can set a timer.
-
-```js
-const timerId = setTimeout(this.startAnalytics, 3000);
-
-document.getElementById('stop-analytics-btn').addEventListener('click', () => {
-  clearTimeout(timerId);
-});
-```
-### The "location" and "history" Objects
-
-```js
-location.href = 'google.com' // this will move to new location
-```
-* You can also navigate with replace, this is a method which you execute to which you pass a URL, the difference to setting ref is simply that you can't go back because it will replace this page in that browser history which is in the end stored, so the back button won't be able to go back to this page after you used replace. 
-
-```js
-location.replace = 'google.com' 
-```
-* Another alternative would be the assign method, that's pretty much the same as setting the ref property and you can use both interchangeably depending on whether you rather navigate by setting a property or by calling a method
-
-* on whether you rather navigate by setting a property or by calling a method and of course you got a couple of other properties and methods in there as well, for example you got host which tells you on which host this page is running, since we serve this locally from the files, we got no host there but if you are on some other page, like google.com for example, then you will see that host actually
-
-```js
-location.host()
-location.origin // "https://www.google.com/gmail"
-location.pathname // "/gmail/"
-```
-* You also got origin which is the full domain including the protocol which was used, also the pathname which is the part after the domain
-
-* also the pathname which is the part after the domain and here I'm just on slash nothing.
-
-* you also have window.history or just history therefore.
-
-* Now location and history kind of work together, location allows you to edit the browser history by navigating around or by replacing the page, history then allows you to interact with that history, for example you can call the back method to go back.
-
-```js
-history.back(); // back to last page
-history.length;
-history.go(5);
-```
-### The "navigator" Object
-
-* Now besides location and history, there also is the navigator object, also quite interesting. This allows you to interact with the browser and the operating system of your user so to say, of course only in a limited way, not unlimited access.
-
-```js
-navigator.userAgent // "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"
-```
-* Now what's up with this? This actually looks the way it does look for historic reasons, browser vendors in the past used to fake this to make sure that their browsers could have access to all features website might be using in their scripts because in the past, browser support was pretty different for different web features and hence, some programmers working on websites used user agent to find out if the user is using let's say Internet Explorer and therefore they wouldn't run a certain script if that browser was used. Now as browsers evolved and maybe Internet Explorer 7 included a feature which version 6 didn't include, that script that prevented Internet Explorer from getting access to certain features of the website would still block access even though support might now have been added to the browser.
-
-* Therefore browser vendors started to put basically all browser names into this user agent string because this is set by the browser, so the people building the browsers of course can influence what shows up in there and hence, browsers basically faked to be another browser so that they could get full access to whatever the script wanted to do,so that the users of that browser had no limited or restricted user experience.Hence this is not really that useful.
-
-* Refer : https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent
-
-* Refer : https://developer.mozilla.org/en-US/docs/Web/API/Window/navigator#Example_1_Browser_detect_and_return_a_string
-
-* So I just wanted to show this because I find it kind of amusing to understand how this evolved over time,
-
-* Now navigator also exposes many other features, for example it also exposes access to the clipboard API which allows you to add something to the clipboard or paste something into some input field for example.
-
-```js
-navigator.geolocation.getCurrentPosition((data)=>{
-console.log(data)
-};)
-```
-* so this function will be called for you by the browser once the location was fetched and then here if you enter this, you have to allow that the browser fetches your location and eventually, you'll get that position object with your coords object in there where you can find out which coordinates the user has and there's more in navigator.
-
-### Working with Dates
-
-* one last built-in or global constructor function you could say that helps you deal with dates and that's the date object and constructor function.
-
-* Refer : https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
-
-```js
-new Date(); // Wed Dec 30 2020 12:29:49 GMT+0530 (India Standard Time)
-
-const date = new Date();
-date.getDate();
-date.getDay();
-date.getTime();
-```
-### The "Error" Object & Constructor Function
-
-* Now besides the date object, there's also one other built-in object which I want to show you because it can be important and that's the error object built into Javascript.
-
-```js
-throw new Error('Something Went Wrong!');
-```
-* you also get a stack trace which basically tells you where this error was thrown, in this case in the console which is why we see anonymous here but if we would do this in a file, we would get the file name and the file numbers and so on.
-
-* So besides just passing some error message, this can give you more information, also since it's an object, you can add stuff to it.
-
-```js
-const customError = new Error('Something Went Wrong!');
-customError.code = 404;
-console.dir(customError);
-```
-* That's all possible and you can always console dir
