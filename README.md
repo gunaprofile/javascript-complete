@@ -1,345 +1,141 @@
 # Javascript Complete
 
-## Advanced Function Concepts
+## More on Numbers & Strings
 
-### Pure Functions & Side-Effects
+### How Numbers Work & Behave in JavaScript
 
-* Let's start with pure functions and side effects, what is that? Well, a pure function is a function which for some given input, so for some given arguments, always produces the same output, so the same arguments, the same values for the given arguments always produce the same output
+* Refer : https://2ality.com/2012/04/number-encoding.html
+
+* Refer : https://stackoverflow.com/questions/11695618/dealing-with-float-precision-in-javascript
+
+* Refer toFixed, toString
+
+### The BigInt Type
+
+* So that was a lot about precision and numbers but it's important to understand it. In modern versions of Javascript, there actually also is an alternative to the normal number we worked with all the time and that's a big integer.
+
+* Now the big integer type is a primitive value and its goal is to allow you represent numbers that are above the maximum safe integer we learned about, so a number bigger than that. If you for example wanted to represent a number bigger than that by adding extra nine at the end, you would see what I explained before, we get a totally different number because Javascript only works with 64 bits and we would exceed that and therefore Javascript cuts the number at a certain point and shows a different number.
 
 ```js
-function add(num1, num2) { // pure function
-  return num1 + num2;
-}
+Number.MAX_SAFE_INTEGER 
+9007199254740991
+9007199254740991n
+9007199254740991n
+```
+* this keeps its precision, its value and we can represent arbitrarily big numbers with that because internally, this is managed differently, not as a 64 bit floating point number but instead in the end as a string and Javascript does all the heavy lifting of converting this around when you use it in calculations and so on. So the big int can be useful if you're working with very large numbers, of course not just positive ones but also negative ones.Now be aware that there is no floating point calculation there, that there are no supported decimal places, you see I'm getting an error if I try to add a decimal place, it's called big int because it's only about integers and it's the perfect type if you are working with very large integers. 
 
-// function sendDataToServer() {}
+* Of course you can always represent smaller numbers with that, the question is if this makes a lot of sense and then you can also perform typical calculations with it, just important, you can't mix big int and other numbers, for example 10n and -4, where 10n is a big int but 4 is a normal number would yield an error,
 
-console.log(add(1, 5)); // 6
-console.log(add(12, 15)); // 27
+* you see you cannot mix big int and other types, use explicit conversions so you would have to convert this to a big integer or this to a normal number before mixing it. 
 
-function addRandom(num1) { // impure function - you can't predict the output for the input
-  return num1 + Math.random();
-}
+* You can convert it to a normal number with parseInt for example,
 
-console.log(addRandom(5));
+```js
+parseInt(10n) - 4
+or
+10n - BigInt(4)
+```
+* this is how you can convert numbers back and forth and this is how you then can work with them and how you can run various calculations. 
 
-let previousResult = 0;
+* One important note, if you divide a big int, since decimal places can't be represented there, Javascript will actually omit them and we don't see it here because this can be divided with a perfect result without decimal places
 
-function addMoreNumbers(num1, num2) {
-  const sum = num1 + num2;
-  previousResult = sum; // we change the value that is defined outside of this variable
-  return sum;
-}
+* but if we have 5n divided by 2n, then you see we're not getting 2.5n because this does not exist as you see, instead we get 2n because Javascript simply cuts off the decimal place
 
-console.log(addMoreNumbers(1, 5));
+### The Global "Number" and "Math" Objects
 
-// Another example for a function with a side effect would be a function that changes an object or an array that you pass into it.
-const hobbies = ['Sports', 'Cooking'];
+* Let's have a look at the number and the math global object. We used some of the features of these objects already and now I just want to have a second look and walk you through the important ones,
+let's start with number.
 
-function printHobbies(h) {
-  h.push('NEW HOBBY');
-  console.log(h);
-}
+* There we saw MAX_SAFE_INTEGER, MAX_VALUE, MIN_SAFE_INTEGER and MIN_VALUE, you also have negative and positive infinity. These are special values in Javascript which you also can just type like this
+by the way, infinity and -infinity
 
-printHobbies(hobbies);
+```js
+1/0 // Infinity
 ```
 
-*  A function is also not to be considered pure if it introduces side effects which is a fancy term for saying it changes anything outside of the function, that could be an HTTP request which you are sending or data which is stored in the database but it could also be something more trivial, like let's say changing some variable which is defined outside of the function. 
-
-### Impure vs Pure Functions
-
-* Now that being said, when you're building an application, when you're writing code, it will be impossible for you to avoid introducing side effects at some point of time. A function might need to set up some event listener or might need to send some data to a server and that is absolutely fine.
-
-* The goal just is to minimize the amount of functions which are impure or which have side effects, just work with your code in a logical way, try to keep your functions predictable and pure and if you then occasionally have some functions that need to perform a side effect or that needs to be impure, that's absolutely fine.
-
-* Maybe just try to be clear regarding the function naming that this might be a function that does something as a side effect, for example a function which is named send data to server would be expected to send some data to a server and it wouldn't come as a surprise that this function as a side effect produces an HTTP request. A function which is just called add on the other hand should probably not create some side effect or be impure because a function with this name, well we would expect this to be pure, right?
-
-* As always, it comes with experience and now of course it's OK to not be perfect regarding that, you should definitely be aware of this concept of pure functions though and as I said, aim for more pure functions and less impure functions that might introduce side effects.
-
-### Factory Functions
-
-* let's dive into factory functions. Pretty unrelated to pure functions but still an important concept.
-
-* The idea behind factory functions is that you have a function that produces another function, now that might sound strange but it makes more sense once we see an example.
+* and this is the value you for example get if you divide by zero, you'll not get an error which you might expect, instead you get infinity because it basically approximates the result you could say.
 
 ```js
-function createTaxCalculator(tax) {
-  function calculateTax(amount) {
-    return amount * tax;
+Number.isFinite(10) // true
+Number.isFinite(Infinity) // false
+```
+* So infinity is a special value you can get and you can also check for infinity in places where you need true or false, for that you've got the isFinite method,
+
+* So number isFinite can be useful, we also have isNaN there, we saw that earlier already, also exists as a global method. We got parseFloat and parseInt here which also exists globally though and therefore we don't really need that here
+
+* More interesting than that is the math object,there you get various methods and constants or properties that help you with mathematical operations.
+
+```js
+Math.E
+2.718281828459045
+Math.PI
+3.141592653589793
+Math.abs(-5)
+5
+Math.random()
+0.9689793335561592
+Math.random()
+0.9315767268045132
+```
+### Example: Generate Random Number Between Min/ Max
+
+```js
+function randomIntBetween(min, max) {
+  // min: 5, max: 10
+  return Math.floor(Math.random() * (max - min + 1) + min); // 10.999999999999 => 10
+}
+
+console.log(randomIntBetween(1, 10));
+```
+### Exploring String Methods
+
+* I want to point your attention to something which you already know actually, strings of course can be created in three different ways - double quotes, single quotes and back ticks, back ticks create a string with that template literal notation where you can dynamically inject dynamic values like this
+
+```js
+`${1}` // "1"
+'hello'.toUpperCase(); // HELLO
+
+```
+* Refer : https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String   
+
+### Tagged Templates
+
+```js
+function productDescription(strings, productName, productPrice) {
+  console.log(strings);  // ["This product (", ") is ", "."]
+  console.log(productName); // JavaScript Course
+  console.log(productPrice); // 29.99
+  let priceCategory = 'pretty cheap regarding its price';
+  if (productPrice > 20) {
+    priceCategory = 'fairly priced';
   }
-
-  return calculateTax;
+  // return `${strings[0]}${productName}${strings[1]}${priceCategory}${
+  //   strings[2]
+  // }`;
+  return {name: productName, price: productPrice};
 }
 
-const calculateVatAmount = createTaxCalculator(0.19);
-const calculateIncomeTaxAmount = createTaxCalculator(0.25);
+const prodName = 'JavaScript Course';
+const prodPrice = 29.99;
 
-console.log(calculateVatAmount(100));
-console.log(calculateVatAmount(200));
+const productOutput = productDescription`This product (${prodName}) is ${prodPrice}.`; // here we called productDescription function with 3 different parameters
+console.log(productOutput);
 ```
 
-* so it runs separately two times, with different arguments for the tax, so different values for the tax argument and therefore this inner function is recreated two times, once for every execution of the outer function and every time it logs in the tax percentage of that outer function which differs for the two executions and therefore the function which we return is this preconfigured inner function with the logged in tax amount
+* in this function and Javascript simply goes through your template literal, takes all non-dynamic parts and puts them into this first argument which is an array and then takes the dynamic parts and adds them in the right order as argument values to this function. 
 
-### Closures
+* the obvious question is, why would we use that? Where can this be useful? 
 
-* So that are factory functions and closely related to factory functions is the concept of closures.Now here's an important rule which you can memorize for Javascript interviews, every function in Javascript is a closure, so why is every function a closure then? What is that concept of being a closure then?
+* Tagged templates can be useful if you have a scenario where you conveniently want to create some output, could be a string but could be something totally different as well, based on some string input, for example you could be using that to take some input here, some input text and convert this to a different text where you replace some values, for example here we could check if product price is greater than 20 and if it is, then we set some variable which I introduced in this function, price category maybe, to cheap here and if the price is greater than 20, we set price category to fair.
 
-* Well this is closely related to the idea of having scopes for our variables
+###  Introducing Regular Expressions ("RegEx")
 
-* you have different scopes - you have block scope when we're working with variables that are created with const or let and that simply means that inside of curly braces like for example here in a function definition, if you create a variable in there or if you get a parameter, it's only usable inside of that function but not outside of it.
+*   Refer : https://www.youtube.com/watch?v=0LKdKixl5Ug&list=PL55RiY5tL51ryV3MhCbH8bLl7O_RZGUUE
 
-* On the other hand, global variables or constants which are created outside of functions can be used inside of the functions, that's something you already knew.
+* you're having an input and there, you get some user input and that should be an email address, something like test@test.com,
 
-* Now if you have a function in a function, that inner function can use all the variables or parameters of the outer function and all variables that are defined globally, the outer function can not access the inner functions specific constants or variables.
+* Regular expressions don't just exist in Javascript, they exist in most programming languages and they help you search for patterns in strings.
 
-```js
-function createTaxCalculator(tax) {
-  function calculateTax(amount) {
-    return amount * tax;
-  }
+* Now you create a regular expression in Javascript in one of two ways, you can create it with the new regex constructor and then to this constructor, you pass a string which describes the pattern you want to look for and there is a rich regular expression language and syntax you can use here or you use a literal notation for creating that regex object, just like you can use square brackets to create an array object, you use two forward slashes like this and then in between these slashes, you define your pattern and a simple email validation pattern could look something like this
 
-  return calculateTax;
-}
-```
-* So for example here, amount could not be accessed from inside that outer function, only from inside that inner function, so that's what you already knew.
-
-* The more technical term for this would be that we have different lexical environments.Each function has its own lexical environment and you have a global environment as well and the variables and constants are registered in these different environments you could say.
-
-```js
-const calculateVatAmount = createTaxCalculator(0.19);
-const calculateIncomeTaxAmount = createTaxCalculator(0.25);
-
-```
-* Now when we call create tax calculator, then this inner function is created, not before we do so because it's inside of that creates tax calculator function,
-
-* So when this inner function then is created in here, something interesting happens, it's in this case here logs in the value for tax when this outer function runs.
-
-* So if you then call that outer function again with a different value, since we execute a brand new function, since we have a totally different function execution, the inner function receives this brand new tax value and is totally detached from that other function execution.
-
-```js
-var multiplier = 1.1;
-function createTaxCalculator(tax) {
-  function calculateTax(amount) {
-    return amount * tax * multiplier;
-  }
-
-  return calculateTax;
-}
-
-const calculateVatAmount = createTaxCalculator(0.19);
-const calculateIncomeTaxAmount = createTaxCalculator(0.25);
-
-multiplier = 2.2 // before execute inner function we changed multiplier now multiplier value is new updated 2.2 for inner function
-
-console.log(calculateVatAmount(100));
-console.log(calculateVatAmount(200));
-```
-* So what does this tell us?
-
-* It tells us that we do log in tax here because that's part of this specific environment of the outer function when it runs but we don't log in the concrete value of multiplier because that's part of the global environment
-
-* and in the end what happens is just each function registers its surrounding environments and the variables that are defined in there and if these variables change and this function uses such a variable, then it takes the latest value.
-
-* Now for tax in this case here, that would be the case too but when this inner function is created, it has a look at its surrounding environment which is this functions, the create tax calculator functions environment for example and there we have a tax variable, a tax parameter and if that would change, the inner function would take the new one but this never changes because the only time we pass in a new value is when we execute this function again,
-
-* this however will be a brand new execution and not change that inner function that was created on the first function execution here, which is why that inner function created by that first function execution still has its old environment with the tax you set up here as an argument. 
-
-* Now why is it called a closure
-
-* Because every function closes over the surrounding environment which means it registers the surrounding environment and the variables registered there and it memorizes the values of these variables.
-
-* If you then change a variable let say multiplier, well that is reflected inside of the function but if it does not change, the function still is able to use for example the tax value you passed in when you created the outer function.
-
-* You could say when the outer function, when create tax calculator is called with a value of .19, then what happens is that this function runs, a new function is created which for the moment is simply a task that is done pretty fast and then we return this created function. So you could say that theoretically tax isn't used anymore,the inner function uses it but Javascript could just ignore that.
-
-* The outer function is done and it was the outer function which received the tax parameter, so we could think that Javascript just gets rid of that tax value and ignores it
-
-* So a function, every function in Javascript is a closure because it closes over the variables defined in its environment and it kind of memorizes them, so that they're not thrown away when you don't need them in the surrounding context anymore.
-
-### Closures in Practice
-
-```js
-let userName = 'Max';
-
-function greetUser() {
-   let name = userName;
-  console.log('Hi ' + name);
-}
-
-userName = 'Manuel';
-
-greetUser(); // Hi Manuel
-```
-* now name is part of the environment of the function, so of the lexical environment of the function itself, it however points or it refers to user name which is part of the outer lexical environment, what would you expect now?
-
-* we again see Hi Manuel and the reason for it is the same as before, we do refer to that user name variable inside of our function but when the function executes, it reaches out to that surrounding lexical environment to which it holds a pointer, so to which the functional the pointer and gets the latest value from there, which is why we see this.
-
-```js
-let userName = 'Max';
-
-function greetUser() {
-   let name = 'Anna'; // while creation we created this local scope name with value as 'Anna'
-  console.log('Hi ' + name);
-}
-
-let name = 'Maximilian'; // here we created global name variable
-
-userName = 'Manuel';
-
-greetUser(); // Hi Anna
-```
-
-* because name here is created as a variable inside of the function. Now you also learned earlier that you can have a function with the same name outside and inside of the function, this is a concept called shadowing, the inner function, the inner environment you would say wins over the outer environment.
-
-* So this function has its own lexical environment and there it adds a name variable, it also adds a pointer at the outer lexical environment and there, it also at the time it runs will have a name variable but and that's really important, when the function executes, it first of course checks its inner environment and only if it doesn't find a variable there, then it goes to the next level, to the outer environment, so the environment of a surrounding function or the global environment and then it checks that outer environment for that variable of that name but here we do have that variable inside of the function so there's no need to go to the outer one and look for this name and that's what we see Hi Anna.
-
-```js
-
-function greetUser() {
-   //let name = 'Anna'; 
-  console.log('Hi ' + name);
-}
-
-let name = 'Maximilian'; // here we created global name variable
-
-greetUser(); // Hi Maximilian
-```
-* Things of course would be different if I would comment out the name declaration inside of that function. Now I still refer to a name variable which wasn't even declared when the function was created but which was declared before the function was called and therefore here if I reload, we indeed see Hi Maximilian because now we can't find the name variable on the inner lexical environment and therefore we have to reach out to the next one in line which in this case is the global lexical environment and there, we find that name.
-
-### Closures & Memory Management
-
-* Now one word about memory consumption and memory usage. If every function logs in all surrounding variables, doesn't that lead to a pretty bad effect in our memory because in big applications where we have many variables, a function might log in a lot of variables which it never uses. So Javascript doesn't get rid of these variables because a function closed over them but the function might never get called or even if it gets called, it might not be interested in all variables, so isn't that a memory issue?
-
-* In theory, it would be but of course Javascript engines are pretty smart or the people who are working on them are pretty smart and therefore, modern Javascript engines optimize this.
-
-* They basically track variable usage you could say and if a variable obviously isn't getting used by anything, not by any functions and nowhere else, then they will get rid of it and they will do so of course in a safe way so that they don't accidentally crash your program because you need to use that function at some point of time, they're really smart about that and they optimize this whole behavior so that you don't manually have to reset all variables that you don't need, Javascript engines will do that for you in a smart way.
-
-### Optional: IIFEs
-
-* In JavaScript - especially in older scripts - you sometimes find a pattern described as "IIFEs". IIFE stands for "Immediately Invoked Function Expression" and the pattern you might find looks like this (directly in a script file):
-
-```js
-(function() {
-    var age = 30;
-    console.log(age); // 30
-})()
- 
-console.log(age); // Error: "age is not defined"
-```
-* What's that?
-
-* We see a function expression which calls itself (please note the () right after the function).
-
-* It's NOT a function declaration because it's wrapped in () - that happens on purpose since you can't immediately execute function declarations.
-
-* But why would you write some code?
-
-* Please note that the snippet uses var, NOT let or const. Remember that var does NOT use block scope but only differ between global and function scope.
-
-* As a consequence, it was hard to control where variables were available - variables outside of function always were available globally. Well, IIFEs solve that problem since the script (or parts of it) essentially are wrapped in a function => Function scope is used.
-
-* Nowadays, this is not really required anymore. With let and const we got block scope and if you want to restrict where variables are available (outside of functions, if statements, for loops etc - where you automatically have scoped variables since these structures create blocks), you can simply wrap the code that should have scoped variables with {}.
-
-```js
-{
-    const age = 30;
-    console.log(age); // 30
-}
- 
-console.log(age); // Error: "age is not defined"
-```
-* Not something you see too often but something that is possible.
-
-### Introducing "Recursion"
-
-* So now that we learned a lot about closures and scope and so on, let's have a look at recursion which is a quite interesting pattern, a quite interesting way of using functions, which is not exclusive to Javascript but which you can use in any programming language.
-
-* Let's start with a simple recursion. Let's say we want to create a function, power of which should calculate the power of something
-
-* and this function should get two arguments - the value and then the power which we want to use, so that we for example can run power of two and three and what we would get is the result 2*2*2  which would be eight, that's two at the power of three.
-
-```js
-function powerOf(x, n) {
-  let result = 1; // initial result is 1
-
-  for (let i = 0; i < n; i++) {
-    result *= x;  // updating result
-  }
-
-  return result; // returning final updated result
-}
-
-console.log(powerOf(2, 3)); // 2 * 2 * 2
-```
-
-* Now we could implement it like this but with the concept of recursion, we can actually write this in a shorter way.
-
-```js
-function powerOf(x, n) {
-  if (n === 1) {
-    return x; // if n = 1 exit loop
-  }
-  return x * powerOf(x, n - 1);
-}
-
-console.log(powerOf(2, 3)); // 2 * 2 * 2
-```
-
-* In more shorterway we can use recursion function
-
-```js
-function powerOf(x, n) {
-  return n === 1 ? x : x * powerOf(x, n - 1);
-}
-
-console.log(powerOf(2, 3));
-```
-### Advanced Recursion
-
-* So recursion can save us code, it can also solve problems which we couldn't solve with a for loop
-
-```js
-const myself = {
-  name: 'Max',
-  friends: [
-    {
-      name: 'Manuel',
-      friends: [
-        {
-          name: 'Chris',
-          friends: [
-            {
-              name: 'Hari'
-            },
-            {
-              name: 'Amilia'
-            }
-          ]
-        }
-      ]
-    },
-    {
-      name: 'Julia'
-    }
-  ]
-};
-
-function getFriendNames(person) {
-  const collectedNames = [];
-
-  if (!person.friends) {
-    return [];
-  }
-  
-  for (const friend of person.friends) {
-    collectedNames.push(friend.name);
-    console.log(friend)
-    collectedNames.push(...getFriendNames(friend)); // we should spead here because here we will get return collectedNames from getFriendNames
-  }
-  
-  return collectedNames;
-}
-
-console.log(getFriendNames(myself));
-```
-
-* we now have recursion to go through that data structure here. And you see how flexible this approach is, we can easily add more friends and deeper and deeper nesting of friends and due to the way how this function is written and the logic we have in there, this will go through as many levels of nesting as we need because it doesn't care, it calls itself and dives into the friends until there are no more friends for a given person and then it returns and returns and returns until it's done with the outermost function call where then it returns the overall value.
+* Regular expression are case sensitive
