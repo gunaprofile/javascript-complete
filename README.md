@@ -1,648 +1,453 @@
 # Javascript Complete
 
-## Async JavaScript: Promises & Callbacks
+## Working with Http Requests
 
-###  Understanding Synchronous Code Execution ("Sync Code")
+### Why and What ?
 
-* Refer : sync.pdf
+* Refer : why-what.pdf
 
-* Let's start by understanding synchronous code and how Javascript works.
+### How The Web Works
 
-* I mentioned that Javascript is single-threaded. Until now, that didn't really matter to us that much but what single threading in the end means is that Javascript can only execute one task at a time,
+* Important: For this module, you should have a basic understanding of how the web works.
 
-* so let's say we have a bunch of code where we log something to the console, call a function, then maybe in that function or somewhere else after this function ran, we disable some button and then we maybe run another function. The important thing to realize here is that all these steps run in sequence after each other, they're not running simultaneously next to each other, instead Javascript will log something to the console, then call the function and do whatever needs to be done inside of that function, then go ahead and disable that button and then call that other function, so these things happen after each other, not at the same time.
+* This article can be helpful to refresh your knowledge: https://academind.com/learn/web-dev/how-the-web-works/ https://www.youtube.com/watch?v=hJHvdBlSxug&feature=youtu.be
 
-* We could give them a label or some ID, let's simply use a, b, c and d and then we could say that for example, this second block, the B block here runs after A but it blocks C from running until it's finished. So the code in C won't be executed until some function execute it.
+###  More Background about Http
+
+* Refer : http-overview.pdf
+
+* let's have a closer look at this HttpRequest thing. How does this actually work?
+
+* Well we have our script, our client side, so the code that runs in the browser and we have our server, the backend, the server side.
+
+* The backend, so our server, could run on a totally different domain, a totally different server than our frontend. So we might be serving the HTML page and the Javascript which is responsible for what the user sees on mypage.com
+
+* whereas the server side logic might be hosted on a totally different server, let's say on mybackend.com.
+
+* Still, these two pieces or these two ends can communicate and the job on the client side is to get the user input, validate it and then to send it off to the server because the job on the server side is to store and retrieve it in a database typically and the database would run on yet another server, it's important to understand this point that you don't directly connect your client side Javascript code to a database for security reasons because you would expose your database credentials in the client side code which you don't want to do but instead you talk to a web server and that web server might then talk to a database server.
+
+* Of course using a database is totally optional but of course often the server side will use one to persistently store data and then get it from the database.
+
+* Now the communication between the client side and the server happens with the help of HttpRequests and responses and these requests and responses have to be configured and set up in a certain way, following a certain structure.
+
+* When you're sending a request to the server, it needs to know the address, so it needs to know the URL made up of the domain and the path, the path is the part after the domain, so mypage.com/posts, mypage.com would be the domain, /posts would be the path.
+
+* In addition, each HttpRequest has a HTTP method that is assigned to it.
+
+* Now you have a couple of available HTTP methods, you have for example get, post, patch, put and delete.
+
+* These methods describe what you want to do, though I will say it's totally up to the server to decide for which method URL combination the server wants to do what, so with the method you don't tell the server what to do, the server just exposes different endpoints and for example might support a post request to /posts whereas it maybe might not support a patch request to /posts but again, it's up to the people writing the server side code to decide which HTTP method URL combinations are supported.
+
+* Typically of course you go for combinations that make sense logically because there the logic is that get requests typically are there to get data, post requests are there to create data on the server or create data on the server which might be stored in a database there, patch and put are there to update data, patch in the sense of updating the existing data, put in the sense of overriding it and delete as you can guess is there to delete data, that's what you commonly use but again, it's the server side that decides which HTTP method URL combinations are supported, on the client side, you then can send requests to these combinations. 
+
+* If you use a combination that is not supported by the server side, you'll simply get a HTTP error as a response.
+
+* Now other parts of a HttpRequest are potential headers, that is extra metadata which can be attached to HttpRequests and some requests, for example a post request, also hold a request body or extra data which is attached to a request. As you can imagine, if we're getting a list of posts, there is no data we could attach, we want a list of posts and we're done.
+
+* If you want to add a post, if you want to create a brand new post, that of course is different, then you want to attach the data that is required for the post creation, like the title and the content to the request you are sending, so that's the idea here.
+
+* Now that data then can be sent in different formats and again, it's the server that tells you which formats it expects or supports.
+
+* The most common format is JSON data, which I'll dive into in more details in a second but we also have FormData which is supported in Javascript and which is fairly popular and you could also send binary files or other formats but again, it's up to the server to decide which data format is supported for which HTTP method URL combination.
+
+* Now that is all the theory, if that is all brand new to you, attached you find a couple of resources that allow you to dig deeper into how the web works, into HttpRequests and HTTP methods.
+
+### Getting Started with Http
+
+* now the tricky thing is we need a server, the browser side Javascript is not enough.
+
+* Now we could write our own server with the help of Javascript and Node.js, Node.js is a Javascript runtime outside of the browser which basically enables you to execute Javascript anywhere and it's a popular solution for writing server side code.
+
+*  For the moment, in order to focus just on the browser side, we'll use a dummy API, a dummy web service we can talk to and that's this page, Refer : https://jsonplaceholder.typicode.com/
+
+* This basically is a page that gives us a dummy web service, a dummy API we can send different requests to, any data we send to it of course is not permanently stored there, it's just a dummy API which fakes to store the data but it's great for a getting started with all of that.
+
+### Sending a GET Request
 
 ```js
-const button = document.querySelector('button');
-const output = document.querySelector('p');
+const xhr = new XMLHttpRequest(); // this object will allow you to send HttpRequests, it is built into the browser and all browsers support this object,
 
-function trackUserHandler() {
-  console.log('Clicked!');
-}
+xhr.open('GET', 'https://jsonplaceholder.typicode.com/posts');
 
-button.addEventListener('click', trackUserHandler);
+xhr.send();
 ```
 
-* what happens here is that first of all, this code runs and Javascript selects this button and stores it in a constant, then only once this first line finished, the second line is executed and this task is performed and then this function declaration as you learned works a bit differently, that happens right at the start when Javascript reads the file at the beginning but then in the execution process so to say, this line executes after these two lines executed. So that's also important for us here because we need the button to be available in order to add an event listener, so we rely on this order which is enforced by Javascript.
-
-* If it would be multi-threaded, it could maybe execute all tasks at the same time and here this would actually be bad because then we could not rely on the button to be available when we need it because if this line is executed at the same time as this line, well then the button might not have been selected yet and therefore adding an event listener to it would maybe fail.
-
-* It's not something we have to worry about though because as I just explained, Javascript is single-threaded and therefore this order is guaranteed.
-
-### Understanding Asynchronous Code Execution ("Async Code")
-
-* Refer : async.pdf
-
-* what if we have certain operations that take a bit longer and that expectedly take a bit longer?
-
-* we have a console log statement but then we set a timeout and then we execute more code. Now the problem is setTimeout might take 2 seconds, 5 seconds, 10 seconds or maybe just 100 milliseconds but even 100 milliseconds would be a duration we probably would not want to wait because this operation could in general take longer and therefore block our code execution, so it prevents more code from being executed until setTimeout is done, at least if Javascript would treat this in the same way as it would treat all other code blocks.
-
-* We simply have certain operations which can't be finished immediately, it's not just timers where we as a developer decide how long it should take, it's also other operations like HTTP requests or getting the user location which simply take a bit longer and typically you don't want to block your entire script until these operations finish because blocking your script would not just mean that the next line doesn't execute immediately, it would also mean that no other code can execute. So for example if you have an event listener to listen for a button click, then this handler function that should trigger when the button is clicked would also be blocked until the timer expired or until your HTTP request is done, so you would be blocking your entire page with these longer taking
-operations and that's of course typically not what you want,
-
-* this operation shouldn't need to wait for the previous one for this longer taking one to finish and thankfully Javascript and browsers have a solution for that, we have asynchronous code execution.
-
-* So if we take this example with the timer but really just to emphasize this, the same would be true if we would be working with HTTP requests for example, so if we have certain operations which typically take longer, then we can actually offload them to the browser.
-
-* So what we do there is we hand this operation of to the browser, by calling setTimeout we just tell the browser to set a timer but we then let the browser do that and therefore our code can execute right away because now the browser is actually able to use multiple threads, one for Javascript and one for another task for example and therefore this timer can be managed in the browser detached from our running Javascript code so that our Javascript code is not blocked and the browser is responsible for managing the timer and the same for HTTP requests where we wait for a response or for getting a user location where we wait for the location, the browser takes care of these tasks, manages them in multiple threads and therefore our Javascript code is not blocked.
-
-* Now the browser however needs a way for it to communicate back to our Javascript code and for that we typically or we often use callback functions.
-
-* The idea here is that for example on setTimeout, we pass a callback function as a first argument if you remember and that callback function is the function the browser should call once the operation is done
-
-* so that the browser can kind of step back into our script and execute something there once it's done so that we can have our script continue to run but then we're also able to do something once this longer taking operation is done.
+### JSON Data & Parsing Data
 
 ```js
-const button = document.querySelector('button');
-const output = document.querySelector('p');
-
-function trackUserHandler() {
-  console.log('Clicked!');
-}
-
-button.addEventListener('click', trackUserHandler);
-```
-
-* If you want to have a look at that, in this example here, I have an event listener and this is basically a similar thing. If we would have an ongoing listener, this would block the entire script execution because we would have to wait for does the user now click, does the user now click, that's not what we want to do, instead when we add an event listener here, we also hand this task of to the browser which manages these listeners behind the scenes so that our script execution can continue but then we have this track user handler function here which we pass as a second argument which effectively is this callback function, the function browser should call once it's done, so in this case not once it's done but once such a click occurs, so that the browser can always step back into our script execution and execute this function once a click occurs.
-
-### Blocking Code & The "Event Loop"
-
-* Refer : event-loop.pdf
-
-* So we have a basic idea of what the browser is doing with longer taking operations, now let's see something interesting.
-
-* Let's add a for loop here, a normal for loop where we start with i set equal to zero but now we have a very high number as an exit condition, let's say 10 million and we increment i by one here every time this runs.
-
-```js
-const button = document.querySelector('button');
-const output = document.querySelector('p');
-
-function trackUserHandler() {
-  console.log('Clicked!');
-}
-
-button.addEventListener('click', trackUserHandler);
-
-let result = 0;
-
-for (let i = 0; i < 100000000; i++) {
-  result += i;
-} 
-
-console.log(result);
-```
-
-* and you see, this takes a timer until it prints the result and you learned in the number section that it will have problems with such big numbers, keep in mind that i gets bigger and bigger and we add the bigger and bigger i to the already bigger and bigger number here. Now the interesting thing is here that after reloading, it took a time to print this. Now let's try to click this button before this result is there, what you'll see is that clicked only appears after the result is there as well. So if I reload, I can hammer this button and nothing happens and all the click events are only processed once the loop basically is done.
-
-* Now here, we see the single threading in action. We have this event listener, we handed this off to the browser and therefore this event listener is not blocking Javascript but this loop here, this actually is not handed off to the browser and there is no way of handing this off, this loop executes and Javascript execution is blocked until this operation is done because you can only execute one operation at a time. Now that actually proves the point I showed you on the slide earlier already,
-
-* also interesting however is that this handed off task also is only able to execute so to say or to execute this function once the loop is done. However it makes sense if you think about it, I mentioned there is only one thing you can execute in Javascript at a given time and whilst the loop
-is running that is the loop. If we click whilst the loop is running, the browser recognizes that click, sure and it knows it should call this function so it does that but this function is a Javascript function and in Javascript, we're occupied with this for loop. So this function is kind of memorized by Javascript, that it needs to execute that but it only does that once this operation finished
-
-* and that's really important to understand, that's how Javascript works and how it works with async code and with synchronous code and what it actually does is it uses a concept called the event loop.
-
-* So what is the event loop? In the end, the event loop helps us deal with async code you could say, it helps us deal with callback functions which typically are used in such async code scenarios.
-
-* Refer : event-loop.pdf - Now in this code here on the left, you see we're defining two functions,
-then here I set a timer, once this timer is done, we call the show alert function which is the second function we define here and after the timer, we also call greet here.
-
-* Now when this code executes, the stack which is part of the Javascript engine as you learned will do certain things. Now also be aware that certain other things will be offloaded to the browser, that the browser kind of gives us a bridge where we can talk to certain browser APIs from inside our Javascript code to for example offload certain work.
-
-* So let's say this code executes now, now what happens is the two functions are created, that's the first thing which happens, the greet and the show alert function
-
-* and then the first function that is called is actually the built-in setTimeout function.
-
-* Now setTimeout does one important thing, it reaches out to the browser because it actually is a browser API made available in Javascript and sets up the ongoing timer there, in the browser so to say, so the browser manages this timer as I mentioned earlier and then in Javascript, this function is done and as you learned, it is really done, it does not block any other code execution. So the timer is still there but that is managed by the browser, Javascript is done for now.
-
-* So the next thing which actually happens is not that show alert executes, keep in mind that this takes 2 seconds, the timer takes 2 seconds, instead Javascript doesn't wait for this as I explained and it instead moves on to the next line, it moves on to the greet method, so now greet executes, before the timer is completed right away after setTimeout is done and the timer is offloaded to the browser, then greet executes in the greet function if you have a look at the left here, we call console log so that's of course also executed and with that we're basically done with the code on the left.
-
-* Now at some point, the timer is completed though and let's say that actually happens whilst our greet console log code executes. Of course this code executes very fast, it does not take it long, it's not such a long if loop as we wrote it but still, it takes a couple of milliseconds even if it's just a few and now let's say whilst we're executing console log, the timer finishes.
-
-* Now we need some way of telling our Javascript code, the Javascript engine so to say, that the show alert function which was register this a callback for the timer should be executed and for this, a message queue is used.
-
-* This is provided by the browser and it's also linked to Javascript so to say. Now in this message queue, the browser registers any code that should execute once we have time for it, in this case the timer. So here, the show alert function, this callback so to say is register this a to-do task once the Javascript engine has time for it,
-
-* so now the timer is done and this task is registered. Please note, show alert does not execute at this point, it's just register this a to-do. The only thing which is really executed in Javascript
-at this point is greet and console log because that's what we're currently doing there.
-
-* So now with that, let's say in Javascript we're done with that console log executed and therefore greet also is done and call stack is empty again. Now we need to get that message or this show alert to-do in our call stack, we know it's a function in Javascript, it should now be executed and for this, we use the event loop.
-
-* The event loop, just like the message queue, is built into the browser and most Javascript environments, for example also Node.js have that concept of having such an event loop.
-
-* It's just important to understand that it's not part of the Javascript engine, it's really part of the host environment of Javascript, so of the thing which uses that Javascript engine.
-
-* So the event loop is part of the browser and the job of the event loop in the end is to synchronize the call stack in the engine with our waiting messages. So in the end, what the event loop does is it runs basically all the time and it always sees, is the stack empty and do we have pending to-dos, and if the stack is empty, then the event loop executes so to say and it pushes any waiting messages or any to-do functions therefore into the call stack.
-
-* So the event loop waits until the call stack is empty and once that is the case, it moves our message or the callback function we registered earlier as a function that is now actively executed into our call stack.
-
-* So the message queue is now empty and now this function runs in our Javascript code. So here show alert runs, this calls the built-in alert function here as you can see on the left, once this is done, the call stack is empty again.
-
-* This is what the browser does behind the scenes with the event loop and with our code and also with these callback functions we hand off to the browser APIs and that is a pattern that typically is used for async operations.
-
-### Sync + Async Code - The Execution Order
-
-```js
-const button = document.querySelector('button');
-const output = document.querySelector('p');
-
-function trackUserHandler() {
-  navigator.geolocation.getCurrentPosition( // this function will take some time to locate the position
-    posData => {
-      console.log(posData); // this code executes second
-    },
-    error => {
-      console.log(error); // this code executes second
-    }
-  );
-  console.log('Getting position...'); // this goes to event loop first this code executes first
-}
-
-button.addEventListener('click', trackUserHandler);
-```
-### Multiple Callbacks & setTimeout(0)
-
-```js
-const button = document.querySelector('button');
-const output = document.querySelector('p');
-
-function trackUserHandler() {
-  navigator.geolocation.getCurrentPosition( // this executes third
-    posData => {
-    // Now the idea here really just is to show you that you can nest these operations, you can 
-    // have an async operation in an async operation but of course this timer is only kicked off 
-    // once the location is there, so once this outer callback function executed.
-      setTimeout(() => {
-        console.log(posData);   // this executes fourth
-      }, 2000);
-
-    },
-    error => {
-      console.log(error);
-    }
-  );
-
-  // so if you set a timer of zero here, you will still see something interesting
-  setTimeout(() => {
-    console.log('Timer done!'); // this executes second
-  }, 0);
-  console.log('Getting position...'); // this executes first
-}
-
-button.addEventListener('click', trackUserHandler);
-```
-* you see actually getting position ran first and then we saw timer done even though I set a timer
-of zero and the reason for that is related to what I explained a second ago
-
-* We hand something off to the browser, no matter if it's an event listener, the position fetching or this timer and then for the browser to execute the callback function, it always has to take the route over the message queue and the event loop
-
-* and therefore this code "console.log('Getting position...')" always executes first, this executes right away after set timeout executes and even though the timer immediately finishes, this setTimeout function still only executes after this "console.log('Getting position...')"  line is done
-
-* and this by the way has one important implication, this (setTimeout Zero) is the minimum time after which the callback function will be executed, it's not the guaranteed time, if it were guaranteed, it would need to run immediately. If we had the long running for loop here, then this timer would only execute once the long running for loop is done which might take three seconds.
-
-* So this is not a guaranteed time, no matter if it's zero or 3000 or whatever it is, it's not guaranteed, it's the minimum and the same for set interval. It's the minimum where Javascript and the browser try to run this but they are only able to run this function if the call stack is empty and if something is blocking the call stack, that will go first.
-
-### Getting Started with Promises
-
-* So we learned a lot about async code and that is crucial knowledge you need as a Javascript web developer, no way around that, you need to understand this.
-
-* Now with this out of the way, let's have a look at readability, this code here can be cumbersome to read, right?
-
-* If we have such code where we have callbacks nested into each other,it can be hard to track what's nested in where, which variables can access where, this is really not nice code to look at.Now thankfully Javascript has a solution for that and that is the concept of promises.
-
-* Promises allow us to write cleaner code
-
-* More modern web APIs offered by the browser typically embrace promises and often only support promise syntax but these older functionalities, like setTimeout which have been around for forever almost, well these still use callbacks. Now we can actually wrap them into promise support code if we wanted to and that's what we'll do here to also understand how a promise works internally.
-
-* a promise is in the end an object with the functionality or with the idea of having such a then method which you can call on it.
-
-* promise is the constructor function or the class built into Javascript
-
-* Now the promise here itself takes a function as an argument, it takes a function, the constructor takes a function and this is actually a function the promise API so to say will execute right away when this promise is constructed.
-
-* So when we build the promise here, this function which we pass to the promise constructor is executed right away, it's called from inside the constructor you could say and it's a way for us to configure what this promise should actually do, what it should wrap itself around.
-
-* This function takes two arguments, so this function we pass to the constructor, this function here, takes two arguments and each argument itself actually is a function.
-
-* It's a resolve function, therefore typically called resolve and a reject function, typically called reject but you can name these parameters however you want,it's up to you,
-
-```js
-const setTimer = duration => { // duration -> argument
-  const promise = new Promise((resolve, reject) => { // promise is the constructor function or the class built into Javascript
-
-  // Now in the function body, as I mentioned this executes right away when the promise is created.
-
-  // In the function body here, you can define what should happen
-  
-    setTimeout(() => {
-      resolve('Done!'); // resolve message Done! // it can be anything string, obj, Array, number
-    }, duration);
-
-  });
-
-  // only after creating the promise where the timer is then kicked off, I will return the promise here
-  return promise;
-};
-
-```
-* Only after creating the promise where the timer is then kicked off, I will return the promise here
-
-* Now here inside of setTimeout, I will call resolve,so I'll use this first argument which I said is a function by simply executing it. 
-
-* Now we'll not pass the concrete function here into promise, instead that is built into the browser. 
-
-* The browser executes this function for us when it creates a promise and it passes the resolve and the reject functions into this function here for us.
-
-* So the resolve function is coming from the browser, from the Javascript engine to be precise, that is passing in that resolve function and it's a function which internally will mark this promise object which is created here in the end as resolved, so as done
-
-* Now we can call this setTimer function
-```js
-function trackUserHandler() {
-  navigator.geolocation.getCurrentPosition(
-    posData => {
-      setTimer(2000).then(data => { // then executes whenever this function resolve
-        console.log(data, posData); // here in data we will receive resolve data
-      });
-    },
-    error => {
-      console.log(error);
-    }
-  );
-  setTimer(1000).then(() => {
-    console.log('Timer done!');
-  });
-  console.log('Getting position...');
-}
-
-button.addEventListener('click', trackUserHandler);
-```
-* What we did here is sometimes also called promisifying a built-in API, I'm wrapping the set timeout API with my promise logic so that I yes have some extra effort up there, it's a bit more complex code but then I can always use the timer here instead of that callback way here with just my promise way. 
-
-### Chaining Multiple Promises
-
-```js
-const button = document.querySelector('button');
-const output = document.querySelector('p');
-
-const getPosition = opts => {
-  const promise = new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(
-      success => {
-        resolve(success);
-      },
-      error => {},
-      opts
-    );
-  });
-  return promise;
-};
-
-const setTimer = duration => {
-  const promise = new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve('Done!');
-    }, duration);
-  });
-  return promise;
-};
-
-function trackUserHandler() {
-  let positionData;
-  getPosition()
-    .then(posData => {
-      positionData = posData;
-      return setTimer(2000);
-    })
-    .then(data => {
-      console.log(data, positionData);
-    });
-  setTimer(1000).then(() => {
-    console.log('Timer done!');
-  });
-  console.log('Getting position...');
-}
-
-button.addEventListener('click', trackUserHandler);
-```
-### Promise Error Handling
-
-```js
-const button = document.querySelector('button');
-const output = document.querySelector('p');
-
-const getPosition = (opts) => {
-  const promise = new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(
-      (success) => {
-        resolve(success);
-      },
-      (error) => {
-        reject(error);
-      },
-      opts
-    );
-  });
-  return promise;
-};
-
-const setTimer = (duration) => {
-  const promise = new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve('Done!');
-    }, duration);
-  });
-  return promise;
-};
-
-function trackUserHandler() {
-  let positionData;
-
-  getPosition()
-    .then((posData) => {
-      positionData = posData;
-      return setTimer(2000);
-    })
-    .catch((err) => {
-        // catch rejected   error
-      console.log(err);
-      return 'on we go...';
-    })
-    .then((data) => {
-      console.log(data, positionData);
-    });
-  setTimer(1000).then(() => {
-    console.log('Timer done!');
-  });
-  console.log('Getting position...');
-}
-
-button.addEventListener('click', trackUserHandler);
-```
-### Promise States & "finally"
-
-* You learned about the different promise states:
-
-* PENDING => Promise is doing work, neither then() nor catch() executes at this moment
-
-* RESOLVED => Promise is resolved => then() executes
-
-* REJECTED  => Promise was rejected => catch() executes
-
-* When you have another then() block after a catch() or then() block, the promise re-enters PENDING mode (keep in mind: then() and catch() always return a new promise - either not resolving to anything or resolving to what you return inside of then()). Only if there are no more then() blocks left, it enters a new, final mode: SETTLED.
-
-* Once SETTLED, you can use a special block - finally() - to do final cleanup work. finally() is reached no matter if you resolved or rejected before.
-
-* Here's an example:
-
-```js
-somePromiseCreatingCode()
-    .then(firstResult => {
-        return 'done with first promise';
-    })
-    .catch(err => {
-        // would handle any errors thrown before
-        // implicitly returns a new promise - just like then()
-    })
-    .finally(() => {
-        // the promise is settled now - finally() will NOT return a new promise!
-        // you can do final cleanup work here
-    });
-```
-* You don't have to add a finally() block (indeed we haven't in the lectures).
-
-### Async/ await
-
-* So really great to have promises, it's really a great syntax that makes working with async code so much easier.
-
-* Now nothing wrong with doing it like this, modern Javascript also has an alternative syntax to that which and that's really important to memorize, which is why I'm saying it right away, which still utilizes promises but which actually allows you to omit the then and catch method here and therefore make your code look a bit more like synchronous code,so the normal code you write everywhere without promises than it actually is and that's async await.
-
-* Now what is async await about? You can use async await in functions and only in functions, that's important, you enable it so to say by adding the async keyword in front of your function keyword, for functions created like this, you would use async here in front of your function name, so on the right side of the equal sign, so that's how you do it on expressions, on declarations you add it here in the front of the function.
-
-* and then with async added here, the function internally changes so to say or what happens in there invisibly changes. With async in front of it, this function automatically returns a promise,
-
-```js
-const button = document.querySelector('button');
-const output = document.querySelector('p');
-
-const getPosition = (opts) => {
-  const promise = new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(
-      (success) => {
-        resolve(success);
-      },
-      (error) => {
-        reject(error);
-      },
-      opts
-    );
-  });
-  return promise;
-};
-
-const setTimer = (duration) => {
-  const promise = new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve('Done!');
-    }, duration);
-  });
-  return promise;
-};
-
-// By adding async here which is a keyword supported by Javascript, this entire function wraps all its content into one big promise,
-
-async function trackUserHandler() { // async returns a promise
-    let posData;
-    let timerData;
-
-// The more interesting thing now is that inside of this invisible promise, 
-// you have access to another keyword because we added async here, we can use the await keyword.
-
-  // We add that in front of any promise, so for example here get position returns a promise,
-    posData = await getPosition();
-    timerData = await setTimer(2000);
-    console.log(posData, timerData);
-}
-
-button.addEventListener('click', trackUserHandler);
-```
-* Now what does await then do if we add it in front of a promise?
-
-* Well it kind of waits for the promise to resolve or to fail and the next line thereafter will only execute once that is the case.
-
-* So except for the error handling which we temporarily lost,this seems way better but what does it actually do?
-
-* Doesn't it break all the things I taught you about Javascript, that Javascript is non-blocking and so on because here, we clearly are blocking the execution, right?
-
-* Well it looks like we are and that can be the dangerous thing about async await. It looks like we're changing the way Javascript works, that suddenly, we wait for async code to finish and that we block script execution until that is the case but that's actually thankfully not what's happening.
-
-* Instead as I mentioned, async wraps everything inside of trackUserHandler into one big promise and then it actually goes ahead and whenever we await for some other promise which is wrapped in that big promise to resolve, it in the end just returns this as part of that big promise it created for us and adds an invisible then block, in the then block it will then get the result of this promise and store it in this variable which is available in that big overall promise so to say.
-
-* So in the end, it replicates this then block behind the scenes you could say and the same of course for this promise. So it doesn't really block code execution, you could say this code simply gets transformed behind the scenes, it gets transformed to a version which still uses then blocks,
-it's the normal promise API, the normal promise object with the normal then method, just transformed behind the scenes, so that we as a developer can write shorter code and the overhead of adding the then blocks and so on is done by Javascript behind the scenes you could say and that's really important to take away. Async await does not change the way Javascript works or executes, it just transforms this code behind the scenes and therefore we just have a look that's different and it looks like we're actually waiting here and we are of course in this function but only in this function because we have a couple of then methods chained after each other here in the end, that's what's happening here
-
-* and therefore we can reap the benefits of having more readable code without any downsides, you just have to be aware of the fact that there is no magic going on and Javascript is not suddenly changing but instead, that we're just having the then stuff going on behind the scenes 
-
-### Async/ await & Error Handling
-
-* So async await can be great to write shorter, more concise code but of course here, we lost error handling, we have no replacement for the catch block at the moment, how do we do that with async await?
-
-* Well, await always moves on to the next line as long as the previous line resolved. Now what if we have an error?
-
-* Well since this looks like normal synchronous code, where we execute line after line and in the end, we are doing that because of the invisible transformation, we can use the normal synchronous error handling we learned about way earlier in the course already, we can use try catch. So here we can try something,
-
-```js
-async function trackUserHandler() { 
-    let posData;
-    let timerData;
-    try{
-        posData = await getPosition(); // if any of this await fails it will move to catch block
-        timerData = await setTimer(2000);// if any of this await fails it will move to catch block
-    }catch(error){
-        console.log(error);
-    }
-    console.log(posData, timerData); // this will always run after try catch
-}
-```
-* So this is how you can handle errors correctly in an async await world, instead of catch with try catch and you can of course put whatever you want into try, you just should be aware of the fact that if one of the things failed, the other steps are skipped just as it was the case with catch in the end and on the other hand if both succeed, you of course don't make it into catch but we always execute the line thereafter. 
-
-### Async/ await vs "Raw Promises"
-
-* So async await is a nice alternative to the then and catch blocks and ultimately, it's up to you what you prefer.
-
-* I actually like to use then and catch instead of async await because I really see a danger here with async and await that you could think that these steps really run after each other because Javascript always executes all the code after each other when this actually is not the case, async code and all these async operations are always provided by the browser such that they can be offloaded to the browser as you learned it earlier in the module and the browser comes back to you once it's done. That has not changed and async await does not change this, it just has some invisible transformation behind the scenes, if you understand that, well this obviously is a bit shorter than this down there so you might prefer that, ultimately it's up to you. In modern browsers, this might be a bit better from a performance perspective, async await might be a bit better simply because browsers can also parse and execute this in a more optimized way but it will
-not be a huge difference, might not always be a difference for all possible examples or use cases and therefore ultimately, I'd go with whatever you prefer,
-
-* the most important thing here just is that you understand what's happening behind the scenes. One real downside you can have with async await though is that you can't run tasks simultaneously inside
-of the same function.
-
-```js
-const button = document.querySelector('button');
-const output = document.querySelector('p');
-
-const getPosition = opts => {
-  const promise = new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(
-      success => {
-        resolve(success);
-      },
-      error => {
-        reject(error);
-      },
-      opts
-    );
-  });
-  return promise;
-};
-
-const setTimer = duration => {
-  const promise = new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve('Done!');
-    }, duration);
-  });
-  return promise;
-};
-
-async function trackUserHandler() {
-  let positionData;
-  let posData;
-  let timerData;
-  try { // this executes first
-    posData = await getPosition();
-    timerData = await setTimer(2000);
-  } catch (error) {
-    console.log(error);
+const listElement = document.querySelector('.posts');
+const postTemplate = document.getElementById('single-post');
+
+const xhr = new XMLHttpRequest();
+
+xhr.open('GET', 'https://jsonplaceholder.typicode.com/posts');
+
+xhr.responseType = 'json';
+
+xhr.onload = function() {
+  // const listOfPosts = JSON.parse(xhr.response);
+  const listOfPosts = xhr.response;
+  for (const post of listOfPosts) {
+    const postEl = document.importNode(postTemplate.content, true);
+    postEl.querySelector('h2').textContent = post.title.toUpperCase();
+    postEl.querySelector('p').textContent = post.body;
+    listElement.append(postEl);
   }
-  console.log(timerData, posData);
-  // getPosition()
-  //   .then(posData => {
-  //     positionData = posData;
-  //     return setTimer(2000);
-  //   })
-  //   .catch(err => {
-  //     console.log(err);
-  //     return 'on we go...';
-  //   })
-  //   .then(data => {
-  //     console.log(data, positionData);
-  //   });
-  setTimer(1000).then(() => {
-    console.log('Timer done!'); // this executes third
+};
+
+xhr.send();
+```
+
+### JSON Data Deep Dive
+
+* Typically, data is transferred as "JSON" data between your client-side code and your backend ("the server"). JSON stands for JavaScript Object Notation and it looks like this:
+
+```js
+{
+    "name": "Max",
+    "age": 30,
+    "hobbies": [
+        { "id": "h1", "title": "Sports" },
+        { "id": "h2", "title": "Cooking" }
+    ],
+    "isInstructor": true
+}
+```
+
+* JSON data supports objects ({}), arrays ([]), strings (MUST use double-quotes!), numbers (NO quotes) and booleans (also NO quotes).
+
+* All object keys (e.g. "name") HAVE to be wrapped by double quotes. No quotes or single quotes are NOT ALLOWED!
+
+* Actually, the whole JSON "object" is wrapped in quotes itself because JSON data in the end is just a string that contains data in the format shown above.
+
+* You can test it yourself - take the following non-JSON JavaScript object and apply JSON.stringify() on it. This will convert it to JSON data. If you do that in the dev tools console, you'll see that you in the end get a string which contains data formatted as shown above.
+
+```js
+const person = { // this is NOT JSON - it's a normal ("raw") JavaScript object!
+    name: 'Max',
+    age: 30,
+    hobbies: [
+        { id: 'h1', title: 'Sports' },
+        { id: 'h2', title: 'Cooking' }
+    ],
+    isInstructor: true
+};
+ 
+const jsonData = JSON.stringify(person); // convert raw JS data to JSON data string
+console.log(jsonData); // a string with machine-readable JSON data in it
+console.log(typeof jsonData); // string
+```
+* We use JSON data because it's easy to parse for machines - and as an extra benefit it's also quite readable to us humans.
+
+* If you receive some JSON data and you want to convert it back into normal JS data, you can use JSON.parse():
+
+```js
+const parsedData = JSON.parse(jsonData); // yields a "raw" JS object/ array etc.
+```
+* Also nice to know: You're NOT LIMITED to objects when converting data to JSON. You can also convert numbers, arrays, booleans or just strings - all data types JSON supports:
+
+```js
+const jsonNumber = JSON.stringify(2); // "2"
+const jsonText = JSON.stringify('Hi there! I use single quotes in raw JS'); // ""Hi there! ...""
+const jsonArray = JSON.stringify([1, 2, 3]); // "[1,2,3]"
+const jsonBoolean = JSON.stringify(true); // "true"
+```
+### Promisifying Http Requests (with XMLHttpRequest)
+
+```js
+function sendHttpRequest(method, url, data) {
+  const promise = new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+
+    xhr.open(method, url);
+
+    xhr.responseType = 'json';
+
+    xhr.onload = function() {
+      resolve(xhr.response);
+      // const listOfPosts = JSON.parse(xhr.response);
+    };
+
+    xhr.send(JSON.stringify(data));
   });
-  console.log('Getting position...'); // this executes second
+
+  return promise;
 }
 
-button.addEventListener('click', trackUserHandler);
+async function fetchPosts() {
+  const responseData = await sendHttpRequest(
+    'GET',
+    'https://jsonplaceholder.typicode.com/posts'
+  );
+  const listOfPosts = responseData;
+  for (const post of listOfPosts) {
+    const postEl = document.importNode(postTemplate.content, true);
+    postEl.querySelector('h2').textContent = post.title.toUpperCase();
+    postEl.querySelector('p').textContent = post.body;
+    listElement.append(postEl);
+  }
+}
+
+fetchPosts()
 ```
-* So now if I reload and I click block for example, you see getting position and timer done executes thereafter.
 
-* Now why is that happening? Because of await, this does not pause code execution but behind the scenes, all these steps in the end get wrapped into their own then blocks and therefore, this has its own then block as well and therefore this only executes after this is finished.
-
-* So async await is not that great if you have a function in which you need to execute or kick off multiple things simultaneously and don't want to execute everything after each other, then this is not ideal because right now we really got a different behavior than before.
-
-* Of course you can fix this by offloading this into a different function which you kick off simultaneously with this function and so on, so there are ways around that, it's just important to be aware of the fact that everything in this function executes after each other if you start using async await.
-
-* Another downside or thing to be aware of is that async await is only available on functions. So if you had some code outside of a function, let's say here you had some promise based code, you call
-set timer here which of course returns a promise as you learned because we promisify this, then you
-can't use await here because await can only be used in functions which are marked with async and this is not part of a function, it's part of this global anonymous function which you get automatically but that's not an async function so to say.
-
-* So here you would have to wrap this into for example an IIFE in order to be able to use that,
+###  Sending Data with a POST Request
 
 ```js
-(async function(){
-    await setTimer(1000);
-})()
+async function createPost(title, content) {
+  const userId = Math.random();
+  const post = {
+    title: title,
+    body: content,
+    userId: userId
+  };
+
+  sendHttpRequest('POST', 'https://jsonplaceholder.typicode.com/posts', post);
+}
+createPost('DUMMY', 'A dummy post!');
 ```
-* Yes, this would work but of course that's also not that beautiful if we really just want to replace this line here where we otherwise would have to use then. So async await might not always be preferable if you need to introduce a function just to use it, if you have a function anyways where you use a promise in, then using async await of course is not too difficult.
 
-### Promise.all(), Promise.race() etc.
-
-* Now to come to an end, there are a couple of nice methods you have related to promises which sometimes 
-
-* Let's say you have multiple promises which you want to orchestrate in a certain way, which means you want to make sure that they are executed together in a certain way.
-
-* and for example if getPosition fails, set timer will not be executed, it will be skipped.
-
-* Now let me go to the end of this file here and in there, let's say I have the same promises, get position and set timer, one second, and I want to make sure that only one of them executes and that's the one which is faster. Of course for this dummy example, you could argue if it makes sense to either get the user position or to wait for some timer but actually you could say yes it makes sense, I want to wait for one second and if I haven't gotten the position by then, then I want to do something else. Sure you could achieve the same by setting a timeout in the configuration object of get current position but if we didn't have that option or we had some other reasons to do it differently, well then here what we can do,
+###  Triggering Requests via the UI
 
 ```js
-// race only cared about the fastest promise,
-Promise.race([getPosition(), setTimer(1000)]).then(data => {
-  console.log(data);
+async function createPost(title, content) {
+  const userId = Math.random();
+  const post = {
+    title: title,
+    body: content,
+    userId: userId
+  };
+
+  sendHttpRequest('POST', 'https://jsonplaceholder.typicode.com/posts', post);
+}
+
+fetchButton.addEventListener('click', fetchPosts);
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  const enteredTitle = event.currentTarget.querySelector('#title').value;
+  const enteredContent = event.currentTarget.querySelector('#content').value;
+
+  createPost(enteredTitle, enteredContent);
 });
 ```
-* Race itself also returns a promise, a promise with the result of the fastest promise you pass to it and you could build a normal then catch chain here based on race, it returns a normal promise, the only special thing is that the data returns will be the result of the fastest promise here.
 
-* They will both be kicked off at the same time and the one which first finishes will then be handled by the subsequent then catch promise chain.
-
-* Now it's worth noting that the other promise which didn't win is not cancelled, its results just ignored but for HTTP requests, it might be important to know that the request is still being sent, its result is just ignored.
-
-* So race can be useful if you're only interested in one of the two conditions and you then want to use the result of that promise and ignore the other one.
-
-* Sometimes you also have code that only should execute after a couple of promises have finished and
-of course you can achieve that by chaining multiple then blocks or by using async await,for example here this code only executes after these two promises have finished but an alternative also is that you use promise all.
+###  Sending a DELETE Request
 
 ```js
-Promise.all([getPosition(), setTimer(1000)]).then(promiseData => {
-  console.log(promiseData);
+postList.addEventListener('click', event => {
+  if (event.target.tagName === 'BUTTON') {
+    const postId = event.target.closest('li').id;
+    sendHttpRequest('DELETE', `https://jsonplaceholder.typicode.com/posts/${postId}`);
+  }
 });
 ```
-* here you also pass in an array of promises and I'll go with the same promises as before and now here, you'll then get a normal promise as a result but the data of that promise will be the combined data of your other promises.
-
-* as you see promise data is an array where you have the data returned by each promise in the position of that promise when you passed it to promise all. So here, we had get position first and set timer second, therefore in the data array we get back here, we have the result of get position as a first argument and the result of set timer as a second argument.
-
-* So this can be useful if you want to wait for all promises to finish before you then want to use the combine data and we could have rewritten this code for example with promise all. Of course you can also do some operation which is not depending on the promise data at all in case you just wanted to wait for a couple of things to finish before you then execute some other code, that's where promise all can shine.
-
-* So if one of the promises fails, is rejected, then the other promise is not executed and we're not waiting for all to resolve or all to reject
-
-* If you want to wait for all resolved or all rejected and you might have such scenarios where you just worry about have all succeeded or have all failed, then you also have promise.all settled.
+###  Handling Errors
 
 ```js
-Promise.allSettled([getPosition(), setTimer(1000)]).then(promiseData => {
-  console.log(promiseData);
-});
+async function fetchPosts() {
+  try {
+    const responseData = await sendHttpRequest(
+      'GET',
+      'https://jsonplaceholder.typicode.com/pos'
+    );
+    const listOfPosts = responseData;
+    for (const post of listOfPosts) {
+      const postEl = document.importNode(postTemplate.content, true);
+      postEl.querySelector('h2').textContent = post.title.toUpperCase();
+      postEl.querySelector('p').textContent = post.body;
+      postEl.querySelector('li').id = post.id;
+      listElement.append(postEl);
+    }
+  } catch (error) {
+    alert(error.message);
+  }
+}
 ```
-* So we get a little bit of a different data, still an array but an object that describes what the promise did and the interesting thing here is that now since you got this detailed description, you got more flexibility.
+### Using the fetch() API
 
-* It does not cancel the execution of other promises if one of them is rejected, instead it still completes or looks at all of them and then gives you a detailed summary of which promise failed and which promise succeeded so that you can use this knowledge here
+* So we got started with HttpRequests, with this XMLHttpRequest object.
+
+* By the way you might be wondering where the name is coming from, in the parsed, actually quite some time ago, this was basically introduced so we could fetch XML data behind the scenes. Nowadays of course it's more common to use JSON data, the name however still is the same.
+
+* Now there is more you can do with it, more you can configure and you can dive deeper into XMLHttpRequest as you can actually dive deeper into almost all things you can do work with in Javascript.
+
+* Refer : https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
+
+*  now however I want to have a look at a more modern alternative which was added to browsers a few years ago and which actually is not supported in all browsers, especially older browsers, Internet Explorer don't support that new API which you can use and that new API I'm talking about is the fetch API.
+
+```js
+function sendHttpRequest(method, url, data) {
+  return fetch(url).then(response => { // default method is GET 
+    return response.json(); // we have convert response to json in fetch API
+  });
+}
+```
+* It was invented to be more modern, to be less clunky with these strange event handlers there which is really not modern Javascript at all, that's why this new API was introduced and that new API is commonly called the fetch API.
+
+* Now it is called such because it all works around one key function, the fetch function and this is built into browsers, it's exposed in Javascript just like that, you don't have to call it as a method on any object or anything like that, it's a globally available function in modern Javascript,
+
+* Now fetch by default is promise based, so that's the first native promise API we see in this course. We don't have to promisify ourselves, it uses promises on its own.
+
+* one difference is unlike our XMLHttpRequest approach here, fetch does not give us the parsed response as we had it available here with xhr.response but instead, it gives us a streamed response, which means basically that the response object we get here does not hold the body, the response body in a way that would be ready to be used, instead what you would have to do and we can do that here inside of the sendHttpRequest function, instead here, you get your response object and there you have access to a response JSON method and you can return the result of this because that actually yields a new promise as you see.
+
+* .json() will parse the body of the response and transform it from JSON to Javascript objects and arrays but it actually does not just parse that, so it's not just a replacement for JSON.parse, it also turns the streamed response body which you have in the response object into a snapshot so to say with which you can work.
+
+* So long story short, you need to call response.JSON to convert your response body, the streamed unparsed response body into a snapshot parsed body.
+
+* Besides response JSON, you also have response text for example to return plain text, so that will then just do the conversion from streamed to snapshot or response blob if you would be downloading a file, that would give you access to the file.
+
+* Here however, we got JSON data so we need to return that.
+
+### POSTing Data with the fetch() API
+
+* In order to be able to create a post, we need to make sure that this function can succeed and for that, we need to make sure that we use the HTTP method in the fetch API and also the data, the body that should be appended to the outgoing request.
+
+* Right now, we always just send a fetch request to a URL and therefore we always send a get request. Now just as with XMLHttpRequest, we can configure the outgoing request, however unlike XMLHttpRequest, you don't pass the request method here directly as an argument to the fetch function here,
+
+* instead you can pass a second parameter here, a second argument which should be an object where you can configure the request and there you've got a couple of keys you can set as you see, a lot of them are pretty niche and rarely need it but method is one of the more important ones.
+
+```js
+function sendHttpRequest(method, url, data) {
+  return fetch(url, {
+    method: method, // default method is GET
+    body: JSON.stringify(data) // convert data to JSON
+  }).then(response => {
+    return response.json();
+  });
+}
+```
+
+###  Adding Request Headers
+
+* Headers can be important. Now thus far we haven't really needed them but for some APIs, you need to describe which type of data you sending for example or other APIs might need some extra authentication data and headers are basically metadata you can attach to outgoing requests.
+
+*  If you inspect requests, you see there are some default headers added by the browser and the response also has headers set by the server.
+
+* Now we can add more headers to the outgoing request and we do that here on fetch by adding a new key to that configuration object which is the headers key.
+
+```js
+function sendHttpRequest(method, url, data) {
+  return fetch(url, {
+    method: method,
+    body: JSON.stringify(data),
+    headers: {
+      'Content-Type': 'application/json' // this tells the server hey my request has JSON data.
+      // You can of course add more than one header by adding more than one key-value pair here.
+    }
+  }).then(response => {
+    return response.json();
+  });
+}
+```
+* Similar like XMLHttp request we could add headers like below
+
+```js
+const xhr = new XMLHttpRequest();
+xhr.setRequestHeader('Content-Type', 'application/json'); 
+// xhr.setRequestHeader('Content-Type', 'application/json'); // you can add multiple headers by calling this method multiple times
+```
+
+### fetch() & Error Handling
+
+```js
+function sendHttpRequest(method, url, data) {
+  return fetch(url, {
+    method: method,
+    body: JSON.stringify(data),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then(response => {
+      if (response.status >= 200 && response.status < 300) {
+        return response.json();
+      } else {
+        return response.json().then(errData => {
+          console.log(errData);
+          throw new Error('Something went wrong - server-side.');
+        });
+      }
+    })
+    .catch(error => {
+      console.log(error);
+      throw new Error('Something went wrong!');
+    });
+}
+```
+### Working with FormData
+
+* Now besides different ways of sending HttpRequests, we also can send different data, in theory at least, it always depends on the server and the URL you're sending this to, which kind of data the server accepts, for example our dummy server here really only works with JSON data. When we for example send the data to fake create a post, then we have to add JSON data there, it does not accept any other data but of course you might be working with different APIs in your project and there, different data might be accepted as well.
+
+* Now you can send files, you can send binary data and add this as a body here, so you could add a pointer at a file which a user picked in a file picker for example or another very popular data format, you could add FormData, Now let's see what FormData is
+
+```js
+const form = document.querySelector('#new-post form');
+async function createPost(title, content) {
+  const userId = Math.random();
+
+// That's a constructor function built into Javascript or built into the browser, provided in Javascript.
+  const fd = new FormData(form); // form here from form dom
+//   fd.append('title', title);
+//   fd.append('body', content);
+
+// Now FormData builds a new object to which you can add key-value pairs, so a bit like a Javascript object like this but internally 
+
+// or when it's sent over the wire, it will be sent in a different way than JSON data, it's not JSON format, it has a different format as you will see.
+
+  fd.append('userId', userId);
+
+  sendHttpRequest('POST', 'https://jsonplaceholder.typicode.com/posts', fd);
+}
+
+
+function sendHttpRequest(method, url, data) {
+  return fetch(url, {
+    method: method,
+    // body: JSON.stringify(data),
+    body: data,
+    // headers: {
+    //   'Content-Type': 'application/json'  // we will not send json in formData,
+    // }
+  })
+    .then(response => {
+      if (response.status >= 200 && response.status < 300) {
+        return response.json();
+      } else {
+        return response.json().then(errData => {
+          console.log(errData);
+          throw new Error('Something went wrong - server-side.');
+        });
+      }
+    })
+    .catch(error => {
+      console.log(error);
+      throw new Error('Something went wrong!');
+    });
+}
+```
+* FormData and that's a special type of data which is added to the outgoing request.
+
+* If we have a look at the other headers, we see that there content type was automatically set to this value which was automatically derived by the browser in the end.
+
+* Now the advantage of FormData is that for one, you might find it more structured to build your data like this, b) a second great thing about it is that you can easily add files, if you append some file, you can have any identifier you want here, you could point at a file here, for example picked in a file input and then as a third argument, even provide a file name like photo.png which the server can use. So you can easily send a mixture of text, content text, key-value pairs and files to the server which can be really convenient depending on what you build 
+
+* and a third advantage is you can also use this to automatically parse a form and that's actually what I also want to show you here.
+
+* Now for it to succeed though, you need to make sure that your inputs have a name attribute
+
+```html
+<form>
+    <div class="form-control">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" />
+    </div>
+    <div class="form-control">
+        <label for="content">Content</label>
+        <textarea rows="3" id="content" name="body"></textarea>
+    </div>
+    <button type="submit">ADD</button>
+</form>
+```
+* The name attribute is important otherwise FormData is not able to identify these inputs and get the data out of there and store it correctly in the FormData.
+
+* Now you can then still append extra data which might not be included in the form, like the userId here and with all of that
