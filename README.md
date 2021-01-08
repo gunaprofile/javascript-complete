@@ -1,415 +1,493 @@
 # Javascript Complete
 
-## Utilizing Browser Storage
+## JavaScript & Browser Support
 
-### Browser Storage Options
+### JavaScript & Browser Support
 
-* Refer : what-is-browser-storage.pdf
+* Refer : what-is-browser-support.pdf
 
-* So what is browser storage? Now as I mentioned, we have the browser and we have the server, these are the two pieces that typically interact when we're serving a web page, the web page runs in the browser but a) it's served by a server and b) most web applications also talk to a server, either behind the scenes through Javascript or by using the default browser behavior where for example you can submit a form and the request is issued to the server.
+* Refer : js-syntax-vs-browser-apis.pdf
 
-* Now the server then has a server-side database where data can be stored, the browser also has a couple of storage mechanisms. So this is the big picture
+### Determining Browser Support For A JavaScript Feature
 
-* but now let's dive into two sides here. For the server side, so for the data which we send to the server with a HttpRequest, we typically store the important data, the data which also needs to persist, the data we also want to store locked away from the users because for example if we have a list of all users with all their e-mail addresses, of course that has to be stored on one central server. 
+* Refer : determining-browser-support.pdf
 
-* When we stored something in the browser, then we effectively store it on the machine of our user, so on your computer for example.
+* Refer : https://kangax.github.io/compat-table/es6/
 
-* Now of course the implication of that is that this a) is data we as the application developer can not always tap into, only when you're visiting our page we can basically use the Javascript code to interact with the browser storage, so the data is not always available to us and in addition it also can't be shared with other users.
+### Determining Required Support
 
-* So the browser storage is really limited in scenarios where it makes sense, for example if you're building an online shop, of course you wouldn't store the products or the orders or anything like that in the browser because you need to share the products with the other users, with all users of your web application, therefore such data needs to be stored on your server.
+* Refer : determining-requirements.pdf
 
-* The orders of course belong to a single user but you as the owner of the shop also need access to them so that you can fulfill them and therefore that would also be stored on a server side database.
+### Solution: Feature Detection + Fallback Code
 
-* Now one thing however you could consider storing in the browser would be the shopping cart, the current shopping cart of the user, it only matters to that user and you might not need to store it on your servers. If you're not running any analytics on that or something like that, you can store it just where your user is, so in the browser of the user,
-
-* same is true for authentication data, like a session ID, such data could be stored in a browser,so temporary data or convenience data which might improve the user experience but which is not essential to your entire offering.
-
-* Now when we talk about browser storage, we got three major storage types - we got local storage and session storage which are very related and I'll explain the difference in this module, we get cookies and we got IndexedDB
-
-* Now let's learn about the differences between these different storage engines, between local storage cookies and IndexedDB.
-
-* Local storage and session storage is a simple key-value store, so it's like a Javascript object which we save in a file, so it's basically just a couple of key-value pairs.
-
-* You could use that to store for example session ID of a user, some analytics key which you need to send to your analytics servers, something like that so often you use local storage to manage user preferences or basic user data.
-
-* You can tap into local storage with the help of Javascript and only Javascript, so only the Javascript code that runs in the browser is able to communicate with local storage.
-
-* It's easy to use, quite versatile but of course it's bad for complex data because it's just a key-value store, so if you would be building a rich web application, like Google Sheets for example where you might need to store a lot of complex data in the browser as well, then this is not really a great option
-
-* Now also a relatively simple storage is cookies. Now cookies are also key-value pairs in the end, though we can configure them in various ways, for example we can set a cookie to expire at some time in the future so that it automatically gets deleted basically, for local storage we can also delete data but we have to do that manually through Javascript, for cookies we could set it as an option on one of our entries.
-
-* We also since it's still relatively simple use it to manage basic preferences, session IDs, stuff like that and we can also access and clear it with Javascript, just like local storage by the way because I didn't mention it there, the user also can clear all that data through the developer tools, through the browser settings where you can clear all local data, that is possible.
-
-* Now the special thing about the cookie is that it's a bit more clunky to use than local storage, it's not having such a nice API for working with it.
-
-* It's equally versatile though, maybe a bit more even because you can set expiry dates and and that's really different cookies also typically are sent to the server with outgoing HttpRequests.
-
-* So cookies, unlike local storage and session storage can also be read by the server because they're attached to outgoing HttpRequests in the headers of these requests, so that can be an extra plus.Now just like local storage because they're simple key-value stores, they're not suited for more complex data
-
-* and then we get IndexedDB. IndexedDB is the most sophisticated storage device amongst these three,
-
-* it's a client side database in the end, built into the browser which you can use with a query language, you can run more or less complex queries against IndexedDB, you can therefore manage complex data in there because you can have different tables with records that are connected and so on and you can access it with Javascript, you can also clear it with Javascript and just like all browser side storages, the user can always clear and erase all that data with a click of a button in the preferences and therefore none of these storages should be a storage you rely on.
-
-* You can use it to improve the user experience but you have to live with the fact that your user can always clear these storages. Now IndexedDB is also a bit clunky to use, it has a Javascript API but that is a bit annoying and it's great for complex non-critical data, it offers quite good performance so it's really good if you have complex data in your application.
-
-* I will say though, I'm really talking about rich client side applications there, something like Google Sheets and so on, so where you basically build a desktop level application in the browser and you might need to store a lot of temporary or see my temporary data in some storage on the browser and you don't want to store that on a server for whatever reason because you want to make sure that your application works offline or anything like that, then this could be used, in a lot of applications you'll not really need IndexedDB.
-
-* Refer : browser1
-
-### localStorage & sessionStorage
-
-* So I want to start with local storage and session storage and I'll also show the difference there, let's start with local storage.
-
-* Local storage is a great, easy to use key-value storage where you can store basic data. Let's say you have some userId for the user of this web application, so the user using your site on this machine which you want to store in local storage so that you can attach it to every request you're sending to your server to identify that user.
-
-* Now you should be aware by the way that all that data can be manipulated by the user, so you should never treat this as the single source of truth but instead just as a starting point which you then could validate with some other mechanisms.
+* Refer : feature-detection-and-fallbacks.pdf
 
 ```js
-const storeBtn = document.getElementById('store-btn');
-const retrBtn = document.getElementById('retrieve-btn');
+const button = document.querySelector('button');
+const textParagraph = document.querySelector('p');
 
-const userId = 'u123';
-const user = { // you can't store methods in local storage it will be lost
-  name: 'Max',
-  age: 30,
-  hobbies: ['Sports', 'Cooking']
-};
-
-storeBtn.addEventListener('click', () => {
-  sessionStorage.setItem('uid', userId);
-  localStorage.setItem('user', JSON.stringify(user)); // first parameter is a key,has to be a string, second argument is a value 
-});
-
-retrBtn.addEventListener('click', () => {
-  const extractedId = sessionStorage.getItem('uid');
-  const extractedUser = JSON.parse(localStorage.getItem('user')); // localStorage getItem by key
-  //it's a synchronous action so it's actually not asynchronous as you could think, you don't need a promise or a callback here,this synchronously access the storage and gives you back a data immediately.
-  console.log(extractedUser);
-  if (extractedId) {
-    console.log('Got the id - ' + extractedId);
+button.addEventListener('click', () => {
+  const text = textParagraph.textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard
+      .writeText(text)
+      .then(result => {
+        console.log(result);
+      })
+      .catch(error => {
+        console.log(error);
+      });
   } else {
-    console.log('Could not find id.');
+    alert('Feature not available, please copy manually!');
   }
 });
 ```
+### Solution: Using Polyfills
 
-* Local storage - This here is the data we just stored here, our key and the value for that key and as you saw, I just deleted the test data, I can also delete this here, simply by hitting the delete key or the backspace on Mac and that is something every user can do, also every user can add data here, so you should, as I said, never take this as a single source of truth because this can be manipulated easily by the users of your application,
+* Refer : polyfills.pdf
 
-* it should just be a starting point or hold data you need in your Javascript code to enhance the interface because of course as you see here, you can interact with that from inside Javascript.
+### Solution: Transpiling Code
 
-* Now you can also store more complex data, yes it has to be a string but keep in mind what you learned about JSON in the HTTP module. If we had a user object here, which has let's say a name key and an age and maybe also some hobbies, where we have sports and cooking and we want to store that in local storage, we'll have a problem
+* transpilation.pdf
 
-* If you try to store a object in local storage it won't store the actual value it will just store [object object] thing was stored because what actually happens when we store some data here is that Javascript will call toString on whatever we pass in and for an object, it doesn't give us human readable or machine readable version of the object, it gives us this square bracket object object output but what we can do is we can convert this to JSON because JSON actually is a string,remember it's called JSON.stringify.
+* For some features, you can't use feature detection, you can't use fallback codes you can't use polyfills and you can't ignore them, typically that's the case for core Javascript syntax features like let, const, async await, arrow functions, all of that. 
 
-* Now JSON is this format which also uses curly braces and so on but actually, the entire JSON data and that's just something you have to know is wrapped into quotes you could say.JSON data is string data, it's a machine readable string where the content of the string is such an object with the structure and the rules
+* These are features you as a developer might want to use because they allow you to write cleaner code, work around certain issues you have with older Javascript code and so on, so you want to use this modern code but you also need to support browsers that might not support these Javascript syntax features.
 
-* So therefore we can stringify that data to store our user data in here and if we then want to get it back, the extracted user, we can of course call JSON parse on the result of local storage get item for the user key. So with JSON.stringify and JSON parse, you can even store more complex data in local storage if you want. 
+* If you search for arrow functions here, you see there it's even a bit worse, Internet Explorer for example doesn't support this at all, not even in version 11.
 
-* Be aware that any methods you added here will get lost because they're not encoded into JSON and also keep in mind that you don't want to store overly complex data in local storage because that's just not what it's built for.
+* Now what do you do if you still want to write modern code with all these features and you still want to support let's say Internet Explorer in this example or these older FIrefox or Chrome versions, what can you do in that case?
 
-* In addition you can't rely on the data to persist because users can delete it and browsers also can delete it if they're running out of disk space for example, these are things you have to keep in mind. 
+* You can't use a polyfill because it's a core language feature and if the let keyword is not recognized there is no way of making it work, unlike promises and fetch, these are not functions you call after all, instead const really is just a keyword that tells the engine what the code after it is all about, that it creates a variable that does not change and in the example of const for example and therefore this is a functionality that can't be rebuilt with other tools, it's just missing the const keyword, it's not recognized and therefore browsers that don't know it, that use a Javascript engine that doesn't know it I should say will just crash when they detect this keyword.
 
-*  And with that, to finish up the local storage part, let's see what session storage is about and for that, I'll actually store the userId with session storage and hence of course also extract it with the help of session storage.
+* Now to still make that code work or to still ship, so deploy code that does work, you can use transpilation.
 
-* Now if I go back to the application and I reload, you'll see after reloads, the data also still is there in session storage but now copy the URL, open a new tab and close the existing one and reopen the page, so we basically closed the browser and reopened it. Now you see session storage is empty,If you check local storage though, the data still is there and that's the difference. 
+* The idea behind transpilation is that you transpile, transform your code, your modern code into older code and this of course is not done manually because if it would be done manually, you could just write older code right from the start, instead you have tools for that, most prominently Babel is a tool that does that for you, it can even be integrated into your webpack workflow so that that all happens in one step.
 
-* Session storage data lives as long as your page is open in the browser, so as long as you have it in an active tab even if you reload the page. Thereafter if you ever close that tab or close all tabs where your application is running or a close the entire browser, session storage is cleared.
+* This allows you to write modern code, use cutting Edge Javascript language features and still ship, so deploy, cross browser code that for example still uses var instead of const and let or that uses normal functions instead of arrow functions.
 
-* Local storage survives this, local storage is never cleared unless the user clears it manually or the browser clears it because it's running out of space or anything like that
+* So how would that look like? Well for that, we need to quit our development server and now install that transpiler,
 
-### Getting Started with Cookies
-
-* Now cookies are these special storage in a sense because they are attached to outgoing HttpRequests and that can be helpful depending on which kind of application you're building, of course your server needs to be prepared to do something with your cookies, otherwise them being added to outgoing requests adds no extra value,
-
-* it won't be a problem but it also won't give you any special benefits, you need some server side code which also reads the cookies so that this actually is an advantage
-
-* but let's have a look at what we can do with cookies here in the browser.
+* Refer : https://babeljs.io/docs/en/usage
 
 ```js
-const storeBtn = document.getElementById('store-btn');
-const retrBtn = document.getElementById('retrieve-btn');
-
-storeBtn.addEventListener('click', () => {
-  const userId = 'u123';
-  const user = {name: 'Max', age: 30};
-  document.cookie = `uid=${userId}; max-age=360`; // set with max-age
-  document.cookie = `user=${JSON.stringify(user)}`;
-});
-
-retrBtn.addEventListener('click', () => {
-  console.log(document.cookie); // this will give access to all the cookies
-  const cookieData = document.cookie.split(';');
-  const data = cookieData.map(i => {
-    return i.trim();
-  });
-  console.log(data[1].split('=')[1]); // user value
-});
+npm install --save-dev @babel/core @babel/cli @babel/preset-env webpack
 ```
+* this will now install these three packages into your project and we can then tweak the webpack configuration to use them.
 
-* So if you save this and you go back and click on store, let's check out the application tab and what you'll notice there under cookies is that you don't see anything there, now let me press store again multiple times, nothing shows up there. Now reason for that is unlike local and session storage, cookies really only are available if your web page is getting served with a real server.
+* In the end what we got here is Babel loader, which is the integration into webpack which basically does the connection of webpack and the Babel tool,
 
-* We already installed a server, let run "serve" in terminal
+* we got Babel core which is that Babel tool, so the tool that actually knows how to translate modern code to older code
 
-* what this will do is it will serve the index.html file in that folder automatically when you visit the address that it's being shown here, localhost:5000 in my case here.
+* Babel preset env is a preset that controls which features are compiled in which way, so actually this is the package with the concrete translation rules you could say.
 
-* So now if we load localhost:5000 instead of the page through the file protocol, if we revisit the cookies here, I see one dummy cookie which is probably set by some other tool, some extension but if I now click store here and I reload, you see the userId show up there.
-
-* So cookies can accessible Only in the localhost or deployed server you can't access with the index file in opened with browser
-
-* If the cookie contains HttpOnly access (a special flag) the HTTP only flag and that means this cookie is only accessible by the server, not accessible from browser side Javascript, an extra security mechanism.
-
-* Now one thing you probably see there is not just that this works though but that we don't have such a nice retrieval API as we had it with local storage. 
-
-* Also keep in mind that just as with local storage, the user can always delete all cookies, either through the dev tools and the application tab here or simply with browser preferences where you can also clear cookies and you can clear cookies no matter if they have an expiration date or not
-
-* If we would want to say that our userId should not expire with the end of the session, then we can add one of two flags, max age or expires.
-
-* To add the max age flag, you add a semicolon after your key-value pair and then whitespace max-age and set this equal to a maximum age. Now the maximum age should be expressed in seconds,
-
-* the alternative to that is that you set expires to a value and expires now takes a date. Now that date needs to have a certain format and attached you find a link to MDN where you see examples, where you also see that format for example, so that would be an alternative. If you know it's not one minute or ten days or whatever it is, it is a fixed date, then you could use expires.
-
-* Refer : https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie
-
-### Getting Started with IndexedDB
-
-* Refer : https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
-
-* Now IndexedDB is the most complex storage and therefore just as before, you find an attached resource that allows you to dive way deeper, here I just want to explore the basic functionality.
-
-* Now the basic functionality is that you work with an in-browser database and for that you can leave that development server running, you can also use the file protocol for IndexedDB though, here I'll do it with the server.
-
-* So the first step with IndexedDB is that you create a database or open a connection to an existing one. For that, we can call IndexedDB 
-
+* So now we have these three packages,now how can we use them? Well just as explained here, you have to add this entry here to your webpack configuration,
 
 ```js
-indexedDB.open('StorageDummy', 1); // Now to open, you pass the name of your database, the name is totally up to you
-// Second argument can be passed, can be the version of the database, you can use that to keep track of different versions, update a database, change it and so on,
-```
-* Now when this runs for the first time and the database doesn't exist yet, it will create it otherwise it will just open a connection,
+// Webpack.config
+const path = require('path');
+const CleanPlugin = require('clean-webpack-plugin');
 
-* Now this is not promise based or anything like that unfortunately, so we can't call then and get the database connection object as an argument, that's unfortunately not how it works.
-
-* Instead this open method here returns a so-called request, a db request as I'll call it.
-
-```js
-const dbRequest = indexedDB.open('StorageDummy', 1);
-```
-
-* Now on db request, you can add two event handlers, two event listeners, either with add event listener or for best cross browser support, with onSuccess which should point at a function and then also additionally onError which should point at a function.
-
-```js
-const storeBtn = document.getElementById('store-btn');
-const retrBtn = document.getElementById('retrieve-btn');
-
-let db;
-
-const dbRequest = indexedDB.open('StorageDummy', 1);
-
-dbRequest.onsuccess = function(event) {
-  db = event.target.result;
-};
-
-dbRequest.onerror = function(event) {
-  console.log('ERROR!');
+module.exports = {
+  mode: 'development',
+  entry: './src/app.js',
+  output: {
+    filename: 'app.js',
+    path: path.resolve(__dirname, 'assets', 'scripts'),
+    publicPath: 'assets/scripts/'
+  },
+  devtool: 'cheap-module-eval-source-map',
+  // devServer: {
+  //   contentBase: './'
+  // }
+  module: { // Babel configuration
+    rules: [
+      {
+        test: /\.m?js$/, // here we're basically saying any file ending with .js or mjs should be treated or should be handled by this rule,
+        exclude: /(node_modules)/, // exclude node_modules - so that we don't start transpiling code which is part of third-party packages, these should be ready to use out of the box
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
+        }
+      }
+    ]
+  },
+  plugins: [new CleanPlugin.CleanWebpackPlugin()]
 };
 ```
-* Now in both functions, you get access to an event object and now you can interact with that.
+* This adds a module entry which basically gives instructions to webpack how to transform your different modules and a module in webpack world is just a file, so it basically tells webpage what to do with the files it's managing, 
 
-* onSuccess however, I want to continue. There, we get access to the database to which we connected or which was just created through that event object, event.target.result is a field you can access here, a property you can access and that will hold access to the database that was created.
+* then you can add a rules entry here and that takes multiple rules because you can control different kinds of files with different so-called loaders.
 
-* Now we can configure that database, remember this fires when this open request succeeded so now we can configure that once this happened. Now I mentioned that IndexedDB would work with tables and records like databases you know from servers,now actually the terminology is a bit different, it's object stores which you work with, a bit like tables, you can have multiple object stores and each object store can store multiple objects I guess but it's a bit like tables and records in the end.
+* A rule is a Javascript object where you have a test property, there you define how the file you want to translate should be identified.
 
-* Now with the database you get access to, you can use it to create an object store by calling create object store
+* then we have the concrete action that should be taken with the use key here.
 
-```js
-const storeBtn = document.getElementById('store-btn');
-const retrBtn = document.getElementById('retrieve-btn');
+* It's again an object where we configure the loader that should be applied, so that Babel loader should take care about such Javascript files and that as an option, it should use that preset-env ruleset.
 
-let db;
+* This is now what we're doing here and we also should do that by copying that in the webpack config prod file
 
-const dbRequest = indexedDB.open('StorageDummy', 1);
+* Arguably there it's even more important because this is the code we ultimately want to ship to our users.
 
-dbRequest.onsuccess = function(event) {
+* So here under testing, we might test this in modern browsers anyways, though you should still compile it there so that you have the same experience as the users who use your actual code but it's the users who get your production ready code that actually needs that code that works in older browsers as well.
 
-  db = event.target.result;
-  const objStore = db.createObjectStore('products', { keyPath: 'id' }); // Now this is a function that takes a couple of parameters,
-  // first one is the name of the object store,
-  //  a key path property, where you set up that single key which every item has by which it can be identified
-  // let's say for a product, that's an ID field, it's up to you, it just has to be a field which later exists once you start adding data.
-};
+* So now that's a first step, now we're not entirely done though, we need to configure which browsers we want to support because that's the cool thing about @babel/preset-env,
 
-dbRequest.onerror = function(event) {
-  console.log('ERROR!');
-};
-```
-* Let's say we're building an app where we want to store some products here on the client side, though keep in mind what I said earlier, business critical or security relevant information as well as data that has to be shared with other clients should not be stored here, so it's really just data which can get lost and which we just need to enhance the user experience,
+* I said it's a set of rules that controls which features are translated to which older code, for example that let and const are translated to var. Now of course the exact translation you want depends on which browsers you're targeting, this is where we come back to our market analysis
 
-* so let's say we're storing a couple of products. Now. every object store needs one key, one property that exists on every stored object by which this object can be identified.
+* that the different features modern Javascript offers have different browser support, for example const and let have quite decent browser support so we might not even need to compile them if all we want to target is Internet Explorer 11 and higher and these partial features which are missing are not a problem to us. 
 
-* We can use the object store object for that and there, we'll have a transaction property on which we have an onComplete listener. 
+* On the other hand, there might be other features which are also important to us which are not supported in the browser we want to target and therefore they should be compiled.
 
-* Now onComplete will trigger once the object store creation finished in the end, so it's now in here where we can interact with the database and this object store
+* So we want to tell Babel and this preset-env package for which browser is the compilation should be fine tuned and thankfully, Babel works exactly like that, it wants this information and then it really gives you code that is fine tuned to the browsers you want to support.
 
-* Now to store new data, we reach out to the database because you could store it in any object store and there, you also have a transaction method though now which you execute like such, so you execute a transaction method, which takes two arguments.
-
-* The first argument is the name of your object store, so the name we set up here, in my case products
-
-* So I'll point at products here, second argument is the mode under which you want to access this store and that could be read or like in my case, read write, I want to be able to write as well.
-
+* Now how do we pass that information to Babel however? We can do that with the package.json,
 
 ```js
-const storeBtn = document.getElementById('store-btn');
-const retrBtn = document.getElementById('retrieve-btn');
-
-let db;
-
-const dbRequest = indexedDB.open('StorageDummy', 1);
-
-dbRequest.onsuccess = function(event) {
-
-  db = event.target.result;
-  const objStore = db.createObjectStore('products', { keyPath: 'id' }); 
-
-  objStore.transaction.oncomplete = function(event) {
-    const productsStore = db
-      .transaction('products', 'readwrite') // Name of your store, mode
-      .objectStore('products'); // Now this should open up a connection to that object store, on the resulting object,
-      // you can now call object store as a method and pass in that name again.
-    productsStore.add({
-      id: 'p1',
-      title: 'A First Product',
-      price: 12.99,
-      tags: ['Expensive', 'Luxury']
-    });
-  };
-
-};
-
-dbRequest.onerror = function(event) {
-  console.log('ERROR!');
-};
-```
-* You need to call that object store method because you could pass in multiple object store names to the transaction and then this would allow you to select a single object store and this will now give you direct access to that object store we're trying to establish a connection to.
-
-* You can store that object store access here in a constant, products store for example
-
-* Now let's save that and let's reload this page and we get an error. Now this error tells us that the database is not running a version change transaction.
-
-* Now the thing is we defined this onSuccess callback here, this onSuccess function which would fire when the database is successfully created.
-
-* It turns out that we actually interact with the database, you need a different handler which is onUpgradeNeeded,
-
-```js
-const storeBtn = document.getElementById('store-btn');
-const retrBtn = document.getElementById('retrieve-btn');
-
-let db;
-
-const dbRequest = indexedDB.open('StorageDummy', 1);
-
-dbRequest.onsuccess = function(event) {
-  db = event.target.result;
-};
-
-dbRequest.onupgradeneeded = function(event) {
-  db = event.target.result;
-
-  const objStore = db.createObjectStore('products', { keyPath: 'id' });
-
-  objStore.transaction.oncomplete = function(event) {
-    const productsStore = db
-      .transaction('products', 'readwrite')
-      .objectStore('products');
-    productsStore.add({
-      id: 'p1',
-      title: 'A First Product',
-      price: 12.99,
-      tags: ['Expensive', 'Luxury']
-    });
-  };
-};
-
-dbRequest.onerror = function(event) {
-  console.log('ERROR!');
-};
-
-storeBtn.addEventListener('click', () => {
-  
-});
-
-retrBtn.addEventListener('click', () => {
-
-});
-
-```
-* so if we save this now with this changed and we reload, this error goes away. Let's now visit the application tab and there under IndexedDB, you should find that storage dummy database.
-
-* if we expand this, we can see our key but we also see the value which was stored for that key which is this Javascript object and therefore this is more structured data stored in there without the need to encode it with JSON or anything like that
-
-* and of course you can store multiple such objects with ease here, all identified through their key.
-
-* So that was a lot of work and it already shows that this is more complex to work with but also more powerful
-
-### Working with IndexedDB
-
-```js
-const storeBtn = document.getElementById('store-btn');
-const retrBtn = document.getElementById('retrieve-btn');
-
-let db;
-
-const dbRequest = indexedDB.open('StorageDummy', 1);
-
-dbRequest.onsuccess = function(event) {
-  db = event.target.result;
-};
-
-dbRequest.onupgradeneeded = function(event) {
-  db = event.target.result;
-
-  const objStore = db.createObjectStore('products', { keyPath: 'id' });
-
-  objStore.transaction.oncomplete = function(event) {
-    const productsStore = db
-      .transaction('products', 'readwrite')
-      .objectStore('products');
-    productsStore.add({
-      id: 'p1',
-      title: 'A First Product',
-      price: 12.99,
-      tags: ['Expensive', 'Luxury']
-    });
-  };
-};
-
-dbRequest.onerror = function(event) {
-  console.log('ERROR!');
-};
-
-storeBtn.addEventListener('click', () => {
-  if (!db) {
-    return;
+{
+  "name": "javascript-complete-guide",
+  "version": "1.0.0",
+  "description": "JavaScript - The Complete Guide",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "build:dev": "webpack-dev-server",
+    "build:prod": "webpack --config webpack.config.prod.js"
+  },
+  "author": "Maximilian Schwarzmueller",
+  "license": "ISC",
+  "browserslist": "> 0.2%, not dead", // browserslist
+  "devDependencies": {
+    "@babel/core": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
+    "babel-loader": "^8.0.6",
+    "clean-webpack-plugin": "^3.0.0",
+    "eslint": "^6.4.0",
+    "webpack": "^4.40.2",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.1"
   }
-  const productsStore = db
-    .transaction('products', 'readwrite')
-    .objectStore('products');
-  productsStore.add({
-    id: 'p2',
-    title: 'A Second Product',
-    price: 122.99,
-    tags: ['Expensive', 'Luxury']
-  });
-});
+}
+```
+* browser list is a separate package and tool that is used under the hood by @babel/preset-env and attached, you find a detailed description of which options you can set there.
 
-retrBtn.addEventListener('click', () => {
-  const productsStore = db
-    .transaction('products', 'readwrite')
-    .objectStore('products');
-  const request = productsStore.get('p2');
+* You can do stuff like set > 2% which means you want to output code that works in browsers that have a market share of greater than 2% and of course every time you build, this is checked and this under the hood taps into a source which is always kept up-to-date so that you build code that works in browsers with greater than 2% market share.
 
-  request.onsuccess = function() {
-    console.log(request.result);
+* now with that we can run npm run build prod or just build to get the unoptimized output
+
+* and now in scripts here we see an app.js file with our code and yet now the interesting thing is of course this is the webpack world so it has all this webpack extra code but what we can see if we scroll down a bit 
+
+* Now if I change this to let's say we want to support browsers with a market share greater than 0.2 which of course includes way older and smaller browsers and I now rebuild this, let's check the output again. If we now go down there, we see we get a var in there. So now our code really was translated to code that would work in older browsers as well and this all happens magically with the help of webpack Babel loader and the browsers list
+
+* Refer : https://babeljs.io/docs/en/
+
+* Refer : https://github.com/babel/babel-loader
+
+* Refer : https://babeljs.io/docs/en/babel-preset-env
+
+* Refer : https://github.com/browserslist/browserslist#full-list
+
+* attached you find the link to the documentation of which options you can set there because you can not just target market shares, you can also be specific about different browser versions, so you could say Chrome version 58, Internet Explorer version 11 or higher and so on, so you can also set stuff like that.
+
+* You can also combine multiple queries or multiple instructions, for example you can add not dead here, this means only browsers that still have official support, for example Internet Explorer 10 at the point of time recording this would be considered dead because it's not receiving any official support anymore, Internet Explorer 11 is at least receiving some support still.
+
+* So these are some things you can set up there and this will influence how your code is transpiled and how you can make your modern code which does use constant arrow functions also work in older browsers because const and let is translated to var and an arrow function for example is translated into a normal function.
+
+* Now one problem we still might have in this example here for example is that we still use then, so we still use promises and now we have code that works in older browsers from a Javascript syntax perspective but it still might not really work there because whilst we transpiled core syntax features like let and const, other features like promises might still not be working in these older browsers. So we might want to combine this approach with a polyfill and as it turns out, this is also rather simple.
+
+### Improvement: Automatically Detect + Add Polyfills
+
+* We have this great tool, Babel loader combined with Babel preset-env which takes our browser instructions here and then gives us code that just the works in these old browsers or almost,
+
+* together with feature detection it might work there because we're not even trying to get the clipboard API and therefore execute this promise if the browser doesn't support it but if we had other code that also relies on promises that can't be compiled to older code by Babel, we would have code that works in older browsers from the core syntax perspective but doesn't really work because we still use other features like promises that aren't supported in the older browsers, so we might need to add a polyfill here into our code so that we have the best of both worlds, feature detection, transpiled code and polyfills for features that we need.
+
+* Now of course if we know we worked with promises, we can search for promise polyfill, follow the installation instructions here and add it to our project and that would be absolutely fine but if we have a project that's getting bigger and bigger, it can be cumbersome to manually manage all these polyfills, to find out which polyfills we need, you have to check everything, that's annoying 
+
+* that's annoying because after all the advantage with Babel is that we don't have to think about modern Javascript syntax, we can just write it and rely on Babel to compile it, would be nice if the same would happen for polyfills.
+
+* If Babel sees that we use a promise, it would be nice if it would just include a polyfill for that so that we don't have to do it and the good thing is Babel is capable of doing that. 
+
+* Under the hood, it relies on a package named core-js, if you google for that, you will find that github library and in the end core-js is like a collection of polyfills you could say, it's a huge package with a bunch of built-in polyfills.
+
+```js
+https://www.npmjs.com/package/core-js
+
+https://github.com/zloirock/core-js/blob/master/README.md
+```
+* If you dive into the repository there, you see you've got a bunch of subpackages there, bunch of code in there.
+
+* Now that's nice, you can import core-js and suddenly you have access to all the Javascript features of the world in all browsers so to say. 
+
+* The problem is you could do that, you could import or install core-js with npm for example and just import it at the top of your file but then you would really add everything, even features you don't need.
+
+* So let's do that first and see how we can then improve that,
+
+```js
+npm install --save core-js
+// not save-dev but save because it will be a third party library that's part of our final code and not just some development tool,
+```
+
+* Let's install that and now let's add it at top of our app.js file simply by writing import core-js like this.
+
+```js
+import 'core-js'; //core-js
+
+const button = document.querySelector('button');
+const textParagraph = document.querySelector('p');
+
+button.addEventListener('click', () => {
+  const text = textParagraph.textContent;
+  const promise = new Promise();
+  console.log(promise);
+  if (navigator.clipboard) {
+    navigator.clipboard
+      .writeText(text)
+      .then(result => {
+        console.log(result);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  } else {
+    alert('Feature not available, please copy manually!');
   }
 });
 
 ```
+
+* This will work, webpack will be able to handle this but we'll have a problem there.
+
+* Let's run npm run build: dev to start our development server again. 
+
+* If we do that and we reload our page, it works but if we go to the network tab, we will see that we have a huge app.js file,it has 2.4mb.
+
+* Now it's also that big because it's not optimized at all and it has a lot of debugging instructions but still that is huge.
+
+* so let's come in and out, save that, it automatically rebuilds and now you see it's just 900kb. It is still pretty big for this small of an app but again that is because of all the development mode overhead code, in production it will be way smaller.
+
+* So already here we see it's only a third of the size as it is when we add core-js, so simply throwing in core-js like this might not be that nice because we bloat our application just to make promises work because it adds so many other features which we aren't even using here, so we want to be a bit more careful.
+
+* Well we can use core-js also in a different way and import just what we need, for example core-js features promise.
+
+```js
+import 'core-js/features/promise';
+```
+* If we tweak our import to just use the features part and there the promise part of the package and we save that, we see if we go back to our application, now it's still bigger than before, bigger than the 900kb without the import but only a bit. So really not that much and far away from the 2.4mb we saw before, so this is better but we still have to manually manage what we use and that's ultimately not what I want to do, Babel should do that for me
+
+* with core-js installed and you need to install it manually, that's important but with it installed, we can now go back to the webpack config here and tell Babel to actually use that polyfill or do that auto polyfilling for us.
+
+
+* we can now go back to the webpack config here and tell Babel to actually use that polyfill or do that auto polyfilling for us.
+
+* For that here in presets, we need to tweak this and actually wrap this preset in a nested array here,so an array in an array because that allows us to add a second element to that inner array which is a configuration object for this preset.
+
+* Now in this object here, we can configure this preset-env there, there is a use built-ins option.
+
+* Now this option is the option that allows us to control polyfilling behavior, the default is false (useBuiltIns: false) here which means no polyfills are added automatically.
+
+* Now we can set that to usage or to entry (useBuiltIns: 'entry') , with entry you manually need to add polyfill imports, very generic imports like this general core-js import we had there earlier and Babel will then replace it with the actual polyfills you need or you just use usage here and then Babel will add polyfill entries as it detects it,
+
+* so it basically checks which features your code is using and then it will add imports for these feature polyfills automatically.
+
+* So let's try usage here. Now one note, you need one other package which you can install with npm install --save and that'sthe regenerator runtime package here.
+
+* Refer : https://www.npmjs.com/package/regenerator-runtime
+
+```js
+npm install --save regenerator-runtime
+```
+* This is simply another polyfill package handling some other features which core-js does not handle which Babel also will try to utilize if it sees that it needs it. 
+
+* Now with that, we're not entirely there though, at the moment you also need to add a core-js option here, might not be required in the future but right now it is and that in turn takes an object as well where you set the version to three. This basically tells Babel loader which version or Babel preset-env I should say, which version of core-js you're using because there was a bigger change between version two and three and we're using version three here, the latest version which is better and we need to tell Babel preset-env that we're doing that so that it uses this package correctly.
+
+```js
+module: {
+    rules: [
+      {
+        test: /\.m?js$/,
+        exclude: /(node_modules)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              [
+                '@babel/preset-env',
+                { useBuiltIns: 'usage', corejs: { version: 3 } } // presets corejs config
+              ]
+            ]
+          }
+        }
+      }
+    ]
+  },
+```
+* Now with that, let's run npm run build: dev 
+
+* Now as you see, the size hasn't changed, the reason for that is that Babel checks my app.js file and it doesn't really see that I use a promise here or to be precise, it sees no need to add a polyfill for this promise here and correctly so because the clipboard API won't be available in browsers that don't support promises anyways, so we don't really need to polyfill for promises if the only place where we need a promise is an API that won't work in these old browsers anyways.
+
+
+```js
+const button = document.querySelector('button');
+const textParagraph = document.querySelector('p');
+
+button.addEventListener('click', () => {
+  const text = textParagraph.textContent;
+  const promise = new Promise();
+  console.log(promise);
+  if (navigator.clipboard) {
+    navigator.clipboard
+      .writeText(text)
+      .then(result => {
+        console.log(result);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  } else {
+    alert('Feature not available, please copy manually!');
+  }
+});
+```
+* So to still show you that it works however, let's create our new own promise here, simply a dummy promise with which I do nothing else but output it
+
+* but that it's enough to show Babel and Babel preset-env that I do have a promise it should polyfill.If I now save, indeed you see app.js grows to 1.1mb.
+
+* So it's bigger because this now includes some core-js polyfill, we can also check this response here and search for core, core-js and you will see there is some core-js content in there. So now this is getting included here and we therefore take advantage of Babel and its auto polyfilling feature. 
+
+* Now an alternative configuration you can set here is that you change this to entry (useBuiltIns: 'entry'), if you change this to entry here, then you need to add imports and app.js at the top of the file, you need to import core-js/stable and import regenerator runtime/runtime.
+
+```js
+presets: [
+  [
+    '@babel/preset-env',
+    { useBuiltIns: 'entry', corejs: { version: 3 } } 
+  ]
+]
+```
+
+```js
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+
+const button = document.querySelector('button');
+const textParagraph = document.querySelector('p');
+
+button.addEventListener('click', () => {
+  const text = textParagraph.textContent;
+  const promise = new Promise();
+  console.log(promise);
+  if (navigator.clipboard) {
+    navigator.clipboard
+      .writeText(text)
+      .then(result => {
+        console.log(result);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  } else {
+    alert('Feature not available, please copy manually!');
+  }
+});
+
+```
+* if I reload, we now have a far bigger file because now we include almost all polyfills. The reason for that is that in the end, Babel of course analyzes your code but it does not load polyfills based on the features you're using but actually based on the browsers list you specified. So it loads all polyfills you would need to support browsers that meet this specification.
+
+* Now why would you do that? Well this is a good option if you don't know which exact features you want to use and if your code is not all the code that should be taken into account.
+
+* If you're using a bunch of third-party packages which might be using features older browsers don't support, Babel does not check these third-party packages, so then your browser list might be the best indicator to show which browsers you want to support so that you are better safe than sorry and load all polyfills these third-party packages might need and that's why you might want to go for this entry configuration instead of usage.
+
+* Here however I want to use usage because for our project where we use no third-party packages, this makes more sense. With that of course we can comment out these imports, save that and restart our build process so we're back to the smaller package here.
+
+* So now to conclude this, let's now also copy this setup for the presets here that utilizes our core-js polyfilling into our production code and let's replace this preset here in the array, not the entire array, just the preset with that array so that we have an array in an array to make sure that we now also apply this automatic polyfilling to our production code.
+So now if you run npm run build: prod,
+
+```js
+const path = require('path');
+const CleanPlugin = require('clean-webpack-plugin');
+
+module.exports = {
+  mode: 'production',
+  entry: './src/app.js',
+  output: {
+    filename: '[contenthash].js',
+    path: path.resolve(__dirname, 'assets', 'scripts'),
+    publicPath: 'assets/scripts/'
+  },
+  devtool: 'cheap-source-map',
+  // devServer: {
+  //   contentBase: './'
+  // }
+  module: {
+    rules: [
+      {
+        test: /\.m?js$/,
+        exclude: /(node_modules)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              [
+                '@babel/preset-env',
+                { useBuiltIns: 'usage', corejs: { version: 3 } }
+              ]
+            ]
+          }
+        }
+      }
+    ]
+  },
+  plugins: [new CleanPlugin.CleanWebpackPlugin()]
+};
+
+```
+* we basically do the same as in development mode but now we get our production ready code which also uses polyfills our code might require.
+
+### What about Support Outside of Browsers?
+
+* So that was a lot of talking about browser support. Now Javascript is a hosted language, it does not just work in browsers but also in other runtimes like with Node.js.
+
+* How is the situation there? Now with Node.js and all the other environments, the important thing is that you control which version of Javascript you use or which version of Node.js you use which then in turn supports certain features. So you have direct control over the environment where your code will run and that's the huge difference to browser side Javascript, to web application, there you don't have control over that.
+
+* If a feature is available, you can use it in a controlled environment, in an uncontrolled environment, this is simply beyond your control. Therefore we have to build applications with the tools you learned about in this module to make sure 
+they work in all the environments for all the users we want to target with our web application.
+
+### Browser Support Outside of JavaScript Files
+
+* Now of course it doesn't stop at our Javascript file though, if we go to index.html, we also have our script import and there here I'm just importing app.js like this because webpack bundles it all together into one big file. If you would be using Javascript modules without webpack, then you might remember that you had to add type module, you can also leave it here when you use webpack but you technically don't need it because you don't really use modules anymore,
+
+```html
+<!-- <script src="assets/scripts/app.js" defer type="module"></script> here module not needed -->
+```
+* webpack bundles it all into one file after all.
+
+* Now if you do add it however because you're maybe not using webpack, you're working with multiple files and modules, then older browsers will not support this type module script and then you can add a script where you add the no module tag just like this, which will be used by older browsers as a fallback. To be precise, older browsers will not understand this script tag and ignore it and they will not understand no module but they'll just ignore this attribute and instead execute the script.
+
+```html
+<script src="assets/scripts/app.js" defer type="module"></script>
+<script nomodule></script>
+```
+* Modern browsers on the other hand do understand type module and execute this script and they also do understand the no module attribute and therefore they ignore this script.
+
+* So this script can hold any fallback code that you want to use in older browsers which don't support modules, again if you're bundling all your code together, you don't need that however.
+
+* Another thing that might be interesting is users who disabled Javascript. Now most users these days have it enabled but some might have it disabled.
+
+* Now depending on your web site you're building, on the application you're building, that might mean that your entire app doesn't work properly, imagine rich web applications like Google Docs and so on, they really rely on Javascript and you can't make them work with fallbacks without Javascript.
+
+* In that situations, you might want to show some message to your users though and that can be done with noscript HTML tag 
+
+```js
+<body>
+   <button>COPY</button>
+   <p>Some text you could copy...</p>
+   <noscript>
+   Please enable javascript to use this page
+   </noscript>
+</body>
+```
+* now your users at least know why it's not working. So this is not really a fallback that magically makes your application work but at least it tells your browsers who have Javascript disabled why the page is not working properly.
+
